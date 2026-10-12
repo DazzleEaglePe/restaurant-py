@@ -24,6 +24,7 @@
 | `COC`  | Pantalla de cocina                      |
 | `PUB`  | Pantalla pública                        |
 | `SAL`  | Salón (meseras)                         |
+| `OBS`  | Observaciones y correcciones de pedido  |
 | `CAJ`  | Turnos y cierre de caja                 |
 | `REP`  | Reportes                                |
 | `AUD`  | Auditoría                               |
@@ -80,14 +81,15 @@
 | Cancelar un pedido por pagar                     | ✅    | ✅    | ✅     | —      | —                  | —                |
 | Cancelar un pedido ya pagado                     | ✅    | ✅    | ✅ **  | —      | —                  | —                |
 | Marcar entregado un pedido para llevar           | ✅    | ✅    | ✅     | —      | —                  | —                |
-| Marcar entregado un pedido para comer en el local | ✅   | ✅    | ✅     | ✅     | ✅                 | —                |
-| Indicar o corregir la mesa de un pedido          | ✅    | ✅    | ✅     | ✅     | —                  | —                |
+| Marcar entregado un pedido para comer en el local | ✅   | ✅    | ✅     | ✅     | —                  | —                |
+| Agregar una observación a un pedido (reclamo)    | ✅    | ✅    | ✅     | ✅     | —                  | —                |
+| Resolver una observación: corregir o cancelar    | ✅    | ✅    | ✅     | —      | —                  | —                |
 | Marcar agotado un producto                       | ✅    | ✅    | ✅     | —      | —                  | —                |
 | Pasar un pedido a preparación o listo            | —     | —     | —      | —      | ✅                 | —                |
 | Ver pedidos en curso (sin montos)                | —     | —     | —      | ✅     | ✅                 | ✅               |
 
 \* Solo mientras el celular de cobros del local no esté activo (RF-PAG-013).
-\*\* Con motivo y devolución obligatorios; lo revisa el administrador al validar el cierre (P14).
+\*\* Solo al resolver una observación del pedido (RF-OBS-003), con motivo y devolución obligatorios; lo revisa el administrador al validar el cierre (D16).
 
 Correspondencia con el tablero: `admin` → OWNER y ADMIN, `cajita` → CAJERO,
 `cocina` → pantalla de cocina, `vpublic` → pantalla pública. La mesera del flujo
@@ -140,8 +142,8 @@ actual (D8) → MESERO. Las pantallas son dispositivos vinculados, no usuarios (
 | ID         | Requerimiento                                                                                         | Prioridad |
 | ---------- | ----------------------------------------------------------------------------------------------------- | --------- |
 | RF-MES-001 | OWNER o ADMIN crea, edita y desactiva zonas de un local con su piso (patio de comida, primer piso; terraza, segundo piso). | MUST      |
-| RF-MES-002 | OWNER o ADMIN crea, edita y desactiva mesas dentro de una zona, con número y capacidad.               | MUST      |
-| RF-MES-003 | En un pedido para comer en el local, la cajera indica la zona donde se sentará el cliente y su nombre, ambos obligatorios. La mesa es opcional (P13). | MUST      |
+| RF-MES-002 | Mesas con número dentro de una zona. El piloto no las usa: basta con nombre y zona (D12).          | COULD     |
+| RF-MES-003 | En un pedido para comer en el local, la cajera pregunta y registra la zona donde se sentará el cliente (patio de comida o terraza) y un nombre, ambos obligatorios. No se usan números de mesa (D12). | MUST      |
 | RF-MES-004 | La caja muestra qué mesas tienen pedidos en curso.                                                     | COULD     |
 
 ---
@@ -150,16 +152,16 @@ actual (D8) → MESERO. Las pantallas son dispositivos vinculados, no usuarios (
 
 | ID         | Requerimiento                                                                                                                                       | Prioridad |
 | ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------- | --------- |
-| RF-PED-001 | La cajera crea un pedido desde el celular con tipo (para comer aquí o para llevar), ítems, notas y nombre del cliente; para comer aquí, además zona y mesa opcional. | MUST      |
+| RF-PED-001 | La cajera pregunta si es para comer aquí o para llevar y crea el pedido desde el celular con ítems, notas y nombre del cliente; para comer aquí, además la zona. | MUST      |
 | RF-PED-002 | Crear un pedido requiere que la cajera tenga un turno de caja abierto en ese local.                                                                  | MUST      |
 | RF-PED-003 | Cada pedido recibe un número correlativo diario por local (#0001), sin duplicados aunque dos cajas creen pedidos al mismo tiempo.                   | MUST      |
 | RF-PED-004 | Reenviar la misma solicitud de creación (por mala señal o doble toque) no crea un segundo pedido.                                                    | MUST      |
-| RF-PED-005 | Estados: `POR_PAGAR` → `EN_ESPERA` → `EN_PREPARACION` → `LISTO` → `ENTREGADO`, y `CANCELADO` desde `POR_PAGAR`, `EN_ESPERA` o `EN_PREPARACION`.     | MUST      |
-| RF-PED-006 | Un pedido pasa a `EN_ESPERA` (y aparece en cocina) solo cuando la suma de sus pagos confirmados cubre el total.                                      | MUST      |
+| RF-PED-005 | Estados: `POR_PAGAR` → `PENDIENTE` → `EN_PREPARACION` → `LISTO` → `ENTREGADO`, y `CANCELADO`. Un pedido sin pagos se cancela desde `POR_PAGAR`; uno pagado, en cualquier estado, solo al resolver una observación (RF-OBS-006). | MUST      |
+| RF-PED-006 | Un pedido pasa a `PENDIENTE` (y aparece en cocina) solo cuando la suma de sus pagos confirmados cubre el total.                                      | MUST      |
 | RF-PED-007 | Un pedido sin ítems que requieran cocina pasa directo a `LISTO` al pagarse.                                                                          | SHOULD    |
 | RF-PED-008 | Mientras está `POR_PAGAR`, la cajera puede editar ítems, tipo, mesa y nombre.                                                                        | MUST      |
 | RF-PED-009 | La cajera cancela un pedido `POR_PAGAR` sin pagos confirmados.                                                                                       | MUST      |
-| RF-PED-010 | La cajera, OWNER o ADMIN cancela un pedido pagado indicando motivo y cómo se devolvió el dinero (efectivo, Yape devuelto, no se devolvió). La cancelación aparece en la validación del cierre. (P14) | MUST      |
+| RF-PED-010 | Un pedido pagado solo se cancela al resolver una observación (RF-OBS-006), con motivo y forma de devolución. Lo hace la cajera y el administrador lo revisa al validar el cierre (D16). | MUST      |
 | RF-PED-011 | La cajera marca `ENTREGADO` los pedidos para llevar y la mesera los pedidos para comer en el local (D8). OWNER, ADMIN y la cajera pueden marcar cualquiera. | MUST      |
 | RF-PED-012 | La caja lista los pedidos del día del local por estado: por pagar, en cocina, listos y entregados.                                                   | MUST      |
 | RF-PED-013 | Cada cambio de estado guarda quién lo hizo y cuándo.                                                                                                 | MUST      |
@@ -232,17 +234,16 @@ actual (D8) → MESERO. Las pantallas son dispositivos vinculados, no usuarios (
 
 | ID         | Requerimiento                                                                                                                  | Prioridad |
 | ---------- | ------------------------------------------------------------------------------------------------------------------------------ | --------- |
-| RF-COC-001 | La pantalla muestra los pedidos `EN_ESPERA` y `EN_PREPARACION` del local, del más antiguo al más nuevo según la hora de pago.  | MUST      |
-| RF-COC-002 | Cada tarjeta muestra número, tipo (aquí o llevar) con color propio, mesa, ítems con los platos de cada combo y notas, y el tiempo desde el pago. | MUST      |
-| RF-COC-003 | La pantalla tiene los botones «Preparar» (`EN_ESPERA` → `EN_PREPARACION`) y «Listo» (`EN_PREPARACION` → `LISTO`).             | MUST      |
+| RF-COC-001 | La pantalla muestra los pedidos `PENDIENTE` y `EN_PREPARACION` del local, del más antiguo al más nuevo según la hora de pago.  | MUST      |
+| RF-COC-002 | Cada tarjeta muestra número, tipo (aquí o llevar) con color propio, zona, ítems con los platos de cada combo y notas, y el tiempo desde el pago. | MUST      |
+| RF-COC-003 | La pantalla tiene los botones «Preparar» (`PENDIENTE` → `EN_PREPARACION`) y «Listo» (`EN_PREPARACION` → `LISTO`).             | MUST      |
 | RF-COC-004 | Un toque equivocado se puede deshacer durante 10 segundos.                                                                      | SHOULD    |
 | RF-COC-005 | Suena un aviso cuando entra un pedido nuevo.                                                                                    | MUST      |
 | RF-COC-006 | La tarjeta cambia de color cuando el pedido supera los umbrales de demora del local.                                            | SHOULD    |
 | RF-COC-007 | Un pedido cancelado sale de la pantalla con un aviso visible de «Cancelado».                                                    | MUST      |
 | RF-COC-008 | Los ítems que no requieren cocina (una gaseosa) no se muestran en la tarjeta.                                                   | SHOULD    |
 | RF-COC-009 | Estaciones (bebidas, parrilla) que solo reciben sus productos.                                                                  | COULD     |
-| RF-COC-010 | Los pedidos para comer en el local que pasan a `LISTO` quedan en una columna «Para mesa», agrupados por zona, con número, nombre y zona en grande. | MUST      |
-| RF-COC-011 | La mesera toca «Entregado» en la pantalla de cocina cuando recoge los platos de un pedido para mesa.                            | MUST      |
+| RF-COC-010 | Un pedido de corrección entra primero en la cola, marcado «Corrección de #0040».                                                | MUST      |
 
 ---
 
@@ -250,8 +251,8 @@ actual (D8) → MESERO. Las pantallas son dispositivos vinculados, no usuarios (
 
 | ID         | Requerimiento                                                                                                         | Prioridad |
 | ---------- | --------------------------------------------------------------------------------------------------------------------- | --------- |
-| RF-PUB-001 | La pantalla muestra dos columnas: «En preparación» (`EN_ESPERA` y `EN_PREPARACION`) y «Listos» (`LISTO`).             | MUST      |
-| RF-PUB-002 | Cada pedido muestra su número y el nombre que dio el cliente abreviado, o la mesa. Nunca montos ni datos del pagador. | MUST      |
+| RF-PUB-001 | La pantalla muestra dos columnas: «En preparación» (`PENDIENTE` y `EN_PREPARACION`, todos los pedidos) y «Listos» (`LISTO`, solo los de llevar: los de mesa los lleva la mesera). (P15) | MUST      |
+| RF-PUB-002 | Cada pedido muestra su número y el nombre que dio el cliente, abreviado. Nunca montos ni datos del pagador.                | MUST      |
 | RF-PUB-003 | Cuando un pedido pasa a «Listos», se resalta unos segundos y suena un aviso.                                           | MUST      |
 | RF-PUB-004 | Un pedido entregado sale de la pantalla. Un pedido listo sale solo tras los minutos configurados en el local.         | MUST      |
 | RF-PUB-005 | La pantalla funciona sin teclado ni ratón, a pantalla completa y sin que el equipo se suspenda.                       | MUST      |
@@ -262,20 +263,32 @@ actual (D8) → MESERO. Las pantallas son dispositivos vinculados, no usuarios (
 
 ## 13. SAL — Salón (meseras)
 
-Solo si la mesera tiene celular (P12). Sin celular, usa la pantalla de cocina
-(RF-COC-010 y RF-COC-011).
-
 | ID         | Requerimiento                                                                                                                        | Prioridad |
 | ---------- | ------------------------------------------------------------------------------------------------------------------------------------ | --------- |
-| RF-SAL-001 | La mesera ingresa desde su celular y ve los pedidos para comer en el local que están en cocina o listos, con número, mesa, nombre y platos. | SHOULD    |
-| RF-SAL-002 | Cuando un pedido para comer en el local pasa a `LISTO`, el celular de la mesera vibra y el pedido aparece primero.                   | SHOULD    |
-| RF-SAL-003 | La mesera marca el pedido como `ENTREGADO` al dejarlo en la mesa.                                                                     | SHOULD    |
-| RF-SAL-004 | La mesera puede indicar o corregir la mesa del pedido. (P13)                                                                          | SHOULD    |
-| RF-SAL-005 | La mesera no ve montos ni pagos.                                                                                                      | SHOULD    |
+| RF-SAL-001 | La mesera entra desde su celular y ve los pedidos para comer en el local que están en cocina o listos, con número, nombre, zona y detalle. | MUST      |
+| RF-SAL-002 | Cuando un pedido para comer en el local pasa a `LISTO`, el celular de la mesera vibra y el pedido aparece primero.                   | MUST      |
+| RF-SAL-003 | La mesera marca el pedido como `ENTREGADO`, antes o después de llevarlo, como prefiera (D15).                                         | MUST      |
+| RF-SAL-004 | La mesera ve el detalle completo, incluidas las bebidas que no pasan por cocina, para llevarlas con los platos.                       | MUST      |
+| RF-SAL-005 | La mesera no ve montos ni pagos.                                                                                                      | MUST      |
 
 ---
 
-## 14. CAJ — Turnos y cierre de caja
+## 14. OBS — Observaciones y correcciones de pedido
+
+| ID         | Requerimiento                                                                                                                                                         | Prioridad |
+| ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------- |
+| RF-OBS-001 | La mesera o la cajera agrega una observación a un pedido con tipo (pedido equivocado, falta un plato, otro) y comentario («pidió ceviche, no jalea»).                 | MUST      |
+| RF-OBS-002 | La caja recibe el aviso (vibración y contador) y lo mantiene visible hasta que la observación se resuelva.                                                            | MUST      |
+| RF-OBS-003 | La cajera resuelve la observación con una de tres opciones: corregir, cancelar o sin cambios, siempre con comentario.                                                 | MUST      |
+| RF-OBS-004 | Corregir crea un pedido de corrección ligado al original, con el mismo tipo, nombre y zona y los ítems correctos; los ítems equivocados quedan anulados.             | MUST      |
+| RF-OBS-005 | El sistema calcula la diferencia entre la corrección y los ítems reemplazados: si es positiva se cobra como cualquier pago, si es negativa se registra la devolución, si es cero no hay cobro. | MUST      |
+| RF-OBS-006 | Cancelar pasa el pedido a `CANCELADO` con devolución obligatoria (efectivo, Yape devuelto o no se devolvió). Si es en efectivo, sale como egreso del turno.          | MUST      |
+| RF-OBS-007 | La mesera ve en su celular cómo se resolvió su observación.                                                                                                           | SHOULD    |
+| RF-OBS-008 | Las observaciones y sus resoluciones aparecen en la validación del cierre del día y en la auditoría.                                                                   | MUST      |
+
+---
+
+## 15. CAJ — Turnos y cierre de caja
 
 | ID         | Requerimiento                                                                                                                          | Prioridad |
 | ---------- | -------------------------------------------------------------------------------------------------------------------------------------- | --------- |
@@ -286,12 +299,12 @@ Solo si la mesera tiene celular (P12). Sin celular, usa la pantalla de cocina
 | RF-CAJ-005 | No se puede cerrar un turno con pedidos por pagar o con pagos «Confirmando…».                                                          | MUST      |
 | RF-CAJ-006 | OWNER y ADMIN ven los turnos de cada local con su detalle y diferencias.                                                                | MUST      |
 | RF-CAJ-007 | OWNER y ADMIN pueden cerrar el turno de otro usuario (la cajera se fue sin cerrar).                                                     | SHOULD    |
-| RF-CAJ-008 | Al final del día, OWNER o ADMIN valida el cierre de cada turno: diferencia de efectivo, pagos con constancia y su conciliación, y cancelaciones de pedidos pagados. Puede marcarlo validado u observado con un comentario. (D14) | MUST      |
+| RF-CAJ-008 | Al final del día, OWNER o ADMIN valida el cierre de cada turno: diferencia de efectivo, pagos con constancia y su conciliación, y observaciones resueltas (correcciones y cancelaciones). Puede marcarlo validado u observado con un comentario. (D14) | MUST      |
 | RF-CAJ-009 | La validación del cierre del día se puede hacer completa desde el celular del administrador.                                            | MUST      |
 
 ---
 
-## 15. REP — Reportes
+## 16. REP — Reportes
 
 | ID         | Requerimiento                                                                                    | Prioridad |
 | ---------- | ------------------------------------------------------------------------------------------------ | --------- |
@@ -302,10 +315,11 @@ Solo si la mesera tiene celular (P12). Sin celular, usa la pantalla de cocina
 | RF-REP-005 | Incidencias del celular de cobros por local.                                                     | SHOULD    |
 | RF-REP-006 | Exportación a CSV de cada reporte.                                                               | SHOULD    |
 | RF-REP-007 | Vista consolidada de todos los locales del negocio.                                              | SHOULD    |
+| RF-REP-008 | Observaciones y correcciones por cajera y por tipo, con el monto cobrado o devuelto.             | SHOULD    |
 
 ---
 
-## 16. AUD — Auditoría
+## 17. AUD — Auditoría
 
 | ID         | Requerimiento                                                                                                                                                       | Prioridad |
 | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------- |
@@ -315,7 +329,7 @@ Solo si la mesera tiene celular (P12). Sin celular, usa la pantalla de cocina
 
 ---
 
-## 17. PLT — Administración de plataforma
+## 18. PLT — Administración de plataforma
 
 | ID         | Requerimiento                                                                                         | Prioridad |
 | ---------- | ----------------------------------------------------------------------------------------------------- | --------- |
@@ -327,7 +341,7 @@ Solo si la mesera tiene celular (P12). Sin celular, usa la pantalla de cocina
 
 ---
 
-## 18. Trazabilidad: requerimientos por sprint
+## 19. Trazabilidad: requerimientos por sprint
 
 | Sprint | Módulos y requerimientos principales                                                     |
 | ------ | ---------------------------------------------------------------------------------------- |
@@ -335,7 +349,7 @@ Solo si la mesera tiene celular (P12). Sin celular, usa la pantalla de cocina
 | 2      | CAR-001…008, MES-001…003, TEN-005                                                        |
 | 3      | PED-001…006, PED-008, PED-009, PED-012…015, PAG-001, CAJ-001, CAJ-002, COB-008         |
 | 4      | YLG-001…007, YLG-010, PAG-002…010                                                        |
-| 5      | PAN-001…005, COC-001…011, PUB-001…006, SAL-001…005, PED-007, PED-011, PED-016            |
+| 5      | PAN-001…005, COC-001…009, PUB-001…006, SAL-001…005, PED-007, PED-011, PED-016            |
 | 6      | COB-001…007, PAG-013…017                                                                 |
-| 7      | CAJ-003…009, PED-010, PAG-011, PAG-012, REP-001…007, AUD-001…003, YLG-008, YLG-009       |
+| 7      | CAJ-003…009, OBS-001…008, COC-010, PED-010, PAG-011, PAG-012, REP-001…008, AUD-001…003, YLG-008, YLG-009 |
 | 8      | PLT-002…004, TEN-006, endurecimiento y piloto                                            |

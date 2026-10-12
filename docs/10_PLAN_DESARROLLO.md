@@ -18,7 +18,7 @@
 | **4**  | Integración con Yallegó y cobro con Yape              | Un Yape (simulado o real) aparece en la caja y se confirma contra un pedido         |
 | **5**  | Cocina, salón y pantalla pública en tiempo real       | Un pedido pagado aparece en cocina, se anuncia en la TV y la mesera o la cajera lo entrega |
 | **6**  | Celular de cobros: avisos, constancia y conciliación  | Con el celular apagado la caja avisa, se valida con constancia y luego se concilia  |
-| **7**  | Cierre de caja, cancelaciones, reportes y auditoría   | El turno se cierra con arqueo y el dueño ve ventas, constancias y diferencias       |
+| **7**  | Cierre de caja, correcciones, reportes y auditoría   | El turno se cierra con arqueo y el dueño ve ventas, constancias y diferencias       |
 | **8**  | Endurecimiento, observabilidad, despliegue y piloto   | El restaurante opera en producción con monitoreo activo                             |
 
 ---
@@ -30,7 +30,7 @@ Tareas sin código, en paralelo al Sprint 1:
 - [ ] Elegir nombre comercial y dominio (P1).
 - [ ] Fijar la fecha de la reunión para mostrar el sistema al restaurante (P8).
 - [ ] Confirmar con el restaurante los equipos de `01_CONTEXTO_Y_ANALISIS.md` §7.4.
-- [ ] Resolver P12, P13 y P14 (celular de la mesera, mesas con número, cancelaciones sin administrador).
+- [ ] Responder las preguntas abiertas de `01_CONTEXTO_Y_ANALISIS.md` §11 (P15 a P20).
 - [ ] *En espera:* referencias visuales, carta completa con precios y fotos, cuenta de Yallegó del restaurante y boleta impresa (P5).
 
 ---
@@ -112,7 +112,7 @@ Tareas sin código, en paralelo al Sprint 1:
 - [ ] Turnos: abrir, consultar actual.
 - [ ] `POST /v1/pedidos` con numeración diaria atómica e idempotencia.
 - [ ] Edición y cancelación de pedidos `POR_PAGAR`.
-- [ ] Pago en efectivo con vuelto; paso a `EN_ESPERA` al cubrir el total.
+- [ ] Pago en efectivo con vuelto; paso a `PENDIENTE` al cubrir el total.
 - [ ] Tiempo estimado de espera sugerido (`packages/dominio/tiempo-espera.ts`).
 - [ ] Listado de pedidos del día por estado.
 - [ ] Outbox y relay de eventos; gateway Socket.io con salas de caja.
@@ -122,7 +122,7 @@ Tareas sin código, en paralelo al Sprint 1:
 - [ ] Manifest e instalación; ícono y pantalla de carga.
 - [ ] Ingreso, elección de local, apertura de turno.
 - [ ] Inicio con la carta, categorías, hoja del ítem (cantidad y nota), barra de pedido.
-- [ ] Resumen: tipo, nombre, zona y mesa opcional para comer aquí, ítems editables.
+- [ ] Resumen: para comer aquí o para llevar; nombre y zona para comer aquí; ítems editables.
 - [ ] Cobro en efectivo.
 - [ ] Confirmación con número, detalle, total y tiempo estimado ajustable.
 - [ ] Pestaña Pedidos.
@@ -132,7 +132,7 @@ Tareas sin código, en paralelo al Sprint 1:
 
 - [ ] Dos cajas crean 50 pedidos simultáneos en el mismo local sin números repetidos (prueba de carga).
 - [ ] Reenviar la misma solicitud de creación devuelve el mismo pedido.
-- [ ] Un pedido cobrado en efectivo queda `EN_ESPERA` y se ve en la pestaña Pedidos de otra caja sin recargar.
+- [ ] Un pedido cobrado en efectivo queda `PENDIENTE` y se ve en la pestaña Pedidos de otra caja sin recargar.
 - [ ] La caja funciona en un Android de gama media a 360 px de ancho.
 
 ---
@@ -178,8 +178,7 @@ Tareas sin código, en paralelo al Sprint 1:
 - [ ] Proyecciones de cocina y pública; salas por local.
 - [ ] Acciones de cocina con control de versión y deshacer.
 - [ ] Entrega desde la caja; ocultar listos por tiempo.
-- [ ] Columna «Para mesa» en cocina, agrupada por zona, con «Entregado».
-- [ ] Rol MESERO, proyección y sala de salón (si la mesera tiene celular, P12).
+- [ ] Rol MESERO, proyección y sala de salón; entrega desde el celular de la mesera.
 - [ ] Búsqueda de pedidos por número.
 - [ ] Pedidos sin ítems de cocina directo a `LISTO`.
 
@@ -189,13 +188,12 @@ Tareas sin código, en paralelo al Sprint 1:
 - [ ] Cocina: tablero, colores por tipo y demora, sonido, deshacer, cancelados.
 - [ ] Pantalla pública: columnas, animación y sonido de listo, marca del negocio, Wake Lock, reconexión.
 - [ ] Caja: pestaña Listos con «Entregar» y búsqueda por número.
-- [ ] Cocina: columna «Para mesa» con nombre y zona en grande.
-- [ ] Salón: lista «Para mesas» con aviso de listos y «Entregado» (P12).
+- [ ] Salón (celular de la mesera): pedidos con nombre, zona y detalle, aviso de listos y «Entregado».
 
 ### Criterios de aceptación
 
 - [ ] Un pedido pagado aparece en cocina en menos de 1 s y en la pantalla pública al pasar a preparación.
-- [ ] Un pedido para comer en el local pasa a listo, aparece en «Para mesa» con nombre y zona, y al tocar «Entregado» sale de la cocina y de la pantalla pública.
+- [ ] Un pedido para comer en el local pasa a listo, el celular de la mesera vibra con nombre y zona, y al marcarlo entregado sale de la pantalla pública.
 - [ ] Desenchufar y volver a enchufar la TV la deja en su pantalla sin intervención.
 - [ ] La pantalla pública no recibe montos ni nombres de pagadores (verificado en el tráfico de red).
 - [ ] **Demo de punta a punta con el simulador lista para presentar al restaurante.**
@@ -227,13 +225,13 @@ Tareas sin código, en paralelo al Sprint 1:
 
 ---
 
-## 9. Sprint 7 — Cierre de caja, cancelaciones, reportes y auditoría
+## 9. Sprint 7 — Cierre de caja, correcciones, reportes y auditoría
 
 ### Backend
 
 - [ ] Movimientos de caja; cierre con arqueo; bloqueo con pendientes; cierre por admin.
 - [ ] Cierre del día: el administrador valida u observa los turnos.
-- [ ] Cancelación de pagados con devolución, también por la cajera si se confirma P14.
+- [ ] Observaciones y correcciones: reporte desde salón o caja; resolución en caja (corregir con diferencia, cancelar con devolución, sin cambios); la corrección entra primero en cocina.
 - [ ] Pagos divididos y mixtos; diferencia de monto.
 - [ ] Reportes de ventas, productos, cocina y constancias; exportación CSV.
 - [ ] Consulta de auditoría.
@@ -241,7 +239,8 @@ Tareas sin código, en paralelo al Sprint 1:
 
 ### Web
 
-- [ ] Caja: turno de caja y cierre.
+- [ ] Caja: turno de caja y cierre; observaciones por resolver.
+- [ ] Salón: agregar observación y ver su resolución.
 - [ ] Administración: cierre del día (completo desde el celular), reportes, auditoría.
 
 ### Criterios de aceptación
@@ -249,6 +248,7 @@ Tareas sin código, en paralelo al Sprint 1:
 - [ ] Un turno con ventas mixtas cierra con el esperado correcto (prueba con datos de un día real del piloto).
 - [ ] No se puede cerrar con un pedido por pagar.
 - [ ] El administrador valida desde su celular el cierre de un día con dos turnos, una constancia y una cancelación.
+- [ ] Una observación «pedido equivocado» se corrige: la corrección entra primero en cocina, la diferencia se cobra o se devuelve y la venta no se cuenta dos veces.
 - [ ] El reporte de ventas separa efectivo, Yape verificado y constancia, y cuadra con los turnos.
 
 ---
@@ -298,6 +298,7 @@ Y1 y Y2 ya tienen una tarea propuesta en el repositorio de Yallegó.
 | Boletas y facturas electrónicas                   | v0.2    |
 | Impresión de la boleta simple y de comandas       | Según P5 |
 | Opciones a elegir en productos (RF-CAR-004)       | v0.2    |
+| Números de mesa (RF-MES-002)                      | Cuando un restaurante los use |
 | Estaciones de cocina                              | v0.2    |
 | PIN de administrador y foto de la constancia       | v0.2    |
 | Registro autoservicio y cobro automático de la suscripción | v0.2 |

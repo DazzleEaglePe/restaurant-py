@@ -59,7 +59,7 @@ El valor exacto se ajusta con la paleta, pero el **significado no cambia**.
 | Estado            | Rol de color       | Referencia provisional | Texto que lo acompaña |
 | ----------------- | ------------------ | ---------------------- | --------------------- |
 | `POR_PAGAR`       | Neutro             | Gris 500               | «Por pagar»           |
-| `EN_ESPERA`       | Atención           | Ámbar 500              | «En espera»           |
+| `PENDIENTE`       | Atención           | Ámbar 500              | «Pendiente»           |
 | `EN_PREPARACION`  | Progreso           | Azul 500               | «En preparación»      |
 | `LISTO`           | Éxito, destacado   | Verde 500              | «Listo»               |
 | `ENTREGADO`       | Neutro apagado     | Gris 400               | «Entregado»           |
@@ -69,7 +69,7 @@ El valor exacto se ajusta con la paleta, pero el **significado no cambia**.
 
 | Tipo             | Rol de color       | Referencia provisional | Etiqueta         |
 | ---------------- | ------------------ | ---------------------- | ---------------- |
-| Para comer aquí  | Categoría A        | Violeta 500            | «AQUÍ · Mesa 5»  |
+| Para comer aquí  | Categoría A        | Violeta 500            | «AQUÍ · TERRAZA»  |
 | Para llevar      | Categoría B        | Naranja 500            | «LLEVAR»         |
 
 Deben distinguirse entre sí y de los colores de estado, también para personas con
@@ -124,7 +124,7 @@ Los tamaños mínimos son requisitos; la escala completa se ajusta con la famili
 | Monto principal              | 40 px           | —                   | —                        |
 | Código de seguridad          | 36 px, espaciado | —                  | —                        |
 | Nombre de ítem               | 16 px           | 24 px               | —                        |
-| Nombre del cliente           | 14 px           | 20 px; 32 px en «Para mesa» | 56 px              |
+| Nombre del cliente           | 14 px           | 20 px | 56 px              |
 | Título de columna            | —               | —                   | 48 px                    |
 | Texto de apoyo               | 14 px           | 18 px               | —                        |
 | Botón principal              | 16 px           | 22 px               | —                        |
@@ -184,8 +184,8 @@ igual que Yallegó.
 | `EstadoPedidoBadge`    | Todas           | Color y texto del estado                                        |
 | `TipoPedidoBadge`      | Caja, cocina    | AQUÍ · Mesa / LLEVAR                                            |
 | `TarjetaCocina`        | Cocina          | Pedido con ítems, tiempo, botón de avance y deshacer            |
-| `TarjetaParaMesa`      | Cocina          | Pedido listo para mesa: número, nombre y zona en grande, «Entregado» |
-| `SalonPedidoCard`      | Salón           | Pedido para mesa: número, mesa, nombre, platos y «Entregado»    |
+| `SalonPedidoCard`      | Salón           | Pedido para mesa: número, nombre, zona, detalle, «Entregado» y «Observación» |
+| `HojaObservacion`      | Salón, caja     | Tipo y comentario de un reclamo; en caja, las opciones para resolverlo |
 | `ColumnaPublica`       | Pantalla pública | Lista de números y nombres; animación de entrada               |
 | `Monto`                | Todas           | Formato `S/ 0.00` con cifras tabulares                          |
 | `ResumenTurno`         | Caja, admin     | Totales por método y diferencia                                 |
@@ -209,7 +209,7 @@ igual que Yallegó.
 
 | Parte              | Regla                                                                   |
 | ------------------ | ----------------------------------------------------------------------- |
-| Franja superior    | Color del tipo de pedido, con «AQUÍ · M5» o «LLEVAR»                    |
+| Franja superior    | Color del tipo de pedido, con «AQUÍ · PATIO» o «LLEVAR»                    |
 | Número y tiempo    | Número a 40 px; tiempo transcurrido con el color de demora              |
 | Ítems              | Cantidad en negrita; platos del combo y notas debajo, con sangría  |
 | Botón              | «PREPARAR» o «LISTO», 72 px, ancho completo                             |

@@ -126,7 +126,7 @@ del sistema trabaja con `CobroExterno`, `CelularExterno` y `ResultadoConfirmacio
 ```
                      pagos confirmados ≥ total
    ┌───────────┐  ───────────────────────────►  ┌───────────┐  Preparar  ┌────────────────┐  Listo  ┌───────┐  Entregar  ┌───────────┐
-   │ POR_PAGAR │                                │ EN_ESPERA │ ─────────► │ EN_PREPARACION │ ──────► │ LISTO │ ─────────► │ ENTREGADO │
+   │ POR_PAGAR │                                │ PENDIENTE │ ─────────► │ EN_PREPARACION │ ──────► │ LISTO │ ─────────► │ ENTREGADO │
    └─────┬─────┘  ─────── sin ítems de cocina ──┼───────────┼────────────┼────────────────┼───────► └───────┘            └───────────┘
          │                                      └─────┬─────┘            └───────┬────────┘
          │ cancelar (cajera, sin pagos)               │ cancelar (admin)          │ cancelar (admin)
@@ -137,8 +137,10 @@ del sistema trabaja con `CobroExterno`, `CelularExterno` y `ResultadoConfirmacio
 ```
 
 - La máquina vive en `packages/dominio`, sin dependencias, y la usan la API y la web.
-- Un pedido para comer en el local pasa de `LISTO` a `ENTREGADO` desde la pantalla
-  de cocina, cuando la mesera recoge los platos (o desde su celular, P12).
+- Un pedido para comer en el local pasa de `LISTO` a `ENTREGADO` desde el celular
+  de la mesera, antes o después de llevarlo, como ella prefiera.
+- Un pedido pagado pasa a `CANCELADO`, en cualquier estado, solo al resolver una
+  observación (§5.11).
 - Toda transición se hace con `UPDATE … WHERE id = $1 AND estado = $esperado`; si no
   afecta filas, responde `409 ESTADO_CAMBIADO` y el cliente recarga.
 - Cada transición guarda su marca de tiempo (`pagado_at`, `preparacion_at`,
@@ -217,7 +219,7 @@ cobro libre para otro pedido.
   │                          │  pago → CONFIRMADO                       │
   │                          │  cobro → CONFIRMED                       │
   │                          │  pedido.pagado += monto                  │
-  │                          │  si pagado ≥ total → EN_ESPERA           │
+  │                          │  si pagado ≥ total → PENDIENTE           │
   │                          │  outbox: pedido.actualizado              │
   │◄──── 200 {pedido} ───────│                                          │
 ```
@@ -405,6 +407,45 @@ minutos). El sistema le sugiere ese tiempo al crear el pedido:
 Se redondea a múltiplos de 5 minutos. La cajera puede cambiarlo antes de cobrar; el
 valor final se guarda en `pedidos.tiempo_estimado_min` y permite medir qué tan
 acertada fue la promesa. La regla vive en `packages/dominio/tiempo-espera.ts`.
+
+### 5.11. Observaciones y correcciones de pedido
+
+Un pedido pagado no se cancela libremente. El caso real es que la cajera se
+equivocó al registrarlo y el cliente reclama al recibirlo.
+
+```
+ Mesera o cajera                API                                      Caja
+   │ POST /pedidos/{id}/observaciones                                      │
+   │ {tipo: PEDIDO_EQUIVOCADO, comentario}                                 │
+   │─────────────────────────────►│ observación abierta                    │
+   │                              │──── observacion.creada ───────────────►│ vibra
+   │                              │                                        │
+   │                              │◄─── POST /observaciones/{id}/resolver ─│
+   │                              │     CORREGIR · CANCELAR · SIN_CAMBIOS  │
+   │◄──── observacion.resuelta ───│                                        │
+```
+
+| Resolución    | Efecto, en una sola transacción                                                                                       |
+| ------------- | --------------------------------------------------------------------------------------------------------------------- |
+| `CORREGIR`    | Marca `anulado_at` en los ítems reemplazados; crea un pedido con `corrige_pedido_id` y `credito_correccion` igual al valor de esos ítems; calcula `diferencia = total − crédito` |
+| `CANCELAR`    | El pedido pasa a `CANCELADO` con devolución obligatoria; si es en efectivo, egreso del turno                           |
+| `SIN_CAMBIOS` | Cierra la observación con el comentario                                                                               |
+
+Diferencia de una corrección:
+
+| Diferencia | Qué pasa                                                                            |
+| ---------- | ----------------------------------------------------------------------------------- |
+| Positiva   | La corrección queda `POR_PAGAR` por la diferencia y se cobra como cualquier pedido  |
+| Cero       | La corrección pasa directo a `PENDIENTE`                                            |
+| Negativa   | La corrección pasa a `PENDIENTE` y se registra la devolución del exceso             |
+
+- La corrección entra **primero** en la cola de cocina, marcada «Corrección de #0040».
+- Mantiene tipo, nombre y zona del original, para que la mesera la lleve al mismo
+  cliente.
+- Los reportes descuentan los ítems anulados y suman la corrección, sin contar la
+  venta dos veces.
+- Todo queda en auditoría y en la validación del cierre del día.
+- El cálculo vive en `packages/dominio/correccion.ts`.
 
 ---
 

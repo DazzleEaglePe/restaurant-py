@@ -80,7 +80,7 @@ expira en menos de 15 minutos.
 
 | Tipo     | Puede                                                              | No puede                          |
 | -------- | ------------------------------------------------------------------ | --------------------------------- |
-| COCINA   | Leer la proyección de cocina de su local; pasar a preparación, listo y deshacer; marcar entregado un pedido para mesa | Ver montos, pagos, otros locales |
+| COCINA   | Leer la proyección de cocina de su local; pasar a preparación, listo y deshacer | Ver montos, pagos, otros locales |
 | PUBLICA  | Leer la proyección pública de su local                             | Cualquier escritura              |
 
 Una pantalla revocada recibe `401` en su próxima solicitud y su socket se
@@ -161,7 +161,7 @@ escribe con la nueva.
 | Validar con constancia teniendo el celular activo        | El servidor lo rechaza (`422 CONSTANCIA_NO_PERMITIDA`)                                   |
 | Montos altos por constancia                              | Sin tope por decisión del negocio (D11): queda registrada con el estado del celular, se concilia y se revisa al validar el cierre. El tope y el PIN se pueden activar después |
 | Usar el Yape de un cliente para otro pedido              | Un cobro, un pago activo (índice único) y registro de quién confirmó                    |
-| Cancelar un pedido pagado y quedarse el dinero           | Motivo y forma de devolución obligatorios; auditoría; revisión del administrador al validar el cierre (P14) |
+| Cancelar un pedido pagado y quedarse el dinero           | Solo al resolver una observación registrada (quién reclamó y por qué); motivo y devolución obligatorios; auditoría; revisión al validar el cierre (D16) |
 | Diferencias de caja recurrentes                          | Reporte de turnos con diferencia por cajera                                             |
 
 ---
@@ -216,6 +216,7 @@ Acciones registradas (RF-AUD-001), con actor, local, IP y datos relevantes:
 | `pagos.constancia`                | Pedido, monto, hora declarada, estado de cobros        |
 | `pagos.conciliacion_manual`       | Pago, cobro ligado o motivo del descarte               |
 | `pedidos.cancelado_pagado`        | Pedido, monto, motivo, devolución                      |
+| `observaciones.resuelta`          | Pedido, tipo, resolución, diferencia y devolución      |
 | `turnos.cerrado_con_diferencia`   | Esperado, contado, diferencia                          |
 | `carta.precio_cambiado`           | Producto, precio anterior y nuevo                      |
 | `yallego.conectado` / `desconectado` / `clave_reemplazada` | Prefijo de la clave              |

@@ -66,7 +66,7 @@ CREATE TYPE estado_negocio      AS ENUM ('ACTIVO', 'SUSPENDIDO');
 CREATE TYPE rol_usuario         AS ENUM ('OWNER', 'ADMIN', 'CAJERO', 'MESERO');
 CREATE TYPE tipo_pantalla       AS ENUM ('COCINA', 'PUBLICA');
 CREATE TYPE tipo_pedido         AS ENUM ('AQUI', 'LLEVAR');
-CREATE TYPE estado_pedido       AS ENUM ('POR_PAGAR', 'EN_ESPERA', 'EN_PREPARACION', 'LISTO', 'ENTREGADO', 'CANCELADO');
+CREATE TYPE estado_pedido       AS ENUM ('POR_PAGAR', 'PENDIENTE', 'EN_PREPARACION', 'LISTO', 'ENTREGADO', 'CANCELADO');
 CREATE TYPE metodo_pago         AS ENUM ('EFECTIVO', 'BILLETERA');
 CREATE TYPE verificacion_pago   AS ENUM ('YALLEGO', 'CONSTANCIA');
 CREATE TYPE estado_pago         AS ENUM ('RESERVADO', 'CONFIRMADO', 'RECHAZADO', 'ANULADO');
@@ -80,6 +80,8 @@ CREATE TYPE conectividad_ylg    AS ENUM ('ONLINE', 'DEGRADED', 'OFFLINE');
 CREATE TYPE estado_celular_ylg  AS ENUM ('ACTIVE', 'PAUSED', 'REVOKED');
 CREATE TYPE estado_cobros_local AS ENUM ('ACTIVO', 'DEMORADO', 'DESCONECTADO', 'SIN_SERVICIO', 'CONEXION_INVALIDA', 'SIN_CELULAR');
 CREATE TYPE origen_cobro        AS ENUM ('WEBHOOK', 'CONSULTA');
+CREATE TYPE tipo_observacion    AS ENUM ('PEDIDO_EQUIVOCADO', 'FALTA_PLATO', 'OTRO');
+CREATE TYPE resolucion_observacion AS ENUM ('CORREGIDO', 'CANCELADO', 'SIN_CAMBIOS');
 ```
 
 ### 3.2. Negocios, locales y usuarios
@@ -283,6 +285,8 @@ CREATE TABLE zonas (
   UNIQUE (local_id, nombre)
 );
 
+-- Mesas numeradas (RF-MES-002, COULD). El piloto no las usa: basta con nombre y
+-- zona (D12). Quedan para restaurantes que sí numeran sus mesas.
 CREATE TABLE mesas (
   id         uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   tenant_id  uuid NOT NULL REFERENCES negocios(id) ON DELETE CASCADE,
@@ -356,6 +360,8 @@ CREATE TABLE pedidos (
   tipo               tipo_pedido NOT NULL,
   mesa_id            uuid REFERENCES mesas(id),
   zona_id            uuid REFERENCES zonas(id),       -- obligatoria para AQUI si el local tiene zonas
+  corrige_pedido_id  uuid REFERENCES pedidos(id),     -- pedido de corrección (04 §5.11)
+  credito_correccion numeric(10,2) NOT NULL DEFAULT 0, -- valor de los ítems reemplazados
   nombre_cliente     varchar(40),
   estado             estado_pedido NOT NULL DEFAULT 'POR_PAGAR',
   total              numeric(10,2) NOT NULL CHECK (total >= 0),
@@ -382,7 +388,7 @@ CREATE TABLE pedidos (
 
 CREATE INDEX pedidos_local_activos
   ON pedidos (local_id, estado, pagado_at)
-  WHERE estado IN ('POR_PAGAR', 'EN_ESPERA', 'EN_PREPARACION', 'LISTO');
+  WHERE estado IN ('POR_PAGAR', 'PENDIENTE', 'EN_PREPARACION', 'LISTO');
 CREATE INDEX pedidos_local_fecha ON pedidos (local_id, fecha_operacion DESC, numero DESC);
 
 CREATE TABLE pedido_items (
@@ -396,6 +402,8 @@ CREATE TABLE pedido_items (
   subtotal         numeric(10,2) NOT NULL,
   requiere_cocina  boolean NOT NULL,              -- copia
   nota             varchar(140),
+  anulado_at       timestamptz,                   -- reemplazado en una corrección
+  observacion_id   uuid,                          -- observación que lo anuló
   orden            smallint NOT NULL
 );
 
@@ -409,6 +417,30 @@ CREATE TABLE pedido_item_opciones (
   precio_extra  numeric(10,2) NOT NULL,           -- copia
   PRIMARY KEY (item_id, opcion_id)
 );
+```
+
+Observaciones del pedido (RF-OBS):
+
+```sql
+CREATE TABLE observaciones_pedido (
+  id                    uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  tenant_id             uuid NOT NULL REFERENCES negocios(id) ON DELETE CASCADE,
+  local_id              uuid NOT NULL REFERENCES locales(id),
+  pedido_id             uuid NOT NULL REFERENCES pedidos(id),
+  tipo                  tipo_observacion NOT NULL,
+  comentario            varchar(300) NOT NULL,
+  reportada_por         uuid NOT NULL REFERENCES usuarios(id),
+  created_at            timestamptz NOT NULL DEFAULT now(),
+  resolucion            resolucion_observacion,        -- null mientras está abierta
+  comentario_resolucion varchar(300),
+  pedido_correccion_id  uuid REFERENCES pedidos(id),
+  diferencia            numeric(10,2),                 -- positiva: se cobró; negativa: se devolvió
+  devolucion            devolucion_pedido,
+  resuelta_por          uuid REFERENCES usuarios(id),
+  resuelta_at           timestamptz
+);
+
+CREATE INDEX observaciones_abiertas ON observaciones_pedido (local_id) WHERE resolucion IS NULL;
 ```
 
 ### 3.8. Pagos
@@ -670,7 +702,7 @@ Usan `withoutTenantScope` y están enumeradas en el código:
 | Categorías | Ceviches, Combinados, Platos de fondo, Bebidas, Adicionales                               |
 | Productos  | Ceviche de pescado (S/ 25.00), Chicharrón de pescado (S/ 28.00), Chicharrón de pota (S/ 22.00), Jalea mixta (S/ 38.00), Arroz con mariscos (S/ 30.00), Coca-Cola personal (S/ 4.00, sin cocina), Inca Kola personal (S/ 4.00, sin cocina), Chicha morada 1 L (S/ 10.00, sin cocina), Canchita adicional (S/ 3.00) |
 | Combos     | «Mixto» (S/ 32.00): ceviche de pescado + chicharrón de pota. «Trío marino» (S/ 42.00): ceviche + chicharrón de pescado + arroz con mariscos |
-| Zonas      | Patio de comida (1er piso) y Terraza (2do piso); mesas opcionales: A a H en el patio, T1 a T4 en la terraza |
+| Zonas      | Patio de comida (1er piso) y Terraza (2do piso). Sin números de mesa (D12)                 |
 | Yallegó    | Conexión contra el simulador con dos celulares: «Yape Centro» y «Yape Norte»              |
 
 Las contraseñas de los usuarios de demostración se definen en `.env.example`

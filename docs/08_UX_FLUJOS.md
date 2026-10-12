@@ -62,11 +62,12 @@ Inicio (hoy por local) ─┬─ Pedidos
                         └─ Configuración: negocio · Yallegó · suscripción
 ```
 
-### 2.5. Salón (mesera, si tiene celular: P12)
+### 2.5. Salón (mesera)
 
-Una sola lista, **Para mesas**, con dos segmentos: **Listos** (primero) y **En
-cocina**. Cada pedido muestra número, mesa, nombre y platos, sin montos. El menú ☰
-solo tiene Mi cuenta y Salir.
+La mesera entra desde su celular a **Pedidos**: los pedidos para comer en el local,
+con dos segmentos, **Listos** (primero) y **En cocina**. Cada pedido muestra número,
+nombre, zona y el detalle completo, incluidas las bebidas, sin montos. Acciones:
+**Entregado** y **Agregar observación**. El menú ☰ solo tiene Mi cuenta y Salir.
 
 ---
 
@@ -84,7 +85,7 @@ Alta asistida en el MVP. Lo acompaña soporte, idealmente en el local.
 | 6    | Dueño    | Asigna cada celular a su local                                         | Estado de cobros del local en verde            |
 | 7    | Dueño    | Prueba la conexión                                                     | «Evento de prueba recibido»                    |
 | 8    | Admin    | Carga la carta (categorías, productos y combos)                        | Vista previa de la carta como la ve la caja    |
-| 9    | Admin    | Crea zonas y mesas                                                     | Lista de mesas                                 |
+| 9    | Admin    | Crea las zonas (patio de comida, terraza)                              | Lista de zonas                                 |
 | 10   | Admin    | Invita a cajeras y meseras y les asigna locales                              | Invitaciones enviadas                          |
 | 11   | Admin    | Vincula la pantalla de cocina y la pública con su código               | Ambas «En línea»                               |
 | 12   | Todos    | Prueba de punta a punta: un pedido de S/ 1.00 pagado con Yape real      | El pedido aparece en cocina y en la pantalla pública |
@@ -134,10 +135,10 @@ avance hasta completarlos.
 
 **Pedido en armado (resumen)**
 
-1. Tipo: **Para comer aquí** o **Para llevar**.
+1. La cajera pregunta: ¿para comer aquí o para llevar?
 2. Para comer aquí: **zona** donde se sentará (patio de comida, primer piso; o
    terraza, segundo piso) y **nombre** del cliente, ambos obligatorios, porque la
-   mesera lo llamará por su nombre. Mesa opcional (P13).
+   mesera lo llamará así. Puede ser su nombre o el que el cliente prefiera dar.
    Para llevar: nombre sugerido. En la pantalla pública se muestra abreviado.
 3. Ítems editables: cantidad, nota, quitar.
 4. Botones: **Cancelar** y **Cobrar S/ 97.00**.
@@ -246,7 +247,7 @@ Pestaña **Pedidos** con segmentos:
 | Segmento     | Contenido                         | Acción principal                         |
 | ------------ | --------------------------------- | ---------------------------------------- |
 | Por pagar    | `POR_PAGAR`                       | Abrir para cobrar, editar o cancelar     |
-| En cocina    | `EN_ESPERA` y `EN_PREPARACION`    | Ver detalle                              |
+| En cocina    | `PENDIENTE` y `EN_PREPARACION`    | Ver detalle                              |
 | Listos       | `LISTO`, con contador en la pestaña | **Entregar**                           |
 | Entregados   | `ENTREGADO` y `CANCELADO` de hoy  | Ver detalle                              |
 
@@ -306,7 +307,7 @@ Conexión inválida, y si el local lo permite.
 ┌─────────────────────────────────────────────────────────────────────────────────┐
 │ Cocina · Centro                                          18:44   ● En línea     │
 ├───────────────────┬───────────────────┬───────────────────┬─────────────────────┤
-│ #0039  LLEVAR     │ #0040  AQUÍ · M5  │ #0041  LLEVAR     │ #0042  AQUÍ · M2    │
+│ #0039  LLEVAR     │ #0040  PATIO      │ #0041  LLEVAR     │ #0042  TERRAZA      │
 │ 12 min  (rojo)    │ 9 min   (ámbar)   │ 4 min             │ 1 min               │
 │ 2 × Mixto         │ 1 × Jalea mixta   │ 1 × Ceviche       │ 2 × Mixto           │
 │ 1 × Ceviche       │   sin cebolla     │   sin ají         │ 1 × Ceviche         │
@@ -328,22 +329,6 @@ Conexión inválida, y si el local lo permite.
 - Muchos pedidos: las tarjetas se desplazan en horizontal; un contador arriba
   indica cuántos hay fuera de vista.
 
-**Columna «Para mesa»**, a la derecha: los pedidos para comer en el local que ya
-están listos, agrupados por zona, con número, nombre y zona en grande.
-
-```
-┌──────── PARA MESA ────────┐
-│ PATIO DE COMIDA · 1er piso│
-│ #0040  CARLOS             │
-│ [       ENTREGADO       ] │
-│ TERRAZA · 2do piso        │
-│ #0043  BELINDA            │
-│ [       ENTREGADO       ] │
-└───────────────────────────┘
-```
-
-La mesera recoge los platos, toca **Entregado** y va a la zona a llamar al cliente.
-
 ---
 
 ## 11. Flujo: pantalla pública
@@ -355,13 +340,15 @@ La mesera recoge los platos, toca **Entregado** y va a la zona a llamar al clien
 │        EN PREPARACIÓN          │            LISTOS               │
 │                                │                                 │
 │   #0041  María G.              │   ██ #0039  Carlos ██            │
-│   #0042  Mesa 2                │      #0038  Ana P.              │
+│   #0042  Rosa                  │      #0038  Ana P.              │
 │   #0043  Jorge                 │                                 │
 └────────────────────────────────┴─────────────────────────────────┘
 ```
 
 - Al pasar a Listo, el pedido entra a la columna derecha con un resaltado de 8 s
   y un sonido. Opcional: voz «Pedido 39, listo».
+- Los pedidos para comer en el local aparecen en «En preparación», pero no en
+  «Listos»: los lleva la mesera (P15).
 - Los pedidos entregados salen. Los listos salen solos tras los minutos
   configurados.
 - Sin pedidos: logo del negocio y «Tus pedidos aparecerán aquí».
@@ -381,29 +368,51 @@ La mesera recoge los platos, toca **Entregado** y va a la zona a llamar al clien
 
 ### 12.2. Para comer en el local (mesera)
 
-1. Cocina marca el pedido como listo y aparece en la columna **Para mesa** de la
-   pantalla de cocina, con número, nombre y zona.
-2. La mesera alista los platos, toca **Entregado** y va a la zona: el patio de
-   comida (primer piso) o la terraza (segundo piso).
-3. Llama al cliente por su nombre y número («¿Carlos, pedido 40?»). El cliente
-   levanta la mano y recibe sus platos.
-4. El pedido sale de la pantalla pública.
+1. Cocina marca el pedido como listo. El celular de la mesera vibra: «#0040 ·
+   Carlos · Terraza está listo».
+2. La mesera ve el detalle completo, incluidas las bebidas, recoge todo y va a la
+   zona: el patio de comida (primer piso) o la terraza (segundo piso).
+3. Llama al cliente por su nombre («¿Carlos, pedido 40?»). El cliente levanta la
+   mano y recibe su pedido.
+4. Marca **Entregado** en su celular, antes o después de llevarlo, como prefiera. El
+   pedido sale de la pantalla pública.
 
-Si la mesera tiene celular (decisión pendiente P12), puede hacer lo mismo desde la
-vista **Para mesas** (§2.5) y recibir una vibración cuando un pedido está listo. Si
-no hay mesera en el turno, la cajera lo marca desde **Pedidos → Listos**.
+Si el cliente reclama porque el pedido no es el que pidió, la mesera agrega una
+observación (§13). Si no hay mesera en el turno, la cajera lo marca desde
+**Pedidos → Listos**.
 
 ---
 
-## 13. Flujo: cancelar un pedido
+## 13. Flujo: observaciones, correcciones y cancelaciones
 
-| Situación                         | Quién            | Pasos                                                                              |
-| --------------------------------- | ---------------- | ---------------------------------------------------------------------------------- |
-| Por pagar, sin pagos              | Cajera           | Pedido → **Cancelar pedido** → motivo opcional                                    |
-| Pagado, en cocina o en espera     | Cajera (P14), admin o dueño | Pedido → **Cancelar pedido** → motivo y devolución obligatorios (efectivo, Yape devuelto, no se devolvió). Aparece en la validación del cierre |
+Un pedido pagado no se cancela por cualquier motivo. El caso real es que la cajera
+se equivocó al registrarlo y el cliente reclama.
 
-Si la devolución es en efectivo, se registra como egreso del turno abierto de quien
-cancela.
+### 13.1. Reportar el problema (mesera o cajera)
+
+1. En el pedido, **Agregar observación**: tipo (pedido equivocado, falta un plato,
+   otro) y comentario. Por ejemplo: «Pidió ceviche, no jalea».
+2. La caja vibra y muestra «Observación en #0040 · Carlos · Terraza» hasta que se
+   resuelva.
+
+### 13.2. Resolver (cajera)
+
+La cajera coordina con la mesera y elige:
+
+| Opción          | Qué pasa                                                                                                                                                         |
+| --------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Corregir**    | Marca los platos equivocados y elige los correctos. Se crea un pedido de corrección que entra **primero** en cocina como «Corrección de #0040». La diferencia se calcula sola: si falta, se cobra como cualquier pago; si sobra, se registra la devolución; si es igual, no hay cobro |
+| **Cancelar**    | El pedido completo pasa a cancelado. Motivo y devolución obligatorios: efectivo, Yape devuelto o no se devolvió. Si es en efectivo, sale como egreso del turno     |
+| **Sin cambios** | El cliente aceptó el pedido. Se cierra con un comentario                                                                                                        |
+
+La mesera ve en su celular cómo se resolvió.
+
+### 13.3. Antes de pagar
+
+Un pedido **por pagar** lo cancela la cajera directamente, sin observación: todavía
+no hay dinero de por medio.
+
+Todo lo anterior aparece en la validación del cierre del día (§14.1).
 
 ---
 
@@ -425,7 +434,8 @@ entra a **Cierre del día** y revisa:
 1. Los turnos del día con esperado, contado y diferencia.
 2. Los pagos con constancia: conciliados, pendientes y sin respaldo, con su
    observación.
-3. Los pedidos pagados que se cancelaron, con motivo y devolución.
+3. Las observaciones del día: correcciones, cancelaciones y devoluciones, con quién
+   las hizo.
 4. Las incidencias del celular de cobros.
 
 Por cada turno toca **Validar** u **Observar** con un comentario. Un turno observado

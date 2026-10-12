@@ -170,6 +170,7 @@ apps/web/
     │   ├── cobro/
     │   ├── cobros-estado/
     │   ├── salon/
+    │   ├── observaciones/
     │   ├── cocina/
     │   ├── pantalla-publica/
     │   ├── turno/
@@ -220,6 +221,7 @@ Sin dependencias de framework. Probado con cobertura ≥ 90 %.
 | `estado-cobros.ts`       | Cálculo del estado del local a partir de sus celulares (04 §5.5)    |
 | `turno.ts`               | Efectivo esperado y diferencia                                      |
 | `tiempo-espera.ts`       | Tiempo de espera sugerido (04 §5.10)                                |
+| `correccion.ts`          | Crédito, diferencia y devolución de una corrección (04 §5.11)       |
 | `dinero.ts`              | Aritmética de soles sin coma flotante                               |
 
 ### 6.3. `packages/yallego-client`

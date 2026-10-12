@@ -311,10 +311,12 @@ La caja guarda la carta en caché y la invalida con el evento `carta.actualizada
 | `PATCH` | `/v1/pedidos/{id}`                | CAJERO     | Edita un pedido `POR_PAGAR`                          |
 | `POST`  | `/v1/pedidos/{id}/cancelar`       | CAJERO *   | Cancela                                              |
 | `POST`  | `/v1/pedidos/{id}/entregar`       | CAJERO o MESERO | `LISTO` → `ENTREGADO`; el MESERO solo en pedidos para comer en el local |
-| `PATCH` | `/v1/pedidos/{id}/mesa`           | MESERO     | Indica o corrige la mesa                             |
 | `GET`   | `/v1/salon/pedidos`               | MESERO     | Pedidos para comer en el local en cocina y listos, sin montos |
+| `POST`  | `/v1/pedidos/{id}/observaciones`  | CAJERO o MESERO | Agrega una observación (reclamo)                |
+| `GET`   | `/v1/observaciones?estado=abierta` | CAJERO    | Observaciones por resolver del local                 |
+| `POST`  | `/v1/observaciones/{id}/resolver` | CAJERO     | Corrige, cancela o cierra sin cambios                |
 
-\* Un CAJERO cancela pedidos pagados solo si el negocio lo permite (P14); la cancelación queda para la validación del cierre.
+\* Un CAJERO cancela directamente solo pedidos `POR_PAGAR`. Un pedido pagado se cancela al resolver una observación (`POST /v1/observaciones/{id}/resolver`).
 
 ### `POST /v1/pedidos`
 
@@ -323,7 +325,6 @@ La caja guarda la carta en caché y la invalida con el evento `carta.actualizada
 {
   "tipo": "LLEVAR",
   "zona_id": null,
-  "mesa_id": null,
   "nombre_cliente": "Carlos",
   "items": [
     { "producto_id": "…", "cantidad": 2 },
@@ -341,7 +342,6 @@ La caja guarda la carta en caché y la invalida con el evento `carta.actualizada
   "estado": "POR_PAGAR",
   "tipo": "LLEVAR",
   "zona": null,
-  "mesa": null,
   "nombre_cliente": "Carlos",
   "total": "97.00",
   "pagado": "0.00",
@@ -373,6 +373,41 @@ el que se le dice al cliente.
 ```
 
 `devolucion` es obligatoria si el pedido tiene pagos confirmados.
+
+### `POST /v1/observaciones/{id}/resolver`
+
+```json
+// Corregir: la cajera registró jalea (S/ 38.00) y el cliente pidió ceviche (S/ 25.00)
+{
+  "resolucion": "CORREGIR",
+  "reemplaza_item_ids": ["…"],
+  "items": [{ "producto_id": "…", "cantidad": 1 }],
+  "devolucion": "EFECTIVO",
+  "comentario": "Se registró jalea en lugar de ceviche"
+}
+
+// 200
+{
+  "observacion": { "id": "…", "resolucion": "CORREGIDO" },
+  "pedido_correccion": {
+    "id": "…",
+    "numero": 45,
+    "corrige_numero": 40,
+    "total": "25.00",
+    "credito": "38.00",
+    "saldo": "0.00",
+    "estado": "PENDIENTE"
+  },
+  "diferencia": "-13.00",
+  "devolucion": { "metodo": "EFECTIVO", "monto": "13.00" }
+}
+```
+
+- Si la diferencia es positiva, la corrección queda `POR_PAGAR` por ese monto y se
+  cobra con `POST /v1/pedidos/{id}/pagos`; `devolucion` no se envía.
+- `{ "resolucion": "CANCELAR", "devolucion": "BILLETERA", "comentario": "…" }` cancela
+  el pedido completo.
+- `{ "resolucion": "SIN_CAMBIOS", "comentario": "…" }` solo cierra la observación.
 
 ---
 
@@ -477,8 +512,8 @@ Respuestas:
 
 | Método | Ruta                                   | Descripción                                        |
 | ------ | -------------------------------------- | -------------------------------------------------- |
-| `GET`  | `/v1/cocina/pedidos`                   | Pedidos `EN_ESPERA` y `EN_PREPARACION`, y los de mesa en `LISTO` |
-| `POST` | `/v1/cocina/pedidos/{id}/preparar`     | `EN_ESPERA` → `EN_PREPARACION`                     |
+| `GET`  | `/v1/cocina/pedidos`                   | Pedidos `PENDIENTE` y `EN_PREPARACION`, y los de mesa en `LISTO` |
+| `POST` | `/v1/cocina/pedidos/{id}/preparar`     | `PENDIENTE` → `EN_PREPARACION`                     |
 | `POST` | `/v1/cocina/pedidos/{id}/listo`        | `EN_PREPARACION` → `LISTO`                         |
 | `POST` | `/v1/cocina/pedidos/{id}/deshacer`     | Revierte el último cambio si ocurrió hace ≤ 10 s   |
 | `POST` | `/v1/cocina/pedidos/{id}/entregado`    | Pedido para mesa: `LISTO` → `ENTREGADO` cuando la mesera recoge los platos |
@@ -491,9 +526,9 @@ Proyección de cocina (sin montos ni datos del pagador):
   "numero": 42,
   "tipo": "AQUI",
   "zona": "Patio de comida",
-  "mesa": null,
+  "corrige_numero": null,
   "nombre_cliente": "Carlos",
-  "estado": "EN_ESPERA",
+  "estado": "PENDIENTE",
   "pagado_at": "2026-10-11T18:31:59Z",
   "items": [
     { "nombre": "Mixto", "cantidad": 2, "componentes": ["Ceviche de pescado", "Chicharrón de pota"], "nota": null },
@@ -515,8 +550,8 @@ Las acciones aceptan `{ "version": 3 }`; si no coincide, `409 ESTADO_CAMBIADO`.
 
 ```json
 {
-  "en_preparacion": [{ "numero": 43, "nombre": "María G.", "mesa": null, "version": 2 }],
-  "listos": [{ "numero": 42, "nombre": "Carlos", "mesa": "5", "listo_at": "2026-10-11T18:44:10Z", "version": 4 }]
+  "en_preparacion": [{ "numero": 43, "nombre": "María G.", "version": 2 }],
+  "listos": [{ "numero": 42, "nombre": "Carlos", "listo_at": "2026-10-11T18:44:10Z", "version": 4 }]
 }
 ```
 
@@ -631,6 +666,8 @@ El servidor une la conexión a sus salas según el token (ver
 | `carta.actualizada`    | caja                 | `{ version }`                                               |
 | `cocina.pedido`        | cocina               | Proyección de cocina; `estado: "CANCELADO"` para retirarlo  |
 | `salon.pedido`         | salón                | Proyección de salón (como cocina, con mesa); `estado: "ENTREGADO"` para retirarlo |
+| `observacion.creada`   | caja                 | Pedido, tipo y comentario                                   |
+| `observacion.resuelta` | caja, salón          | Resolución y pedido de corrección                           |
 | `publica.pedido`       | pública              | Proyección pública; `estado: "ENTREGADO"` para retirarlo    |
 | `turno.cerrado`        | admin                | Resumen del turno                                           |
 | `yallego.conexion`     | admin                | `{ estado, ultimo_error }`                                  |
