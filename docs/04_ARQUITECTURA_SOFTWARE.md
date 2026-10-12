@@ -489,7 +489,7 @@ las rutas `/platform/v1`, y cada acción queda en auditoría.
 | -------------- | ----------------- | --------------------------------------------------------------- |
 | `/caja`        | Caja              | App web instalable (PWA), vertical, móvil                       |
 | `/salon`       | Salón             | Misma app instalable, vertical, para la mesera                  |
-| `/cocina`      | Cocina            | Pantalla completa, horizontal, sesión de pantalla vinculada     |
+| `/cocina`      | Cocina            | Celular en vertical (MVP) o pantalla grande en horizontal (propuesta); dispositivo vinculado |
 | `/pantalla`    | Pantalla pública  | Pantalla completa, sin interacción, sesión de pantalla vinculada |
 | `/admin`       | Administración    | Escritorio, responsiva                                          |
 

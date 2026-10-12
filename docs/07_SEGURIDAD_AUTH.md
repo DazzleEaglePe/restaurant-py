@@ -9,7 +9,7 @@
 | Cajeras (celular)        | Celular compartido o perdido; sesión larga               | JWT de 15 min + refresh rotativo en cookie `HttpOnly`             |
 | Meseras (celular)        | Igual que cajeras, con menos permisos                    | Igual que cajeras                                                 |
 | Administración (escritorio) | XSS, CSRF, robo de sesión                             | Igual que cajeras                                                 |
-| Pantallas de cocina y pública | Equipo fijo y sin vigilancia en el local            | Token opaco de pantalla, vinculado a un local y revocable         |
+| Dispositivo de cocina (celular o pantalla) y pantalla pública | Equipo compartido y sin vigilancia en el local | Token opaco de dispositivo, vinculado a un local y revocable |
 | Yallegó (webhooks)       | Eventos falsificados o repetidos                          | Firma HMAC-SHA256, ventana de 5 min, idempotencia por `event_id`  |
 | Consola de plataforma    | Acceso a todos los negocios                               | JWT propio, contraseña + TOTP obligatorio, lista de IPs            |
 
@@ -80,7 +80,7 @@ expira en menos de 15 minutos.
 
 | Tipo     | Puede                                                              | No puede                          |
 | -------- | ------------------------------------------------------------------ | --------------------------------- |
-| COCINA   | Leer la proyección de cocina de su local; pasar a preparación, listo y deshacer | Ver montos, pagos, otros locales |
+| COCINA   | Leer la proyección de cocina de su local; pasar a preparación, listo y deshacer; con pantalla compartida, marcar entregado un pedido para mesa | Ver montos, pagos, otros locales |
 | PUBLICA  | Leer la proyección pública de su local                             | Cualquier escritura              |
 
 Una pantalla revocada recibe `401` en su próxima solicitud y su socket se

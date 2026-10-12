@@ -218,6 +218,7 @@ CREATE TABLE productos (
   nombre           varchar(80) NOT NULL,
   descripcion      varchar(300),
   precio           numeric(10,2) NOT NULL CHECK (precio >= 0),
+  costo_taper      numeric(10,2) NOT NULL DEFAULT 0 CHECK (costo_taper >= 0),  -- para llevar (D18)
   foto_url         text,
   es_combo         boolean NOT NULL DEFAULT false,
   requiere_cocina  boolean NOT NULL DEFAULT true,
@@ -366,6 +367,8 @@ CREATE TABLE pedidos (
   estado             estado_pedido NOT NULL DEFAULT 'POR_PAGAR',
   total              numeric(10,2) NOT NULL CHECK (total >= 0),
   pagado             numeric(10,2) NOT NULL DEFAULT 0,
+  taperes            smallint NOT NULL DEFAULT 0,     -- solo LLEVAR (D18)
+  cargo_taper        numeric(10,2) NOT NULL DEFAULT 0, -- incluido en total
   tiempo_estimado_min smallint,                    -- el que se le dijo al cliente
   version            integer NOT NULL DEFAULT 1,
   idempotency_key    uuid NOT NULL,
@@ -383,7 +386,8 @@ CREATE TABLE pedidos (
   UNIQUE (local_id, fecha_operacion, numero),
   UNIQUE (tenant_id, idempotency_key),
   CHECK (tipo = 'AQUI' OR (mesa_id IS NULL AND zona_id IS NULL)),
-  CHECK (tipo <> 'AQUI' OR nombre_cliente IS NOT NULL)   -- la mesera lo llama por su nombre (D12)
+  CHECK (tipo <> 'AQUI' OR nombre_cliente IS NOT NULL),  -- la mesera lo llama por su nombre (D12)
+  CHECK (tipo = 'LLEVAR' OR (taperes = 0 AND cargo_taper = 0))
 );
 
 CREATE INDEX pedidos_local_activos
@@ -702,6 +706,7 @@ Usan `withoutTenantScope` y están enumeradas en el código:
 | Categorías | Ceviches, Combinados, Platos de fondo, Bebidas, Adicionales                               |
 | Productos  | Ceviche de pescado (S/ 25.00), Chicharrón de pescado (S/ 28.00), Chicharrón de pota (S/ 22.00), Jalea mixta (S/ 38.00), Arroz con mariscos (S/ 30.00), Coca-Cola personal (S/ 4.00, sin cocina), Inca Kola personal (S/ 4.00, sin cocina), Chicha morada 1 L (S/ 10.00, sin cocina), Canchita adicional (S/ 3.00) |
 | Combos     | «Mixto» (S/ 32.00): ceviche de pescado + chicharrón de pota. «Trío marino» (S/ 42.00): ceviche + chicharrón de pescado + arroz con mariscos |
+| Táper      | S/ 1.00 por plato para llevar; S/ 0.00 en bebidas                                         |
 | Zonas      | Patio de comida (1er piso) y Terraza (2do piso). Sin números de mesa (D12)                 |
 | Yallegó    | Conexión contra el simulador con dos celulares: «Yape Centro» y «Yape Norte»              |
 

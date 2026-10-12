@@ -12,7 +12,7 @@
 | -------------------- | --------------------------------- | ---------------------------------------------------------- |
 | Cajera               | Celular                           | Atender rápido y no aceptar pagos falsos                   |
 | Mesera               | Celular                           | Llevar a la mesa los pedidos listos y marcarlos entregados |
-| Cocina               | Tablet o monitor táctil (pantalla vinculada) | Saber qué preparar y en qué orden                 |
+| Cocina               | Celular de cocina (dispositivo vinculado); propuesta: pantalla táctil | Saber qué preparar y en qué orden |
 | Cliente              | Pantalla pública (solo mira)      | Saber cuándo recoger su pedido                             |
 | Administrador        | Escritorio                        | Mantener carta, mesas, usuarios y pantallas; ver reportes  |
 | Dueño                | Escritorio o celular              | Todo lo del administrador, más Yallegó y suscripción      |
@@ -41,7 +41,8 @@ de cobros (§9) siempre visible.
 
 ### 2.2. Cocina
 
-Una sola pantalla: tablero de pedidos. Sin menú; la configuración se hace desde
+Una sola vista, el tablero de pedidos: lista vertical en el celular o columnas en la
+pantalla táctil (propuesta). Sin menú; la configuración se hace desde
 la administración.
 
 ### 2.3. Pantalla pública
@@ -141,7 +142,9 @@ avance hasta completarlos.
    mesera lo llamará así. Puede ser su nombre o el que el cliente prefiera dar.
    Para llevar: nombre sugerido. En la pantalla pública se muestra abreviado.
 3. Ítems editables: cantidad, nota, quitar.
-4. Botones: **Cancelar** y **Cobrar S/ 97.00**.
+4. Para llevar, el sistema suma solo la línea «Táper ×3 · S/ 3.00» según los platos;
+   la cajera puede ajustar la cantidad. Para comer aquí no se cobra táper.
+5. Botones: **Cancelar** y **Cobrar S/ 97.00**.
 
 Al tocar **Cobrar**, el pedido se crea (`POR_PAGAR`, número asignado) y pasa a la
 pantalla de cobro. Si un precio cambió mientras tanto, se muestra el total nuevo
@@ -303,6 +306,30 @@ Conexión inválida, y si el local lo permite.
 
 ## 10. Flujo: cocina
 
+**En el MVP, la cocina trabaja desde un celular** vinculado como dispositivo de
+cocina: una lista vertical de tarjetas, con el pedido más antiguo arriba.
+
+```
+┌──────────────────────────────┐
+│ Cocina · Centro   ● En línea │
+│ ┌──────────────────────────┐ │
+│ │ #0039 LLEVAR      12 min │ │
+│ │ 2 × Mixto                │ │
+│ │ 1 × Ceviche              │ │
+│ │ [        LISTO         ] │ │
+│ └──────────────────────────┘ │
+│ ┌──────────────────────────┐ │
+│ │ #0040 PATIO        9 min │ │
+│ │ 1 × Jalea mixta          │ │
+│ │   sin cebolla            │ │
+│ │ [       PREPARAR       ] │ │
+│ └──────────────────────────┘ │
+└──────────────────────────────┘
+```
+
+**Propuesta al comercio: pantalla táctil en cocina.** Con una pantalla grande, la
+vista pasa a columnas:
+
 ```
 ┌─────────────────────────────────────────────────────────────────────────────────┐
 │ Cocina · Centro                                          18:44   ● En línea     │
@@ -328,6 +355,20 @@ Conexión inválida, y si el local lo permite.
 - Pedido cancelado: la tarjeta muestra «CANCELADO» en rojo 5 s y sale.
 - Muchos pedidos: las tarjetas se desplazan en horizontal; un contador arriba
   indica cuántos hay fuera de vista.
+
+Con la pantalla táctil, la mesera también puede marcar ahí sus pedidos, en una
+columna **Para mesa** agrupada por zona:
+
+```
+┌──────── PARA MESA ────────┐
+│ PATIO DE COMIDA · 1er piso│
+│ #0040  CARLOS             │
+│ [       ENTREGADO       ] │
+│ TERRAZA · 2do piso        │
+│ #0043  BELINDA            │
+│ [       ENTREGADO       ] │
+└───────────────────────────┘
+```
 
 ---
 

@@ -323,8 +323,8 @@ La caja guarda la carta en caché y la invalida con el evento `carta.actualizada
 ```json
 // Cabeceras: Idempotency-Key: 6f1c…  ·  X-Local-Id: …
 {
-  "tipo": "LLEVAR",
-  "zona_id": null,
+  "tipo": "AQUI",
+  "zona_id": "…",
   "nombre_cliente": "Carlos",
   "items": [
     { "producto_id": "…", "cantidad": 2 },
@@ -340,13 +340,15 @@ La caja guarda la carta en caché y la invalida con el evento `carta.actualizada
   "numero": 42,
   "fecha_operacion": "2026-10-11",
   "estado": "POR_PAGAR",
-  "tipo": "LLEVAR",
-  "zona": null,
+  "tipo": "AQUI",
+  "zona": { "id": "…", "nombre": "Terraza" },
   "nombre_cliente": "Carlos",
   "total": "97.00",
   "pagado": "0.00",
   "saldo": "97.00",
   "tiempo_estimado_min": 30,
+  "taperes": 0,
+  "cargo_taper": "0.00",
   "items": [
     { "id": "…", "nombre": "Mixto", "cantidad": 2, "precio_unitario": "32.00", "subtotal": "64.00", "componentes": ["Ceviche de pescado", "Chicharrón de pota"], "nota": null },
     { "id": "…", "nombre": "Ceviche de pescado", "cantidad": 1, "precio_unitario": "25.00", "subtotal": "25.00", "componentes": [], "nota": "sin ají" },
@@ -365,6 +367,11 @@ muestre antes de cobrar.
 `tiempo_estimado_min` es la sugerencia del sistema (`04_ARQUITECTURA_SOFTWARE.md`
 §5.10). La cajera puede cambiarlo con `PATCH /v1/pedidos/{id}` antes de cobrar; es
 el que se le dice al cliente.
+
+En un pedido para llevar, el sistema suma solo los táperes según el `costo_taper`
+de cada producto. Con S/ 1.00 por plato, este mismo pedido llevaría 3 táperes (2
+mixtos y 1 ceviche; las bebidas no) y su total sería S/ 100.00. La cajera puede
+ajustar la cantidad enviando `taperes` en el `PATCH`.
 
 ### `POST /v1/pedidos/{id}/cancelar`
 

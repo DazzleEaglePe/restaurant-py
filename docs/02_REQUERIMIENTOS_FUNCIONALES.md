@@ -21,7 +21,7 @@
 | `PAG`  | Pagos                                   |
 | `YLG`  | Integración con Yallegó                 |
 | `COB`  | Celular de cobros                       |
-| `COC`  | Pantalla de cocina                      |
+| `COC`  | Cocina                                  |
 | `PUB`  | Pantalla pública                        |
 | `SAL`  | Salón (meseras)                         |
 | `OBS`  | Observaciones y correcciones de pedido  |
@@ -66,7 +66,7 @@
 
 ### 3.1. Matriz de roles
 
-| Acción                                           | OWNER | ADMIN | CAJERO | MESERO | Pantalla de cocina | Pantalla pública |
+| Acción                                           | OWNER | ADMIN | CAJERO | MESERO | Cocina (dispositivo) | Pantalla pública |
 | ------------------------------------------------ | :---: | :---: | :----: | :----: | :----------------: | :--------------: |
 | Conectar Yallegó y asignar celulares a locales   | ✅    | —     | —      | —      | —                  | —                |
 | Gestionar suscripción                            | ✅    | —     | —      | —      | —                  | —                |
@@ -81,7 +81,7 @@
 | Cancelar un pedido por pagar                     | ✅    | ✅    | ✅     | —      | —                  | —                |
 | Cancelar un pedido ya pagado                     | ✅    | ✅    | ✅ **  | —      | —                  | —                |
 | Marcar entregado un pedido para llevar           | ✅    | ✅    | ✅     | —      | —                  | —                |
-| Marcar entregado un pedido para comer en el local | ✅   | ✅    | ✅     | ✅     | —                  | —                |
+| Marcar entregado un pedido para comer en el local | ✅   | ✅    | ✅     | ✅     | ✅ ***             | —                |
 | Agregar una observación a un pedido (reclamo)    | ✅    | ✅    | ✅     | ✅     | —                  | —                |
 | Resolver una observación: corregir o cancelar    | ✅    | ✅    | ✅     | —      | —                  | —                |
 | Marcar agotado un producto                       | ✅    | ✅    | ✅     | —      | —                  | —                |
@@ -90,6 +90,7 @@
 
 \* Solo mientras el celular de cobros del local no esté activo (RF-PAG-013).
 \*\* Solo al resolver una observación del pedido (RF-OBS-003), con motivo y devolución obligatorios; lo revisa el administrador al validar el cierre (D16).
+\*\*\* Solo con la pantalla táctil compartida de cocina (propuesta, RF-COC-012).
 
 Correspondencia con el tablero: `admin` → OWNER y ADMIN, `cajita` → CAJERO,
 `cocina` → pantalla de cocina, `vpublic` → pantalla pública. La mesera del flujo
@@ -117,6 +118,7 @@ actual (D8) → MESERO. Las pantallas son dispositivos vinculados, no usuarios (
 | RF-PAN-003 | La pantalla recupera su sesión sola tras un corte de luz, un reinicio o una pérdida de internet.             | MUST      |
 | RF-PAN-004 | OWNER o ADMIN ve las pantallas de cada local con su última conexión y puede revocarlas.                      | MUST      |
 | RF-PAN-005 | Un local puede tener varias pantallas de cada tipo, todas sincronizadas.                                     | SHOULD    |
+| RF-PAN-006 | Un celular puede vincularse como dispositivo de cocina; la cocina no necesita usuario ni contraseña.  | MUST      |
 
 ---
 
@@ -134,6 +136,7 @@ actual (D8) → MESERO. Las pantallas son dispositivos vinculados, no usuarios (
 | RF-CAR-008 | El precio, nombre y platos de cada ítem se copian al pedido al crearlo; cambios posteriores en la carta no lo alteran.             | MUST      |
 | RF-CAR-009 | Un producto puede tener un precio distinto en un local.                                                                             | COULD     |
 | RF-CAR-010 | La carta se puede importar desde una hoja de cálculo.                                                                               | COULD     |
+| RF-CAR-011 | Cada producto tiene un costo de táper para pedidos para llevar (S/ 0.00 en bebidas y en lo que no lo usa). (D18) | MUST      |
 
 ---
 
@@ -168,6 +171,7 @@ actual (D8) → MESERO. Las pantallas son dispositivos vinculados, no usuarios (
 | RF-PED-014 | Al cubrirse el pago, la caja muestra número, detalle, total y tiempo estimado de espera, para comunicárselos al cliente. Imprimirlos en una boleta simple depende de P5. | MUST      |
 | RF-PED-015 | El sistema sugiere el tiempo estimado de espera según los tiempos recientes de cocina del local; la cajera puede cambiarlo antes de cobrar. | SHOULD    |
 | RF-PED-016 | La cajera encuentra un pedido por su número cuando el cliente vuelve con su boleta.                                                                  | MUST      |
+| RF-PED-017 | En pedidos para llevar, el sistema agrega solo la línea «Táper» con su cantidad y monto según los productos; la cajera puede ajustar la cantidad. En pedidos para comer en el local no se cobra táper. (D18) | MUST      |
 
 ---
 
@@ -230,11 +234,11 @@ actual (D8) → MESERO. Las pantallas son dispositivos vinculados, no usuarios (
 
 ---
 
-## 11. COC — Pantalla de cocina
+## 11. COC — Cocina
 
 | ID         | Requerimiento                                                                                                                  | Prioridad |
 | ---------- | ------------------------------------------------------------------------------------------------------------------------------ | --------- |
-| RF-COC-001 | La pantalla muestra los pedidos `PENDIENTE` y `EN_PREPARACION` del local, del más antiguo al más nuevo según la hora de pago.  | MUST      |
+| RF-COC-001 | La cocina ve, en un celular o en una pantalla, los pedidos `PENDIENTE` y `EN_PREPARACION` del local, del más antiguo al más nuevo según la hora de pago. | MUST      |
 | RF-COC-002 | Cada tarjeta muestra número, tipo (aquí o llevar) con color propio, zona, ítems con los platos de cada combo y notas, y el tiempo desde el pago. | MUST      |
 | RF-COC-003 | La pantalla tiene los botones «Preparar» (`PENDIENTE` → `EN_PREPARACION`) y «Listo» (`EN_PREPARACION` → `LISTO`).             | MUST      |
 | RF-COC-004 | Un toque equivocado se puede deshacer durante 10 segundos.                                                                      | SHOULD    |
@@ -244,6 +248,8 @@ actual (D8) → MESERO. Las pantallas son dispositivos vinculados, no usuarios (
 | RF-COC-008 | Los ítems que no requieren cocina (una gaseosa) no se muestran en la tarjeta.                                                   | SHOULD    |
 | RF-COC-009 | Estaciones (bebidas, parrilla) que solo reciben sus productos.                                                                  | COULD     |
 | RF-COC-010 | Un pedido de corrección entra primero en la cola, marcado «Corrección de #0040».                                                | MUST      |
+| RF-COC-011 | La vista de cocina funciona en un celular en vertical (MVP) y en una pantalla grande en horizontal (propuesta, D17).            | MUST      |
+| RF-COC-012 | Con la pantalla táctil compartida, los pedidos para mesa listos quedan en una columna «Para mesa», agrupados por zona, donde la mesera marca «Entregado». | COULD     |
 
 ---
 
@@ -346,10 +352,10 @@ actual (D8) → MESERO. Las pantallas son dispositivos vinculados, no usuarios (
 | Sprint | Módulos y requerimientos principales                                                     |
 | ------ | ---------------------------------------------------------------------------------------- |
 | 1      | AUTH-001…007, TEN-001…004, USR-001…004, PLT-001, AUD-001 (base)                          |
-| 2      | CAR-001…008, MES-001…003, TEN-005                                                        |
-| 3      | PED-001…006, PED-008, PED-009, PED-012…015, PAG-001, CAJ-001, CAJ-002, COB-008         |
+| 2      | CAR-001…008, MES-001…003, TEN-005, CAR-011 |
+| 3      | PED-001…006, PED-008, PED-009, PED-012…015, PAG-001, CAJ-001, CAJ-002, COB-008, PED-017 |
 | 4      | YLG-001…007, YLG-010, PAG-002…010                                                        |
-| 5      | PAN-001…005, COC-001…009, PUB-001…006, SAL-001…005, PED-007, PED-011, PED-016            |
+| 5      | PAN-001…005, COC-001…009, PUB-001…006, SAL-001…005, PED-007, PED-011, PED-016, PAN-006, COC-011, COC-012 (si el comercio compra la pantalla) |
 | 6      | COB-001…007, PAG-013…017                                                                 |
 | 7      | CAJ-003…009, OBS-001…008, COC-010, PED-010, PAG-011, PAG-012, REP-001…008, AUD-001…003, YLG-008, YLG-009 |
 | 8      | PLT-002…004, TEN-006, endurecimiento y piloto                                            |

@@ -104,7 +104,7 @@ Detalle en `07_SEGURIDAD_AUTH.md`.
 | ID           | Requerimiento                                                                                                     |
 | ------------ | ----------------------------------------------------------------------------------------------------------------- |
 | RNF-USA-001  | Cobrar con Yape un pedido ya armado toma como máximo 3 toques cuando el pago ya llegó.                            |
-| RNF-USA-002  | En la caja, los objetivos táctiles miden al menos 48 × 48 px; en cocina, al menos 64 × 64 px.                     |
+| RNF-USA-002  | En la caja, los objetivos táctiles miden al menos 48 × 48 px; en cocina, al menos 56 × 56 px en celular y 64 × 64 px en pantalla. |
 | RNF-USA-003  | En la pantalla pública, el número de pedido se lee a 6 metros: al menos 96 px de alto en 1080p.                   |
 | RNF-USA-004  | Contraste WCAG 2.2 AA en toda la interfaz; AAA para números de pedido y montos.                                   |
 | RNF-USA-005  | El estado nunca se comunica solo con color: también con texto o ícono.                                            |
@@ -118,7 +118,7 @@ Detalle en `07_SEGURIDAD_AUTH.md`.
 | Superficie        | Requisito                                                                                                    |
 | ----------------- | ------------------------------------------------------------------------------------------------------------ |
 | Caja              | Android 10+ con Chrome 110+; iPhone con iOS 16.4+ y Safari, instalada como app web. Ancho mínimo 360 px.     |
-| Cocina            | Tablet de 10" o monitor táctil, en horizontal, con Chrome 110+.                                              |
+| Cocina            | Celular en vertical (MVP): Android 10+ con Chrome 110+ o iPhone con iOS 16.4+. Propuesta: tablet de 10" o monitor táctil en horizontal. |
 | Pantalla pública  | TV o monitor de 1080p con navegador basado en Chromium (Android TV, Google TV o mini PC). Sin interacción.   |
 | Administración    | Últimas dos versiones de Chrome, Edge, Firefox y Safari en escritorio. El cierre del día se revisa completo desde el celular del administrador. |
 

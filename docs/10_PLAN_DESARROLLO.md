@@ -30,7 +30,8 @@ Tareas sin código, en paralelo al Sprint 1:
 - [ ] Elegir nombre comercial y dominio (P1).
 - [ ] Fijar la fecha de la reunión para mostrar el sistema al restaurante (P8).
 - [ ] Confirmar con el restaurante los equipos de `01_CONTEXTO_Y_ANALISIS.md` §7.4.
-- [ ] Responder las preguntas abiertas de `01_CONTEXTO_Y_ANALISIS.md` §11 (P15 a P20).
+- [ ] Responder las preguntas abiertas de `01_CONTEXTO_Y_ANALISIS.md` §11 (P15 a P23).
+- [ ] Presentar al comercio la propuesta de pantalla táctil en cocina (D17).
 - [ ] *En espera:* referencias visuales, carta completa con precios y fotos, cuenta de Yallegó del restaurante y boleta impresa (P5).
 
 ---
@@ -81,7 +82,7 @@ Tareas sin código, en paralelo al Sprint 1:
 
 ### Backend
 
-- [ ] Categorías, productos y combos con sus platos fijos.
+- [ ] Categorías, productos (con costo de táper) y combos con sus platos fijos.
 - [ ] Disponibilidad por local (`producto_locales`) y agotado.
 - [ ] `GET /v1/carta?local_id=` con versión para caché.
 - [ ] Zonas y mesas.
@@ -114,6 +115,7 @@ Tareas sin código, en paralelo al Sprint 1:
 - [ ] Edición y cancelación de pedidos `POR_PAGAR`.
 - [ ] Pago en efectivo con vuelto; paso a `PENDIENTE` al cubrir el total.
 - [ ] Tiempo estimado de espera sugerido (`packages/dominio/tiempo-espera.ts`).
+- [ ] Táper automático en pedidos para llevar.
 - [ ] Listado de pedidos del día por estado.
 - [ ] Outbox y relay de eventos; gateway Socket.io con salas de caja.
 
@@ -174,7 +176,7 @@ Tareas sin código, en paralelo al Sprint 1:
 
 ### Backend
 
-- [ ] Pantallas: alta, código de vinculación, canje, token, revocación.
+- [ ] Dispositivos vinculados (celular de cocina y pantalla pública): alta, código, canje, token, revocación.
 - [ ] Proyecciones de cocina y pública; salas por local.
 - [ ] Acciones de cocina con control de versión y deshacer.
 - [ ] Entrega desde la caja; ocultar listos por tiempo.
@@ -185,7 +187,8 @@ Tareas sin código, en paralelo al Sprint 1:
 ### Web
 
 - [ ] `/vincular` con código y QR.
-- [ ] Cocina: tablero, colores por tipo y demora, sonido, deshacer, cancelados.
+- [ ] Cocina en celular: lista vertical, colores por tipo y demora, sonido, deshacer, cancelados.
+- [ ] Cocina en pantalla táctil (propuesta): columnas y «Para mesa» para la mesera.
 - [ ] Pantalla pública: columnas, animación y sonido de listo, marca del negocio, Wake Lock, reconexión.
 - [ ] Caja: pestaña Listos con «Entregar» y búsqueda por número.
 - [ ] Salón (celular de la mesera): pedidos con nombre, zona y detalle, aviso de listos y «Entregado».

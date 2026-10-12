@@ -118,7 +118,7 @@ números de pedido y montos (RNF-USA-004).
 
 Los tamaños mínimos son requisitos; la escala completa se ajusta con la familia.
 
-| Elemento                     | Caja (celular)  | Cocina (tablet 10") | Pantalla pública (1080p) |
+| Elemento                     | Caja (celular)  | Cocina (pantalla)  | Pantalla pública (1080p) |
 | ---------------------------- | --------------- | ------------------- | ------------------------ |
 | Número de pedido             | 20 px           | 40 px               | **≥ 96 px**              |
 | Monto principal              | 40 px           | —                   | —                        |
@@ -128,6 +128,9 @@ Los tamaños mínimos son requisitos; la escala completa se ajusta con la famili
 | Título de columna            | —               | —                   | 48 px                    |
 | Texto de apoyo               | 14 px           | 18 px               | —                        |
 | Botón principal              | 16 px           | 22 px               | —                        |
+
+En el celular de cocina se usa la escala de la caja, con el número de pedido a 24 px
+y botones de 56 px.
 
 ### 4.3. Tratamiento de cifras
 
@@ -148,7 +151,8 @@ Base de 4 px: 4, 8, 12, 16, 24, 32, 48, 64.
 | Superficie | Mínimo  | Botón principal                          |
 | ---------- | ------- | ---------------------------------------- |
 | Caja       | 48 px   | 56 px de alto, ancho completo            |
-| Cocina     | 64 px   | 72 px de alto, ancho de la tarjeta       |
+| Cocina (celular)  | 56 px   | 64 px de alto, ancho completo            |
+| Cocina (pantalla) | 64 px   | 72 px de alto, ancho de la tarjeta       |
 
 ### 5.3. Zonas de la caja
 

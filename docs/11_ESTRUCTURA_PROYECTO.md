@@ -215,7 +215,7 @@ Sin dependencias de framework. Probado con cobertura ≥ 90 %.
 | Archivo                  | Contenido                                                           |
 | ------------------------ | ------------------------------------------------------------------- |
 | `pedido-estados.ts`      | Transiciones permitidas y quién puede hacerlas                      |
-| `totales.ts`             | Total de ítems, saldo, vuelto                          |
+| `totales.ts`             | Total de ítems y táperes, saldo, vuelto                          |
 | `emparejamiento.ts`      | Orden de candidatos, preselección, ambigüedad (04 §5.1)             |
 | `conciliacion.ts`        | Reglas de conciliación de constancias (04 §5.6)                     |
 | `estado-cobros.ts`       | Cálculo del estado del local a partir de sus celulares (04 §5.5)    |

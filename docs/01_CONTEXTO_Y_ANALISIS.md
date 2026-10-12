@@ -84,7 +84,7 @@ cajera recuerda haber vendido.
 | ---------- | --------------------------------------------------------------------------------- |
 | Dueño      | Ningún pedido entra a cocina sin un pago verificado; cuadre de caja automático    |
 | Cajera     | Toma el pedido y ve llegar el Yape en el mismo celular; no depende de nadie       |
-| Cocina     | Una pantalla con los pedidos pagados, en orden, con su tiempo y tipo              |
+| Cocina     | Los pedidos pagados en orden, con su tiempo y tipo, en un celular o una pantalla |
 | Mesera     | Ve en cocina qué pedidos de mesa están listos, con el nombre y la zona para llamar al cliente |
 | Cliente    | Ve en una pantalla cuándo su pedido está listo                                    |
 
@@ -195,16 +195,19 @@ de Yallegó.
 | D4  | **La caja trabaja solo desde un celular**                                                        |
 | D5  | El celular de cobros debe estar activo siempre. Si falla, el sistema **avisa con la causa**      |
 | D6  | Con el celular de cobros caído, la cajera **puede validar mirando la constancia** del cliente (monto y hora). Es una contingencia: queda registrada y se concilia después |
-| D7  | Dos pantallas fijas: **cocina** y **pantalla pública** para clientes                             |
+| D7  | **Pantalla pública** afuera, para los clientes. En cocina, un **celular** en el MVP y una pantalla táctil como propuesta al comercio (D17) |
 | D8  | Marca «entregado» **la cajera** en pedidos para llevar y **la mesera** en pedidos para comer en el local. Se agrega el rol MESERO |
 | D9  | Los **combos son combinaciones fijas de platos** (un mixto). No tienen opciones a elegir; las bebidas se piden aparte |
 | D10 | `resto` es el nombre de trabajo en el código hasta definir el nombre comercial                   |
 | D11 | Validación con constancia **sin control extra** (ni monto máximo ni PIN): queda registrada con una **observación opcional** («no hay servicio de notificaciones») y el estado del celular de cobros, y se concilia después |
 | D12 | Para comer en el local, la cajera pregunta y registra **nombre** (el que el cliente quiera dar) y **zona**: patio de comida (primer piso) o terraza (segundo piso). **No se usan números de mesa**: al pedir, el cliente aún no sabe dónde se sentará. La mesera lo llama por su nombre |
-| D13 | Equipos del local: celular de cobros con Yallegó, celular de la cajera, pantalla de cocina y pantalla pública afuera (§7.4) |
+| D13 | Equipos del local: celular de cobros con Yallegó, celular de la cajera, celular de la mesera, celular de cocina y pantalla pública afuera (§7.4) |
 | D14 | El administrador **no está todo el día**: valida el cierre de caja al final de la jornada, desde su celular o computadora |
 | D15 | La **mesera usa su celular**: ve los pedidos de mesa con nombre, zona y detalle, se los lleva y marca «Entregado» antes o después de entregar, como prefiera |
 | D16 | Un pedido pagado solo se corrige o se cancela a partir de una **observación** (reclamo) que registra la mesera o la cajera. La cajera la resuelve y el administrador lo revisa al validar el cierre |
+| D17 | **La cocina y la mesera marcan sus estados desde un celular.** Se propondrá al comercio una **pantalla táctil en cocina** donde ambas puedan marcarlos |
+| D18 | En pedidos **para llevar se cobra el táper**, según los productos; en pedidos para comer en el local no se cobra |
+| D19 | **Una sola caja** y un turno por la jornada completa                                             |
 
 ### 7.2. Restricciones heredadas de Yallegó
 
@@ -221,7 +224,7 @@ de Yallegó.
 | ------------------- | ------------------------------------- | ----------------------------- |
 | Caja                | Celular (app web instalable)          | Cajera                        |
 | Salón               | Celular de la mesera (app web)        | Mesera                        |
-| Cocina              | Tablet o monitor táctil               | Pantalla vinculada, sin usuario |
+| Cocina              | Celular (propuesta: pantalla táctil)  | Dispositivo vinculado, sin usuario |
 | Pantalla pública    | TV o monitor                          | Pantalla vinculada, sin usuario |
 | Panel de administración | Celular o computadora del administrador | Dueño y administrador, sobre todo al cierre del día |
 | Backend             | Servidor                              | —                             |
@@ -239,7 +242,7 @@ comparten equipo, una falla de internet tumba ambos a la vez.
 | Celular de cobros              | Caja, fijo                     | Recibe los Yape; tiene instalada la app de Yallegó         | Android dedicado, siempre enchufado, con datos móviles además de Wi-Fi |
 | Celular de la cajera           | Caja                           | Tomar pedidos, cobrar y entregar los pedidos para llevar   | Android 10+ o iPhone con iOS 16.4+                                      |
 | Celular de la mesera           | Salón (patio y terraza)        | Ver los pedidos de mesa y marcarlos entregados             | Android 10+ o iPhone con iOS 16.4+; puede ser su propio celular        |
-| Pantalla de cocina             | Cocina                         | Avanzar pedidos: pendiente → en preparación → listo         | Táctil: tablet de 10" o más, o monitor táctil con mini PC               |
+| Celular de cocina              | Cocina                         | Ver la cola y marcar en preparación y listo                | Android o iPhone; vinculado como dispositivo de cocina, sin usuario     |
 | Pantalla pública               | Afuera, visible a los clientes | Pedidos en preparación y listos                            | TV con Android TV o Google TV, o un dispositivo que la convierta        |
 | Celular o computadora del administrador | Donde esté            | Validar el cierre del día                                  | Cualquiera con navegador; no es un equipo dedicado                     |
 
@@ -250,6 +253,7 @@ comparten equipo, una falla de internet tumba ambos a la vez.
 | Plan de datos móviles en el celular de cobros           | Si se cae el Wi-Fi, sigue recibiendo los Yape por 4G. Es lo que más protege el «activo al 100 %»      |
 | Cargador fijo para el celular de cobros                 | Que no se apague por batería; además, la app de Yallegó va sin ahorro de batería                    |
 | UPS pequeño (no-break) para el router                   | Ante un corte de luz, los celulares siguen conectados al Wi-Fi                                       |
+| Pantalla táctil en cocina (tablet de 10" o más, o monitor táctil) | Propuesta: cocina y mesera marcan ahí sus estados, y la cola se ve de lejos             |
 | Soporte de pared y funda para la pantalla de cocina     | Propuesta: a la altura de los ojos y lejos del calor, el vapor y la grasa                            |
 | Dispositivo Android TV o Google TV (TV box o similar)   | Solo si la TV de afuera no es Smart o su navegador es antiguo                                        |
 | TV bajo techo y con buen brillo                         | Afuera, el sol directo vuelve ilegible una TV común                                                  |
@@ -336,24 +340,25 @@ reportes consolidados de cadena, integraciones con delivery.
 ## 11. Decisiones pendientes
 
 Resueltas el 2026-10-11: P2 (D8), P3 (D9), P9 (D13), P10 (D11), P11 y P13 (D12),
-P12 (D15) y P14 (D16). El nombre de trabajo `resto` quedó aprobado para el código
-(D10).
+P12 (D15), P14 (D16), P16 (D18) y P18 (D19). El nombre de trabajo `resto` quedó
+aprobado para el código (D10).
 
 **En espera**, se retoman más adelante: P5 (boleta impresa), referencias visuales,
 carta completa del piloto, su cuenta de Yallegó, el parlante de la pantalla pública
 y el soporte de la pantalla de cocina.
 
-| #   | Pregunta                                                                                                                                                         | Valor por defecto mientras no se decida                    |
-| --- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------- |
-| P1  | Nombre comercial del producto                                                                                                                                    | `resto` en el código                                       |
-| P4  | ¿Se emiten boletas o facturas electrónicas (SUNAT) desde el sistema?                                                                                             | No en el MVP                                               |
-| P5  | *En espera.* ¿Se sigue imprimiendo la boleta simple o basta con el número en pantalla?                                                                          | La caja muestra número, detalle, total y tiempo estimado   |
-| P6  | ¿La cuenta de Yallegó va incluida en nuestro precio?                                                                                                             | No; cada restaurante conecta su cuenta                     |
-| P7  | Precios de los planes                                                                                                                                            | Por definir                                                |
-| P8  | ¿En qué fecha será la reunión para mostrarle el sistema al restaurante?                                                                                          | Demo con simulador al cierre del Sprint 5                  |
-| P15 | La pantalla pública está afuera. ¿Muestra también los pedidos para comer en el local? Si uno de mesa aparece en «Listos», el cliente podría ir a la caja en vez de esperar a la mesera | En «En preparación», todos; en «Listos», solo los de llevar |
-| P16 | ¿Se cobra el táper o envase en los pedidos para llevar?                                                                                                          | La cajera lo agrega como un producto «Táper» de Adicionales |
-| P17 | ¿Hay descuentos, promociones o cortesías?                                                                                                                        | No en el MVP                                               |
-| P18 | ¿Cuántas cajas atienden a la vez y cuántos turnos hay al día (por ejemplo, almuerzo y cena)?                                                                     | Una caja y un turno por día                                |
-| P19 | ¿Reciben pedidos por WhatsApp, teléfono o apps de delivery?                                                                                                      | Solo pedidos presenciales en caja                          |
-| P20 | ¿Cuántos pedidos atienden al día y en la hora más llena, aproximadamente?                                                                                       | 120 por hora en punta (RNF-ESC-001)                        |
+| #   | Pregunta                                                                                                                                                                                                                                  | Valor por defecto mientras no se decida                     |
+| --- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------- |
+| P1  | Nombre comercial del producto                                                                                                                                                                                                             | `resto` en el código                                        |
+| P4  | ¿Se emiten boletas o facturas electrónicas (SUNAT) desde el sistema?                                                                                                                                                                      | No en el MVP                                                |
+| P5  | *En espera.* ¿Se sigue imprimiendo la boleta simple o basta con el número en pantalla?                                                                                                                                                   | La caja muestra número, detalle, total y tiempo estimado    |
+| P6  | ¿La cuenta de Yallegó va incluida en nuestro precio?                                                                                                                                                                                      | No; cada restaurante conecta su cuenta                      |
+| P7  | Precios de los planes                                                                                                                                                                                                                     | Por definir                                                 |
+| P8  | ¿En qué fecha será la reunión para mostrarle el sistema al restaurante?                                                                                                                                                                   | Demo con simulador al cierre del Sprint 5                   |
+| P15 | La pantalla pública está afuera. Para llevar, «Listo» significa «acércate a la caja con tu boleta»; para mesa, la mesera lleva el pedido. Si los de mesa salen en «Listos», un cliente sentado podría ir a la caja. Opciones: (A) todos en ambas columnas; (B) todos en «En preparación» y solo los de llevar en «Listos»; (C) solo pedidos para llevar; (D) todos, y los de mesa en «Listos» con «Te lo lleva la mesera» | (B)                                                         |
+| P17 | ¿Hay descuentos, promociones o cortesías?                                                                                                                                                                                                 | No en el MVP                                                |
+| P19 | Pedidos por WhatsApp, teléfono o delivery: el negocio explicará el flujo si decide implementarlo                                                                                                                                          | Solo pedidos presenciales en caja                           |
+| P20 | ¿Cuántos pedidos atienden al día y en la hora más llena, aproximadamente?                                                                                                                                                                | 120 por hora en punta (RNF-ESC-001)                         |
+| P21 | En una corrección, si el error fue de la cajera y el plato correcto cuesta más, ¿se le cobra la diferencia al cliente o la asume el local?                                                                                                | Se cobra al cliente                                         |
+| P22 | Además del celular, ¿la cocina tendrá una TV o monitor (no táctil) solo para ver la cola?                                                                                                                                                 | No; todo desde el celular                                   |
+| P23 | ¿Cuánto se cobra por táper? ¿Es un monto fijo por plato o depende del plato?                                                                                                                                                              | Monto por producto; S/ 1.00 por plato en la demostración    |
