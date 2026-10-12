@@ -68,6 +68,8 @@ Tareas sin código, en paralelo al Sprint 1:
 
 - [ ] Ingreso, activación de cuenta, recuperación.
 - [ ] Administración: locales y equipo.
+- [ ] Pantalla de carga, «Algo salió mal», 404 y sesión vencida (09 §15).
+- [ ] Tokens de movimiento y transiciones entre pantallas (09 §9).
 
 ### Criterios de aceptación
 
@@ -128,7 +130,9 @@ Tareas sin código, en paralelo al Sprint 1:
 - [ ] Cobro en efectivo.
 - [ ] Confirmación con número, detalle, total y tiempo estimado ajustable.
 - [ ] Pestaña Pedidos.
-- [ ] Detección de falta de internet en el propio celular.
+- [ ] Detección de falta de internet en el propio celular, con reintento automático.
+- [ ] Esqueletos, diálogos de confirmación y avisos breves.
+- [ ] Microinteracciones de la caja: agregar plato, contador del pedido y confirmación con check.
 
 ### Criterios de aceptación
 
@@ -191,6 +195,7 @@ Tareas sin código, en paralelo al Sprint 1:
 - [ ] Cocina en pantalla táctil (propuesta): columnas y «Para mesa» para la mesera.
 - [ ] Monitor de cocina en solo lectura: columnas que se leen de lejos.
 - [ ] Pantalla pública: columnas, animación y sonido de listo, marca del negocio, Wake Lock, reconexión.
+- [ ] «Toca para activar el sonido» en cocina, TV y pantalla pública.
 - [ ] Caja: pestaña Listos con «Entregar» y búsqueda por número.
 - [ ] Salón (celular de la mesera): pedidos con nombre, zona y detalle, aviso de listos y «Entregado».
 
@@ -270,6 +275,7 @@ Tareas sin código, en paralelo al Sprint 1:
 - [ ] Consola de plataforma: estado de Yallegó y cobros por negocio, suspensión, suscripciones.
 - [ ] Puesta en marcha en el restaurante piloto (`08_UX_FLUJOS.md` §3) y capacitación.
 - [ ] Una semana de acompañamiento en hora punta.
+- [ ] PWA: instalación en la pantalla de inicio y aviso de nueva versión.
 
 ### Criterios de aceptación
 

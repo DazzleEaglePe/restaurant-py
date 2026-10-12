@@ -331,15 +331,79 @@ Lucide (igual que Yallegó), trazo de 2 px. Correspondencias:
 
 ## 9. Movimiento
 
-| Evento                       | Animación                                    | Duración |
-| ---------------------------- | -------------------------------------------- | -------- |
-| Pago nuevo en la lista       | Entrada desde arriba + resaltado             | 200 ms + 1.5 s |
-| Pedido listo (pública)       | Entrada en la columna + pulso del fondo; la mascota hace «ding» | 300 ms + 8 s |
-| Pedido nuevo (cocina)        | Destello del borde                           | 600 ms   |
-| Confirmación de pago         | Check que se dibuja                          | 400 ms   |
-| Cargando                     | Los tres puntos de la mascota se encienden en secuencia | 900 ms en bucle |
+El sistema es una PWA: vive en la web y en la nube, pero debe sentirse como una app
+nativa. El movimiento es la principal herramienta para lograrlo.
 
-Respeta `prefers-reduced-motion`: se reemplazan por cambios de color sin movimiento.
+### 9.1. Principios
+
+1. **Con propósito.** Cada animación confirma algo, orienta («de dónde vengo, a dónde
+   voy») o da continuidad. Si no hace ninguna de las tres, no va.
+2. **Rápido.** Respuesta visual en menos de 100 ms tras el toque; ninguna transición
+   pasa de 320 ms, salvo los avisos de «pedido listo».
+3. **Nunca bloquea.** Se puede tocar lo siguiente mientras algo termina de animarse.
+4. **Fluido en gama media.** Solo se animan `transform` y `opacity`, a 60 cuadros por
+   segundo.
+5. **Opcional.** Con `prefers-reduced-motion` todo se reemplaza por cambios de color
+   o de opacidad sin desplazamiento.
+
+### 9.2. Tokens
+
+| Token                  | Valor                              | Uso                                     |
+| ---------------------- | ---------------------------------- | --------------------------------------- |
+| `--motion-instant`     | 100 ms                             | Presión de botones, cambios de color    |
+| `--motion-fast`        | 160 ms                             | Chips, contadores, avisos breves        |
+| `--motion-base`        | 220 ms                             | Transiciones de pantalla y hojas        |
+| `--motion-slow`        | 320 ms                             | Diálogos, entrada de tarjetas grandes   |
+| `--motion-emphasis`    | 480 ms                             | Check de confirmación, «ding»           |
+| `--ease-standard`      | `cubic-bezier(0.2, 0, 0, 1)`       | Casi todo                               |
+| `--ease-enter`         | `cubic-bezier(0, 0, 0, 1)`         | Elementos que entran                    |
+| `--ease-exit`          | `cubic-bezier(0.3, 0, 1, 1)`       | Elementos que salen                     |
+| `--ease-bounce`        | `cubic-bezier(0.34, 1.56, 0.64, 1)` | Contadores y la mascota                |
+
+### 9.3. Transiciones entre pantallas
+
+| Navegación                    | Animación                                                        |
+| ----------------------------- | ---------------------------------------------------------------- |
+| Avanzar (carta → pedido)      | La pantalla nueva entra desde la derecha; la anterior se desplaza un 30 % a la izquierda |
+| Volver                        | Lo inverso                                                       |
+| Cambiar de pestaña inferior   | Fundido cruzado, sin desplazamiento                              |
+| Hoja inferior                 | Sube desde abajo con fondo oscurecido; se cierra arrastrando hacia abajo |
+| Diálogo de confirmación       | Aparece con fundido y escala de 96 % a 100 %                     |
+
+En el código se usa la API de View Transitions del navegador, con transiciones CSS
+como respaldo donde no existe.
+
+### 9.4. Microinteracciones
+
+| Evento                        | Animación                                                          | Duración          | Háptica      |
+| ----------------------------- | ------------------------------------------------------------------ | ----------------- | ------------ |
+| Tocar un botón                | Se hunde a 97 % y vuelve                                           | 100 ms            | —            |
+| Agregar un plato              | El botón «+» gira un cuarto; el contador del plato salta; el total de «Ver pedido» sube contando | 160 + 320 ms | Corta |
+| Pago nuevo en la lista        | Entra desde arriba con resaltado coral que se desvanece            | 220 ms + 1.5 s    | Corta        |
+| Confirmar un pago             | El botón pasa a indicador de carga y termina en un check que se dibuja | 480 ms        | Doble        |
+| Pedido enviado a cocina       | La mascota hace «ding»: rayas que aparecen y un rebote             | 480 ms            | —            |
+| Ticket nuevo en cocina        | Destello del borde                                                 | 600 ms            | —            |
+| Avanzar un ticket             | La tarjeta se desliza y se encoge al salir de la columna           | 220 ms            | Corta        |
+| Deshacer                      | Barra que se vacía en 10 s debajo del botón                        | 10 s              | —            |
+| Pedido listo (pública)        | Entra en «Listos» con pulso del fondo; la mascota hace «ding»      | 300 ms + 8 s      | —            |
+| Celular de cobros caído       | El aviso baja empujando el contenido; el punto rojo late           | 220 ms; latido 1.2 s | Larga     |
+| Error en un campo             | Sacudida horizontal breve                                          | 300 ms            | Corta        |
+
+La vibración (`navigator.vibrate`) solo existe en Android; en iPhone se omite sin
+cambiar el resto.
+
+### 9.5. Cargas
+
+| Situación                      | Tratamiento                                                       |
+| ------------------------------ | ----------------------------------------------------------------- |
+| Arranque de la app             | Pantalla de carga con la mascota «cargando» (§15)                 |
+| Lista o carta que tarda > 300 ms | Esqueletos con la forma del contenido y un brillo que recorre   |
+| Acción de un botón             | Indicador dentro del botón; el botón no cambia de tamaño          |
+| Pago «Confirmando…»            | Barra indeterminada y el texto «Confirmando con Yallegó…»         |
+| Datos que se recargan          | Nada visible si tarda < 300 ms; si no, esqueleto                  |
+
+Nunca se muestra una pantalla en blanco ni un indicador que gira sin texto por más
+de 3 segundos.
 
 ---
 
@@ -363,6 +427,10 @@ Respeta `prefers-reduced-motion`: se reemplazan por cambios de color sin movimie
 | Pedido listo              | Pantalla pública, salón | El «ding» de la marca: campanilla breve |
 | Cobros caídos             | Caja             | Alerta doble, distinta al resto           |
 | Pago recibido             | Caja             | Opcional, suave                           |
+
+Los navegadores bloquean el audio hasta que la persona toca la pantalla una vez.
+Por eso cocina, TV y pantalla pública arrancan con «Tocar para activar el sonido»
+(§15), que además mantiene la pantalla encendida (Wake Lock).
 
 ---
 
@@ -398,5 +466,35 @@ pantalla pública.
 - [ ] Flujo de cobro con Yape en 3 toques cuando el pago ya llegó.
 - [ ] Pantalla pública sin montos ni datos del pagador.
 - [ ] «con resto» nunca más grande que un tercio del nombre del restaurante.
-- [ ] Animaciones con alternativa para movimiento reducido.
+- [ ] Respuesta visual en menos de 100 ms a cada toque.
+- [ ] Ninguna pantalla en blanco: siempre esqueleto, estado vacío o error con salida.
+- [ ] Animaciones solo con `transform` y `opacity`, con alternativa para movimiento reducido.
 - [ ] Probado en un Android de gama media a 360 px de ancho.
+
+---
+
+## 15. Estados del sistema
+
+| Estado                     | Mascota  | Título                                   | Mensaje                                                        | Acción                        |
+| -------------------------- | -------- | ---------------------------------------- | -------------------------------------------------------------- | ----------------------------- |
+| Arranque                   | Cargando | Nombre del restaurante                   | «Preparando tu caja…»                                          | —                             |
+| Sin conexión               | Alerta   | «Sin internet en este celular»           | «Volveremos a intentar en 5 s. Tu pedido en armado no se pierde.» | Reintentar ahora           |
+| Error inesperado           | Alerta   | «Algo salió mal»                         | «No es tu culpa. Intenta de nuevo; si sigue, avisa a soporte con este código.» + código | Reintentar · Ir al inicio |
+| Página no encontrada (404) | Reposo, campana vacía | «Esta página no existe»     | «Puede que el enlace esté incompleto.»                         | Ir al inicio                  |
+| Sesión vencida             | Reposo   | «Tu sesión terminó»                      | «Ingresa de nuevo. Guardamos tu pedido en armado.»             | Ingresar                      |
+| Nueva versión              | —        | Aviso inferior: «Hay una versión nueva»  | —                                                              | Actualizar (sin perder el pedido) |
+| Instalar                   | Listo    | «Instala la caja en tu celular»          | «Ábrela como una app, a pantalla completa.»                    | Instalar · Ahora no           |
+| Sonido bloqueado (pantallas fijas) | Listo | «Toca para activar el sonido»  | «Así escucharás cada pedido nuevo.»                            | Toque en cualquier parte o botón OK del control |
+| Pantalla sin vincular      | Reposo   | «Vincula esta pantalla»                  | Código de 8 caracteres y QR                                    | —                             |
+| Vacío                      | Reposo   | Según el lugar (08 §15.1)                | —                                                              | La acción principal del lugar |
+
+## 16. Textos
+
+- Botones con verbo y objeto: «Confirmar pago», no «Aceptar».
+- Errores en dos partes: qué pasó y qué hacer. Nunca códigos técnicos solos.
+- Nombres de pagador y de plato: una línea con elipsis en listas; dos líneas en
+  tarjetas de la carta.
+- Montos y números de pedido nunca se cortan ni se parten en dos líneas.
+- Cifras tabulares para que los montos no «bailen» al cambiar.
+- Mayúsculas solo en etiquetas cortas (ESTADO, LLEVAR), con espaciado de letras.
+- Tuteo y frases cortas, como en 08 §18.

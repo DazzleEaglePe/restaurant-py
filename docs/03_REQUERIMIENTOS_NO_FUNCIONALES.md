@@ -110,6 +110,10 @@ Detalle en `07_SEGURIDAD_AUTH.md`.
 | RNF-USA-005  | El estado nunca se comunica solo con color: también con texto o ícono.                                            |
 | RNF-USA-006  | Interfaz en español de Perú; montos en soles con dos decimales (`S/ 25.00`); horas en 24 h y zona del local.      |
 | RNF-USA-007  | La caja se usa con una sola mano: acciones principales en la mitad inferior de la pantalla.                       |
+| RNF-USA-008  | Toda acción táctil tiene respuesta visual en menos de 100 ms.                                                     |
+| RNF-USA-009  | Las animaciones usan solo `transform` y `opacity` y mantienen 60 cuadros por segundo en un Android de gama media. |
+| RNF-USA-010  | Con `prefers-reduced-motion`, las animaciones se reemplazan por cambios de color u opacidad.                       |
+| RNF-USA-011  | Ninguna pantalla queda en blanco: siempre esqueleto, estado vacío o error con una salida.                         |
 
 ---
 
@@ -119,12 +123,24 @@ Detalle en `07_SEGURIDAD_AUTH.md`.
 | ----------------- | ------------------------------------------------------------------------------------------------------------ |
 | Caja              | Android 10+ con Chrome 110+; iPhone con iOS 16.4+ y Safari, instalada como app web. Ancho mínimo 360 px.     |
 | Cocina            | Celular en vertical (MVP): Android 10+ con Chrome 110+ o iPhone con iOS 16.4+. Propuesta: tablet de 10" o monitor táctil en horizontal. |
-| Pantalla pública  | TV o monitor de 1080p con navegador basado en Chromium (Android TV, Google TV o mini PC). Sin interacción.   |
+| Pantalla pública  | TV o monitor de 1080p con navegador basado en Chromium (Android TV, Google TV o mini PC). Sin interacción, salvo un toque inicial para activar el sonido.   |
 | Administración    | Últimas dos versiones de Chrome, Edge, Firefox y Safari en escritorio. El cierre del día se revisa completo desde el celular del administrador. |
 
 ---
 
-## 10. Restricciones tecnológicas
+## 10. Aplicación web instalable (PWA)
+
+| ID          | Requerimiento                                                                                                   |
+| ----------- | --------------------------------------------------------------------------------------------------------------- |
+| RNF-PWA-001 | La caja y el salón se instalan en la pantalla de inicio y abren a pantalla completa, con ícono y pantalla de carga propios. |
+| RNF-PWA-002 | La estructura de la app (código, fuentes, íconos) queda en caché para abrir rápido aunque la red esté lenta.     |
+| RNF-PWA-003 | Los datos de pedidos, pagos y turnos **nunca** se guardan en caché: siempre se leen de la nube.                  |
+| RNF-PWA-004 | Una versión nueva se anuncia con un aviso y se aplica cuando la persona lo acepta, sin perder un pedido en armado. |
+| RNF-PWA-005 | Las pantallas fijas piden un toque para activar el sonido (política de los navegadores) y mantienen la pantalla encendida con Wake Lock. |
+
+---
+
+## 11. Restricciones tecnológicas
 
 | ID          | Restricción                                                                                       |
 | ----------- | ------------------------------------------------------------------------------------------------- |
@@ -134,7 +150,7 @@ Detalle en `07_SEGURIDAD_AUTH.md`.
 
 ---
 
-## 11. Restricciones operativas
+## 12. Restricciones operativas
 
 | ID          | Restricción                                                                                                     |
 | ----------- | --------------------------------------------------------------------------------------------------------------- |
@@ -145,7 +161,7 @@ Detalle en `07_SEGURIDAD_AUTH.md`.
 
 ---
 
-## 12. Matriz de atributos de calidad priorizados
+## 13. Matriz de atributos de calidad priorizados
 
 | Prioridad | Atributo                  | Por qué                                                                                    |
 | --------- | ------------------------- | ------------------------------------------------------------------------------------------ |

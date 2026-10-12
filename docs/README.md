@@ -21,7 +21,7 @@ Una pantalla frente a los clientes muestra qué está en preparación y qué est
 | #   | Documento                                                              | Contenido                                                                                  |
 | --- | ---------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
 | 01  | [Contexto y Análisis](./01_CONTEXTO_Y_ANALISIS.md)                     | Problema, propuesta de valor, relación con Yallegó y sus brechas, decisiones, riesgos      |
-| 02  | [Requerimientos Funcionales](./02_REQUERIMIENTOS_FUNCIONALES.md)       | 19 módulos con prioridad, matriz de roles y trazabilidad por sprint                        |
+| 02  | [Requerimientos Funcionales](./02_REQUERIMIENTOS_FUNCIONALES.md)       | 20 módulos con prioridad, matriz de roles y trazabilidad por sprint                        |
 | 03  | [Requerimientos No Funcionales](./03_REQUERIMIENTOS_NO_FUNCIONALES.md) | Rendimiento, disponibilidad, seguridad, privacidad, usabilidad, compatibilidad             |
 | 04  | [Arquitectura de Software](./04_ARQUITECTURA_SOFTWARE.md)              | Monolito modular, capa anticorrupción con Yallegó, flujos de cobro, concurrencia, ADRs     |
 | 05  | [Modelo de Datos](./05_MODELO_DATOS.md)                                | Diagrama, DDL completo, Row Level Security, semillas, Redis, retención                     |

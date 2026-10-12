@@ -500,6 +500,12 @@ queda marcado en los reportes hasta que se resuelva.
 | Sin conexión (caja)    | Aviso fijo gris; botones de servidor deshabilitados; la carta sigue visible    |
 | Sesión vencida         | Vuelve al ingreso conservando el pedido en armado                              |
 | Producto agotado       | Tarjeta atenuada con «Agotado»; no se puede agregar                            |
+| Error inesperado       | Mascota «alerta», «Algo salió mal», código de soporte, **Reintentar**          |
+| Página no encontrada   | Mascota con la campana vacía y **Ir al inicio**                                |
+| Nueva versión          | Aviso inferior con **Actualizar**; nunca se recarga solo si hay un pedido en armado |
+
+El detalle de cada estado (mascota, título, mensaje y acción) está en
+`09_DESIGN_SYSTEM.md` §15.
 
 ### 15.1. Mensajes de estado vacío
 
@@ -554,3 +560,27 @@ queda marcado en los reportes hasta que se resuelva.
 - Sin tecnicismos frente a cajeras: «celular de cobros», no «dispositivo»; «pago»,
   no «transacción».
 - Montos siempre como `S/ 97.00`.
+
+---
+
+## 19. Flujo: arranque de la caja
+
+1. Se abre la app instalada (o el enlace). Pantalla de carga con la mascota
+   «cargando» y el nombre del restaurante; nunca más de 2 s si la red es buena.
+2. Si no hay sesión: **Ingresar** con correo y contraseña. El botón muestra su
+   indicador de carga dentro.
+3. Si la cajera tiene más de un local: **Elegir local**.
+4. Si no tiene turno abierto: **Abrir turno** con el fondo inicial y atajos de monto.
+5. Llega a la carta con una transición de entrada.
+
+La primera vez, después de abrir el turno, aparece la hoja **Instalar la caja en tu
+celular**. Si la cajera la descarta, no vuelve a salir en 7 días.
+
+## 20. Flujo: pantallas fijas (cocina, TV y pantalla pública)
+
+1. La primera vez: **Vincula esta pantalla** con el código o el QR.
+2. Cada vez que el equipo se enciende: **Toca para activar el sonido**. Ese toque
+   (o el botón OK del control de la TV) activa el audio y mantiene la pantalla
+   encendida.
+3. Sin conexión, los pedidos quedan en pantalla, aparece un punto gris en la esquina
+   y se reconecta solo; nunca se muestra una pantalla de error a los clientes.

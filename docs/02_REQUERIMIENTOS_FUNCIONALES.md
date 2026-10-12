@@ -26,6 +26,7 @@
 | `SAL`  | Salón (meseras)                         |
 | `OBS`  | Observaciones y correcciones de pedido  |
 | `DSC`  | Descuentos, promociones y cortesías     |
+| `SIS`  | Estados del sistema y PWA               |
 | `CAJ`  | Turnos y cierre de caja                 |
 | `REP`  | Reportes                                |
 | `AUD`  | Auditoría                               |
@@ -265,7 +266,7 @@ actual (D8) → MESERO. Las pantallas son dispositivos vinculados, no usuarios (
 | RF-PUB-002 | Cada pedido muestra su número y el nombre que dio el cliente, abreviado. Nunca montos ni datos del pagador.                | MUST      |
 | RF-PUB-003 | Cuando un pedido pasa a «Listos», se resalta unos segundos y suena un aviso.                                           | MUST      |
 | RF-PUB-004 | Un pedido entregado sale de la pantalla. Un pedido listo sale solo tras los minutos configurados en el local.         | MUST      |
-| RF-PUB-005 | La pantalla funciona sin teclado ni ratón, a pantalla completa y sin que el equipo se suspenda.                       | MUST      |
+| RF-PUB-005 | La pantalla funciona a pantalla completa y sin que el equipo se suspenda; solo pide un toque inicial para activar el sonido (RF-SIS-009). | MUST      |
 | RF-PUB-006 | La pantalla muestra el logo o el nombre del negocio con su color de acento, y el sello «con resto» en una esquina. (D26) | SHOULD    |
 | RF-PUB-007 | La pantalla anuncia por voz «Pedido 42, listo».                                                                         | COULD     |
 
@@ -313,7 +314,25 @@ actual (D8) → MESERO. Las pantallas son dispositivos vinculados, no usuarios (
 
 ---
 
-## 16. CAJ — Turnos y cierre de caja
+## 16. SIS — Estados del sistema y PWA
+
+| ID         | Requerimiento                                                                                                              | Prioridad |
+| ---------- | -------------------------------------------------------------------------------------------------------------------------- | --------- |
+| RF-SIS-001 | Al abrir, la app muestra una pantalla de carga con la marca y el nombre del restaurante.                                   | MUST      |
+| RF-SIS-002 | Toda carga de más de 300 ms muestra esqueletos con la forma del contenido.                                                 | MUST      |
+| RF-SIS-003 | Sin conexión, la app lo avisa, reintenta sola cada 5 s y ofrece «Reintentar ahora», sin perder el pedido en armado.        | MUST      |
+| RF-SIS-004 | Un error inesperado muestra «Algo salió mal», un código para soporte (`request_id`), «Reintentar» e «Ir al inicio».        | MUST      |
+| RF-SIS-005 | Una ruta inexistente muestra una página 404 con «Ir al inicio».                                                            | MUST      |
+| RF-SIS-006 | Con la sesión vencida, la persona vuelve a ingresar y recupera su pedido en armado.                                        | MUST      |
+| RF-SIS-007 | La caja y el salón invitan a instalar la app en la pantalla de inicio; si se descarta, no insisten por 7 días.             | SHOULD    |
+| RF-SIS-008 | Una versión nueva se anuncia con «Actualizar» y no recarga sola si hay un pedido en armado.                                | MUST      |
+| RF-SIS-009 | Cocina, TV y pantalla pública piden un toque para activar el sonido y mantienen la pantalla encendida.                     | MUST      |
+| RF-SIS-010 | Las acciones destructivas (cancelar pedido, cerrar turno) piden confirmación; los resultados se avisan con mensajes breves. | MUST      |
+| RF-SIS-011 | Transiciones y microinteracciones según `09_DESIGN_SYSTEM.md` §9, con modo sin movimiento.                                 | SHOULD    |
+
+---
+
+## 17. CAJ — Turnos y cierre de caja
 
 | ID         | Requerimiento                                                                                                                          | Prioridad |
 | ---------- | -------------------------------------------------------------------------------------------------------------------------------------- | --------- |
@@ -329,7 +348,7 @@ actual (D8) → MESERO. Las pantallas son dispositivos vinculados, no usuarios (
 
 ---
 
-## 17. REP — Reportes
+## 18. REP — Reportes
 
 | ID         | Requerimiento                                                                                    | Prioridad |
 | ---------- | ------------------------------------------------------------------------------------------------ | --------- |
@@ -344,7 +363,7 @@ actual (D8) → MESERO. Las pantallas son dispositivos vinculados, no usuarios (
 
 ---
 
-## 18. AUD — Auditoría
+## 19. AUD — Auditoría
 
 | ID         | Requerimiento                                                                                                                                                       | Prioridad |
 | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------- |
@@ -354,7 +373,7 @@ actual (D8) → MESERO. Las pantallas son dispositivos vinculados, no usuarios (
 
 ---
 
-## 19. PLT — Administración de plataforma
+## 20. PLT — Administración de plataforma
 
 | ID         | Requerimiento                                                                                         | Prioridad |
 | ---------- | ----------------------------------------------------------------------------------------------------- | --------- |
@@ -366,15 +385,15 @@ actual (D8) → MESERO. Las pantallas son dispositivos vinculados, no usuarios (
 
 ---
 
-## 20. Trazabilidad: requerimientos por sprint
+## 21. Trazabilidad: requerimientos por sprint
 
 | Sprint | Módulos y requerimientos principales                                                     |
 | ------ | ---------------------------------------------------------------------------------------- |
-| 1      | AUTH-001…007, TEN-001…004, USR-001…004, PLT-001, AUD-001 (base)                          |
+| 1      | AUTH-001…007, TEN-001…004, USR-001…004, PLT-001, AUD-001 (base), SIS-001, SIS-004…006 |
 | 2      | CAR-001…008, MES-001…003, TEN-005, CAR-011 |
-| 3      | PED-001…006, PED-008, PED-009, PED-012…015, PAG-001, CAJ-001, CAJ-002, COB-008, PED-017 |
+| 3      | PED-001…006, PED-008, PED-009, PED-012…015, PAG-001, CAJ-001, CAJ-002, COB-008, PED-017, SIS-002, SIS-003, SIS-010, SIS-011 |
 | 4      | YLG-001…007, YLG-010, PAG-002…010                                                        |
-| 5      | PAN-001…005, COC-001…009, PUB-001…006, SAL-001…005, PED-007, PED-011, PED-016, PAN-006, COC-011, COC-012 (si el comercio compra la pantalla), COC-013 |
+| 5      | PAN-001…005, COC-001…009, PUB-001…006, SAL-001…005, PED-007, PED-011, PED-016, PAN-006, COC-011, COC-012 (si el comercio compra la pantalla), COC-013, SIS-009 |
 | 6      | COB-001…007, PAG-013…017                                                                 |
 | 7      | CAJ-003…009, OBS-001…008, COC-010, PED-010, PAG-011, PAG-012, REP-001…008, AUD-001…003, YLG-008, YLG-009, DSC-001…008 |
-| 8      | PLT-002…004, TEN-006, endurecimiento y piloto                                            |
+| 8      | PLT-002…004, TEN-006, endurecimiento y piloto, SIS-007, SIS-008 |
