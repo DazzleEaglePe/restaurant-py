@@ -180,7 +180,7 @@ Tareas sin código, en paralelo al Sprint 1:
 
 ### Backend
 
-- [ ] Dispositivos vinculados (celular de cocina, monitor de cocina y pantalla pública): alta, código, canje, token, revocación.
+- [ ] Dispositivos vinculados (celular de cocina, monitor de cocina y pantalla pública): solicitud con código y secreto, aprobación del ADMIN, canje del token, cambio de equipo y revocación (D27).
 - [ ] Proyecciones de cocina y pública; salas por local.
 - [ ] Acciones de cocina con control de versión y deshacer.
 - [ ] Entrega desde la caja; ocultar listos por tiempo.
@@ -190,7 +190,8 @@ Tareas sin código, en paralelo al Sprint 1:
 
 ### Web
 
-- [ ] `/vincular` con código y QR.
+- [ ] `/vincular`: la pantalla muestra código y QR, los renueva al vencer y entra sola al aprobarse.
+- [ ] `/admin/pantallas/vincular?codigo=`: aprobación desde el celular del administrador.
 - [ ] Cocina en celular: lista vertical, colores por tipo y demora, sonido, deshacer, cancelados.
 - [ ] Cocina en pantalla táctil (propuesta): columnas y «Para mesa» para la mesera.
 - [ ] Monitor de cocina en solo lectura: columnas que se leen de lejos.

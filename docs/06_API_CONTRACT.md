@@ -160,35 +160,51 @@ Solo un OWNER puede invitar o modificar a otro OWNER (`403 FORBIDDEN`).
 
 | Método   | Ruta                                   | Autenticación       | Descripción                                   |
 | -------- | -------------------------------------- | ------------------- | --------------------------------------------- |
+| `POST`   | `/v1/pantallas/solicitudes`            | Ninguna             | El equipo pide un código para mostrarlo       |
+| `POST`   | `/v1/pantallas/solicitudes/{id}/canjear` | Secreto del equipo | El equipo espera la aprobación y recibe su token |
+| `GET`    | `/v1/pantallas/vincular/{codigo}`      | ADMIN               | Qué equipo pidió el código, antes de aprobar  |
+| `POST`   | `/v1/pantallas/vincular`               | ADMIN               | Aprueba el código: crea la pantalla o cambia su equipo |
 | `GET`    | `/v1/pantallas`                        | ADMIN               | Lista pantallas por local                     |
-| `POST`   | `/v1/pantallas`                        | ADMIN               | Crea una pantalla y su código de vinculación  |
-| `POST`   | `/v1/pantallas/{id}/codigo`            | ADMIN               | Genera un código nuevo                        |
+| `PATCH`  | `/v1/pantallas/{id}`                   | ADMIN               | Cambia el nombre                              |
 | `DELETE` | `/v1/pantallas/{id}`                   | ADMIN               | Revoca la pantalla                            |
-| `POST`   | `/v1/pantallas/vincular`               | Ninguna             | Canjea el código por un token                 |
 | `GET`    | `/v1/pantallas/sesion`                 | Token de pantalla   | Datos de la pantalla, local y marca           |
 
-### `POST /v1/pantallas`
+El equipo muestra el código y la administración lo aprueba (D27). Es el mismo
+patrón que usan las apps de TV para iniciar sesión desde el celular.
+
+### `POST /v1/pantallas/solicitudes`
+
+Lo llama `/vincular` al abrirse en un equipo sin token, y otra vez cuando el código vence.
 
 ```json
-// Solicitud. tipo: COCINA (celular que marca), COCINA_MONITOR (solo lectura) o PUBLICA
-{ "local_id": "…", "tipo": "COCINA", "nombre": "Celular de cocina" }
+// Solicitud: vacía
 
 // 201
 {
   "id": "…",
   "codigo": "K7M2-9XQP",
-  "qr": "https://app.<dominio>/vincular?codigo=K7M2-9XQP",
-  "expira_at": "2026-10-11T18:42:00Z"
+  "secreto": "ps_9b1d…",
+  "qr": "https://app.<dominio>/admin/pantallas/vincular?codigo=K7M2-9XQP",
+  "expira_at": "2026-10-12T18:42:00Z",
+  "intervalo_s": 3
 }
 ```
 
-### `POST /v1/pantallas/vincular`
+El `secreto` se queda en el equipo y nunca se muestra. Límite: 10 solicitudes por IP
+cada 10 minutos.
+
+### `POST /v1/pantallas/solicitudes/{id}/canjear`
+
+El equipo lo llama cada `intervalo_s` segundos mientras muestra el código.
 
 ```json
 // Solicitud
-{ "codigo": "K7M2-9XQP" }
+{ "secreto": "ps_9b1d…" }
 
-// 200
+// 202: aún no se aprueba
+{ "estado": "PENDIENTE" }
+
+// 200: aprobada. El token se entrega una sola vez
 {
   "token": "pt_3f6a8c2e…",
   "pantalla": { "id": "…", "tipo": "COCINA", "nombre": "Cocina principal" },
@@ -197,7 +213,34 @@ Solo un OWNER puede invitar o modificar a otro OWNER (`403 FORBIDDEN`).
 }
 ```
 
-El token se muestra una sola vez; límite de 5 intentos por IP cada 10 minutos.
+| Error                | Cuándo                                                        |
+| -------------------- | ------------------------------------------------------------- |
+| `410 CODIGO_VENCIDO` | Pasaron 10 minutos; el equipo pide una solicitud nueva        |
+| `409 YA_CANJEADA`    | El token ya se entregó                                        |
+| `401 SECRETO_INVALIDO` | El secreto no corresponde a la solicitud                    |
+
+### `GET /v1/pantallas/vincular/{codigo}`
+
+```json
+// 200
+{ "agente": "Chrome 130 · Android TV", "pedida_hace_s": 48, "expira_at": "2026-10-12T18:42:00Z" }
+```
+
+### `POST /v1/pantallas/vincular`
+
+```json
+// Pantalla nueva. tipo: COCINA (celular que marca), COCINA_MONITOR (solo lectura) o PUBLICA
+{ "codigo": "K7M2-9XQP", "local_id": "…", "tipo": "COCINA_MONITOR", "nombre": "TV de cocina" }
+
+// Cambio de equipo de una pantalla existente: revoca el token anterior
+{ "codigo": "K7M2-9XQP", "pantalla_id": "…" }
+
+// 201
+{ "pantalla": { "id": "…", "tipo": "COCINA_MONITOR", "nombre": "TV de cocina", "local_id": "…" } }
+```
+
+Errores: `404 CODIGO_INVALIDO`, `410 CODIGO_VENCIDO`. Límite: 5 códigos inválidos por
+usuario cada 10 minutos.
 
 ---
 

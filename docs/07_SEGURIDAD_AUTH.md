@@ -69,12 +69,27 @@ expira en menos de 15 minutos.
 
 ### 3.1. Vinculación
 
-1. Un OWNER o ADMIN crea la pantalla (local + tipo) y obtiene un código de 8
-   caracteres sin ambigüedades (`K7M2-9XQP`), válido 10 minutos y de un solo uso.
-2. En el equipo se abre `/vincular` y se ingresa el código o se escanea el QR.
-3. El servidor emite un token `pt_` de 256 bits aleatorios, guarda solo su SHA-256
-   y lo entrega una única vez.
-4. El equipo guarda el token y en adelante entra solo, incluso tras un corte de luz.
+La pantalla muestra el código y la administración lo aprueba desde su celular (D27),
+como al iniciar sesión en una app de TV. Así nadie escribe con el control remoto.
+
+1. El equipo abre `/vincular` sin token y pide una solicitud. Recibe un código de 8
+   caracteres sin ambigüedades (`K7M2-9XQP`), válido 10 minutos y de un solo uso, y
+   un **secreto** de 256 bits que guarda solo él. El servidor guarda el SHA-256 de
+   ambos.
+2. La pantalla muestra el código y un QR con el enlace de aprobación.
+3. Un OWNER o ADMIN con sesión iniciada escanea el QR con la cámara de su celular (o
+   escribe el código), ve qué equipo lo pidió y hace cuánto, elige local, tipo y
+   nombre, y aprueba.
+4. El equipo, que consulta cada 3 s presentando su secreto, recibe una sola vez un
+   token `pt_` de 256 bits aleatorios. El servidor guarda solo su SHA-256.
+5. El equipo guarda el token y en adelante entra solo, incluso tras un corte de luz.
+
+| Riesgo                                                       | Control                                                                 |
+| ------------------------------------------------------------ | ----------------------------------------------------------------------- |
+| Alguien ve el código en la TV y lo usa                       | El código solo sirve para aprobar; el token se entrega a quien tiene el secreto, que nunca sale del equipo |
+| Un tercero muestra su propio código para que el ADMIN lo apruebe | La aprobación muestra el equipo y hace cuánto pidió el código; queda en auditoría; la pantalla sale en la lista del local y se revoca con un toque |
+| Adivinar códigos                                             | 31⁸ combinaciones, 10 minutos de vida, 5 códigos inválidos por usuario cada 10 minutos |
+| Llenar la base de solicitudes                                | 10 solicitudes por IP cada 10 minutos; las vencidas se borran cada hora |
 
 ### 3.2. Privilegio mínimo
 

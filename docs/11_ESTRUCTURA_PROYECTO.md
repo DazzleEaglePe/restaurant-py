@@ -162,7 +162,7 @@ apps/web/
     │   ├── (salon)/salon/        # Mesera: pedidos para mesa
     │   ├── (cocina)/cocina/      # Pantalla completa horizontal
     │   ├── (pantalla)/pantalla/  # Pantalla pública
-    │   ├── vincular/             # Canje de código de pantalla
+    │   ├── vincular/             # La pantalla muestra su código y QR y espera la aprobación
     │   └── (admin)/admin/        # Escritorio
     ├── features/
     │   ├── carta/
@@ -386,8 +386,8 @@ Luego:
 
 - Caja: `http://localhost:4000/caja` con `caja1@demo.test`.
 - Salón: `http://localhost:4000/salon` con `mesera1@demo.test`.
-- Cocina y pantalla pública: crear pantallas en la administración y vincular en
-  `http://localhost:4000/vincular`.
+- Cocina y pantalla pública: abrir `http://localhost:4000/vincular` en otra ventana y
+  aprobar su código en `http://localhost:4000/admin/pantallas/vincular`.
 - Simular un Yape: `http://localhost:4010`.
 
 ### 9.4. Probar con Yallegó real

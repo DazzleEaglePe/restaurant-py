@@ -88,7 +88,7 @@ Alta asistida en el MVP. Lo acompaña soporte, idealmente en el local.
 | 8    | Admin    | Carga la carta (categorías, productos y combos)                        | Vista previa de la carta como la ve la caja    |
 | 9    | Admin    | Crea las zonas (patio de comida, terraza)                              | Lista de zonas                                 |
 | 10   | Admin    | Invita a cajeras y meseras y les asigna locales                              | Invitaciones enviadas                          |
-| 11   | Admin    | Vincula la pantalla de cocina y la pública con su código               | Ambas «En línea»                               |
+| 11   | Admin    | Escanea con su celular el QR que muestra cada pantalla y la aprueba    | Ambas «En línea»                               |
 | 12   | Todos    | Prueba de punta a punta: un pedido de S/ 1.00 pagado con Yape real      | El pedido aparece en cocina y en la pantalla pública |
 
 La administración muestra una lista de puesta en marcha con estos pasos y su
@@ -578,7 +578,10 @@ celular**. Si la cajera la descarta, no vuelve a salir en 7 días.
 
 ## 20. Flujo: pantallas fijas (cocina, TV y pantalla pública)
 
-1. La primera vez: **Vincula esta pantalla** con el código o el QR.
+1. La primera vez la pantalla muestra **Vincula esta pantalla** con un código y un
+   QR que se renuevan cada 10 minutos. La administración escanea el QR con la cámara
+   de su celular, elige local y tipo, y aprueba; la pantalla entra sola en segundos.
+   Con el control remoto no hay que escribir nada.
 2. Cada vez que el equipo se enciende: **Toca para activar el sonido**. Ese toque
    (o el botón OK del control de la TV) activa el audio y mantiene la pantalla
    encendida.

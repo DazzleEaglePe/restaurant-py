@@ -185,22 +185,33 @@ CREATE TABLE pantallas (
   local_id      uuid NOT NULL REFERENCES locales(id) ON DELETE CASCADE,
   tipo          tipo_pantalla NOT NULL,
   nombre        varchar(60) NOT NULL,
-  token_hash    char(64) UNIQUE,         -- null mientras no se vincula
+  token_hash    char(64) UNIQUE,         -- null hasta que el equipo canjea su solicitud
   vinculada_at  timestamptz,
   ultima_conexion_at timestamptz,
   revocada_at   timestamptz,
   created_at    timestamptz NOT NULL DEFAULT now()
 );
 
-CREATE TABLE codigos_vinculacion (
-  id           uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  tenant_id    uuid NOT NULL REFERENCES negocios(id) ON DELETE CASCADE,
-  pantalla_id  uuid NOT NULL REFERENCES pantallas(id) ON DELETE CASCADE,
-  codigo_hash  char(64) NOT NULL UNIQUE,
-  expira_at    timestamptz NOT NULL,
-  usado_at     timestamptz
+-- La pide el equipo sin vincular (D27). No tiene negocio hasta que un ADMIN la aprueba,
+-- por eso no lleva RLS y se accede solo por código o por id + secreto.
+CREATE TABLE solicitudes_vinculacion (
+  id            uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  codigo_hash   char(64) NOT NULL UNIQUE,   -- SHA-256 del código que muestra la pantalla
+  secreto_hash  char(64) NOT NULL,          -- SHA-256 del secreto que solo guarda el equipo
+  agente        varchar(200),               -- navegador y sistema del equipo, para mostrarlo al aprobar
+  ip_origen     inet,
+  tenant_id     uuid REFERENCES negocios(id) ON DELETE CASCADE,
+  pantalla_id   uuid REFERENCES pantallas(id) ON DELETE CASCADE,
+  aprobada_por  uuid REFERENCES usuarios(id),
+  aprobada_at   timestamptz,
+  canjeada_at   timestamptz,
+  expira_at     timestamptz NOT NULL,
+  created_at    timestamptz NOT NULL DEFAULT now(),
+  CHECK ((aprobada_at IS NULL) = (tenant_id IS NULL))
 );
 ```
+
+Un job borra cada hora las solicitudes vencidas o canjeadas hace más de un día.
 
 ### 3.4. Carta
 
@@ -727,7 +738,7 @@ Usan `withoutTenantScope` y están enumeradas en el código:
 | Caso                                   | Por qué                                                |
 | -------------------------------------- | ------------------------------------------------------ |
 | Ingreso y renovación de sesión         | Aún no se conoce el negocio activo                     |
-| Vinculación de una pantalla por código | El código identifica al negocio                        |
+| Solicitudes de vinculación de pantallas | No tienen negocio hasta que un ADMIN las aprueba      |
 | Recepción de webhook por token de URL  | El token identifica la conexión y su negocio           |
 | Jobs del worker que recorren negocios  | Listan conexiones activas y luego trabajan con `withTenant` |
 | Consola de plataforma                  | Rol de base de datos con `BYPASSRLS`, solo `/platform/v1` |

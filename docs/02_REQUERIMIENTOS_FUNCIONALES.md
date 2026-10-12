@@ -117,12 +117,13 @@ actual (D8) → MESERO. Las pantallas son dispositivos vinculados, no usuarios (
 
 | ID         | Requerimiento                                                                                                | Prioridad |
 | ---------- | ------------------------------------------------------------------------------------------------------------ | --------- |
-| RF-PAN-001 | OWNER o ADMIN genera un código de vinculación de 8 caracteres, válido 10 minutos, para una pantalla de cocina o pública de un local. | MUST      |
-| RF-PAN-002 | La pantalla se vincula ingresando el código o escaneando un QR y queda autenticada sin usuario.              | MUST      |
+| RF-PAN-001 | Un equipo sin vincular (TV, monitor o celular de cocina) muestra un código de 8 caracteres y un QR, válidos 10 minutos, que se renuevan solos al vencer. En el equipo no se escribe nada. (D27) | MUST      |
+| RF-PAN-002 | OWNER o ADMIN escanea el QR con la cámara de su celular, o escribe el código, ve qué equipo lo pidió, elige local, tipo y nombre, y aprueba. El equipo queda autenticado sin usuario en segundos. (D27) | MUST      |
 | RF-PAN-003 | La pantalla recupera su sesión sola tras un corte de luz, un reinicio o una pérdida de internet.             | MUST      |
 | RF-PAN-004 | OWNER o ADMIN ve las pantallas de cada local con su última conexión y puede revocarlas.                      | MUST      |
 | RF-PAN-005 | Un local puede tener varias pantallas de cada tipo, todas sincronizadas.                                     | SHOULD    |
 | RF-PAN-006 | Un celular puede vincularse como dispositivo de cocina; la cocina no necesita usuario ni contraseña.  | MUST      |
+| RF-PAN-007 | Para cambiar un equipo malogrado, OWNER o ADMIN aprueba el código del equipo nuevo sobre una pantalla existente: conserva su nombre y tipo, y el equipo anterior queda revocado. | SHOULD    |
 
 ---
 
@@ -393,7 +394,7 @@ actual (D8) → MESERO. Las pantallas son dispositivos vinculados, no usuarios (
 | 2      | CAR-001…008, MES-001…003, TEN-005, CAR-011 |
 | 3      | PED-001…006, PED-008, PED-009, PED-012…015, PAG-001, CAJ-001, CAJ-002, COB-008, PED-017, SIS-002, SIS-003, SIS-010, SIS-011 |
 | 4      | YLG-001…007, YLG-010, PAG-002…010                                                        |
-| 5      | PAN-001…005, COC-001…009, PUB-001…006, SAL-001…005, PED-007, PED-011, PED-016, PAN-006, COC-011, COC-012 (si el comercio compra la pantalla), COC-013, SIS-009 |
+| 5      | PAN-001…005, PAN-007, COC-001…009, PUB-001…006, SAL-001…005, PED-007, PED-011, PED-016, PAN-006, COC-011, COC-012 (si el comercio compra la pantalla), COC-013, SIS-009 |
 | 6      | COB-001…007, PAG-013…017                                                                 |
 | 7      | CAJ-003…009, OBS-001…008, COC-010, PED-010, PAG-011, PAG-012, REP-001…008, AUD-001…003, YLG-008, YLG-009, DSC-001…008 |
 | 8      | PLT-002…004, TEN-006, endurecimiento y piloto, SIS-007, SIS-008 |
