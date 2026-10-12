@@ -19,3 +19,7 @@ coverage/
 
 # Registros
 *.log
+
+# Copias automáticas de After Effects
+design/video/Guardado automático/
+*.aep Logs/
