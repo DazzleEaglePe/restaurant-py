@@ -54,7 +54,7 @@ Una sola pantalla: «En preparación» y «Listos». Sin interacción.
 ```
 Inicio (hoy por local) ─┬─ Pedidos
                         ├─ Cierre del día (validar turnos)
-                        ├─ Carta: categorías · productos · combos
+                        ├─ Carta: categorías · productos · combos · descuentos
                         ├─ Locales: datos · configuración · zonas y mesas · pantallas
                         ├─ Equipo
                         ├─ Cobros: estado · incidencias · constancias por conciliar
@@ -144,7 +144,9 @@ avance hasta completarlos.
 3. Ítems editables: cantidad, nota, quitar.
 4. Para llevar, el sistema suma solo la línea «Táper ×3 · S/ 3.00» según los platos;
    la cajera puede ajustar la cantidad. Para comer aquí no se cobra táper.
-5. Botones: **Cancelar** y **Cobrar S/ 97.00**.
+5. Descuentos: los automáticos se aplican solos; la cajera puede elegir uno de la
+   lista o marcar un ítem como cortesía, con motivo.
+6. Botones: **Cancelar** y **Cobrar S/ 97.00**.
 
 Al tocar **Cobrar**, el pedido se crea (`POR_PAGAR`, número asignado) y pasa a la
 pantalla de cobro. Si un precio cambió mientras tanto, se muestra el total nuevo
@@ -327,8 +329,11 @@ cocina: una lista vertical de tarjetas, con el pedido más antiguo arriba.
 └──────────────────────────────┘
 ```
 
-**Propuesta al comercio: pantalla táctil en cocina.** Con una pantalla grande, la
-vista pasa a columnas:
+**TV o monitor de cocina (recomendado).** Muestra la misma cola en columnas, en
+solo lectura, para verla de lejos. Los estados se marcan en el celular.
+
+**Propuesta al comercio: que esa pantalla sea táctil.** Así la cocina marca los
+estados en ella, con los botones que se ven abajo:
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────────┐
@@ -380,7 +385,7 @@ columna **Para mesa** agrupada por zona:
 ├────────────────────────────────┬─────────────────────────────────┤
 │        EN PREPARACIÓN          │            LISTOS               │
 │                                │                                 │
-│   #0041  María G.              │   ██ #0039  Carlos ██            │
+│   #0041  María G.              │   ██ #0039  Luis ██              │
 │   #0042  Rosa                  │      #0038  Ana P.              │
 │   #0043  Jorge                 │                                 │
 └────────────────────────────────┴─────────────────────────────────┘
@@ -389,7 +394,7 @@ columna **Para mesa** agrupada por zona:
 - Al pasar a Listo, el pedido entra a la columna derecha con un resaltado de 8 s
   y un sonido. Opcional: voz «Pedido 39, listo».
 - Los pedidos para comer en el local aparecen en «En preparación», pero no en
-  «Listos»: los lleva la mesera (P15).
+  «Listos»: los lleva la mesera (D20).
 - Los pedidos entregados salen. Los listos salen solos tras los minutos
   configurados.
 - Sin pedidos: logo del negocio y «Tus pedidos aparecerán aquí».
@@ -442,7 +447,7 @@ La cajera coordina con la mesera y elige:
 
 | Opción          | Qué pasa                                                                                                                                                         |
 | --------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Corregir**    | Marca los platos equivocados y elige los correctos. Se crea un pedido de corrección que entra **primero** en cocina como «Corrección de #0040». La diferencia se calcula sola: si falta, se cobra como cualquier pago; si sobra, se registra la devolución; si es igual, no hay cobro |
+| **Corregir**    | Marca los platos equivocados y elige los correctos. Se crea un pedido de corrección que entra **primero** en cocina como «Corrección de #0040». La diferencia se calcula sola: si falta, se cobra como cualquier pago; si sobra, se le devuelve, normalmente en efectivo; si es igual, no hay cobro |
 | **Cancelar**    | El pedido completo pasa a cancelado. Motivo y devolución obligatorios: efectivo, Yape devuelto o no se devolvió. Si es en efectivo, sale como egreso del turno     |
 | **Sin cambios** | El cliente aceptó el pedido. Se cierra con un comentario                                                                                                        |
 
@@ -478,6 +483,7 @@ entra a **Cierre del día** y revisa:
 3. Las observaciones del día: correcciones, cancelaciones y devoluciones, con quién
    las hizo.
 4. Las incidencias del celular de cobros.
+5. Los descuentos y las cortesías aplicadas, con quién las aplicó.
 
 Por cada turno toca **Validar** u **Observar** con un comentario. Un turno observado
 queda marcado en los reportes hasta que se resuelva.

@@ -162,6 +162,7 @@ escribe con la nueva.
 | Montos altos por constancia                              | Sin tope por decisión del negocio (D11): queda registrada con el estado del celular, se concilia y se revisa al validar el cierre. El tope y el PIN se pueden activar después |
 | Usar el Yape de un cliente para otro pedido              | Un cobro, un pago activo (índice único) y registro de quién confirmó                    |
 | Cancelar un pedido pagado y quedarse el dinero           | Solo al resolver una observación registrada (quién reclamó y por qué); motivo y devolución obligatorios; auditoría; revisión al validar el cierre (D16) |
+| Descuentos o cortesías indebidos                          | Solo descuentos configurados (salvo P24); cortesía con motivo; revisión al cierre y reporte por cajera |
 | Diferencias de caja recurrentes                          | Reporte de turnos con diferencia por cajera                                             |
 
 ---
@@ -217,6 +218,8 @@ Acciones registradas (RF-AUD-001), con actor, local, IP y datos relevantes:
 | `pagos.conciliacion_manual`       | Pago, cobro ligado o motivo del descarte               |
 | `pedidos.cancelado_pagado`        | Pedido, monto, motivo, devolución                      |
 | `observaciones.resuelta`          | Pedido, tipo, resolución, diferencia y devolución      |
+| `descuentos.configurado`          | Descuento creado o cambiado                            |
+| `pedidos.descuento` / `pedidos.cortesia` | Pedido, monto o ítem, motivo                     |
 | `turnos.cerrado_con_diferencia`   | Esperado, contado, diferencia                          |
 | `carta.precio_cambiado`           | Producto, precio anterior y nuevo                      |
 | `yallego.conectado` / `desconectado` / `clave_reemplazada` | Prefijo de la clave              |

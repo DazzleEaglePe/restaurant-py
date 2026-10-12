@@ -180,6 +180,7 @@ igual que Yallegó.
 | `CategoriaChips`       | Caja            | Filtro horizontal con desplazamiento                            |
 | `HojaItem`             | Caja            | Hoja inferior para cantidad y nota                              |
 | `BarraPedido`          | Caja            | «Ver pedido · 5 · S/ 97.00»                                     |
+| `DescuentosPedido`     | Caja            | Descuentos automáticos aplicados, lista para elegir y cortesías |
 | `CobroCandidatoCard`   | Caja            | Pago recibido con monto, nombre, hora, código e insignia «Coincide» |
 | `DetallePago`          | Caja            | Monto grande, código de seguridad, comparación con el saldo     |
 | `TecladoEfectivo`      | Caja            | Atajos y teclado numérico, vuelto grande                        |

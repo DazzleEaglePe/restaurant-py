@@ -445,7 +445,26 @@ Diferencia de una corrección:
 - Los reportes descuentan los ítems anulados y suman la corrección, sin contar la
   venta dos veces.
 - Todo queda en auditoría y en la validación del cierre del día.
+- La devolución se propone en efectivo, que es lo habitual (D22).
 - El cálculo vive en `packages/dominio/correccion.ts`.
+
+### 5.12. Descuentos, cortesías y táper
+
+Orden de cálculo del total, en `packages/dominio/descuentos.ts`:
+
+1. Precio de lista de cada ítem.
+2. Cortesías: el ítem queda en S/ 0.00 y se guarda su precio de lista para los
+   reportes.
+3. Descuentos por producto o categoría: los automáticos vigentes y los que elige la
+   cajera.
+4. Descuento al pedido completo.
+5. Táper, solo para llevar; no recibe descuentos.
+6. Total, redondeado a dos decimales.
+
+El total final es el que se empareja con el Yape o se cobra en efectivo. Si dos
+descuentos automáticos aplican al mismo ítem, se usa el de mayor ahorro para el
+cliente; no se acumulan. En una corrección, el crédito de un ítem reemplazado es lo
+que se pagó por él, con su descuento.
 
 ---
 
@@ -489,7 +508,7 @@ las rutas `/platform/v1`, y cada acción queda en auditoría.
 | -------------- | ----------------- | --------------------------------------------------------------- |
 | `/caja`        | Caja              | App web instalable (PWA), vertical, móvil                       |
 | `/salon`       | Salón             | Misma app instalable, vertical, para la mesera                  |
-| `/cocina`      | Cocina            | Celular en vertical (MVP) o pantalla grande en horizontal (propuesta); dispositivo vinculado |
+| `/cocina`      | Cocina            | Celular en vertical que marca estados (MVP); TV o monitor en columnas, solo lectura (recomendado); pantalla táctil (propuesta) |
 | `/pantalla`    | Pantalla pública  | Pantalla completa, sin interacción, sesión de pantalla vinculada |
 | `/admin`       | Administración    | Escritorio, responsiva                                          |
 

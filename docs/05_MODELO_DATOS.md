@@ -64,7 +64,7 @@ CREATE EXTENSION IF NOT EXISTS citext;
 
 CREATE TYPE estado_negocio      AS ENUM ('ACTIVO', 'SUSPENDIDO');
 CREATE TYPE rol_usuario         AS ENUM ('OWNER', 'ADMIN', 'CAJERO', 'MESERO');
-CREATE TYPE tipo_pantalla       AS ENUM ('COCINA', 'PUBLICA');
+CREATE TYPE tipo_pantalla       AS ENUM ('COCINA', 'COCINA_MONITOR', 'PUBLICA');  -- COCINA_MONITOR: solo lectura (D23)
 CREATE TYPE tipo_pedido         AS ENUM ('AQUI', 'LLEVAR');
 CREATE TYPE estado_pedido       AS ENUM ('POR_PAGAR', 'PENDIENTE', 'EN_PREPARACION', 'LISTO', 'ENTREGADO', 'CANCELADO');
 CREATE TYPE metodo_pago         AS ENUM ('EFECTIVO', 'BILLETERA');
@@ -82,6 +82,8 @@ CREATE TYPE estado_cobros_local AS ENUM ('ACTIVO', 'DEMORADO', 'DESCONECTADO', '
 CREATE TYPE origen_cobro        AS ENUM ('WEBHOOK', 'CONSULTA');
 CREATE TYPE tipo_observacion    AS ENUM ('PEDIDO_EQUIVOCADO', 'FALTA_PLATO', 'OTRO');
 CREATE TYPE resolucion_observacion AS ENUM ('CORREGIDO', 'CANCELADO', 'SIN_CAMBIOS');
+CREATE TYPE tipo_descuento      AS ENUM ('PORCENTAJE', 'MONTO');
+CREATE TYPE alcance_descuento   AS ENUM ('PEDIDO', 'PRODUCTO', 'CATEGORIA');
 ```
 
 ### 3.2. Negocios, locales y usuarios
@@ -115,6 +117,9 @@ CREATE TABLE locales (
   cocina_critico_min     smallint NOT NULL DEFAULT 20,
   ocultar_listos_min     smallint NOT NULL DEFAULT 10,
   tiempo_base_min        smallint NOT NULL DEFAULT 20,     -- espera sugerida sin historial (04 §5.10)
+  costo_taper_defecto    numeric(10,2) NOT NULL DEFAULT 1.00,  -- prellenado al crear productos (D21)
+  permite_cortesias      boolean NOT NULL DEFAULT true,
+  permite_descuento_libre boolean NOT NULL DEFAULT false,      -- P24
   -- Estado de cobros calculado (04 §5.5)
   estado_cobros          estado_cobros_local NOT NULL DEFAULT 'SIN_CELULAR',
   estado_cobros_desde    timestamptz NOT NULL DEFAULT now(),
@@ -369,6 +374,7 @@ CREATE TABLE pedidos (
   pagado             numeric(10,2) NOT NULL DEFAULT 0,
   taperes            smallint NOT NULL DEFAULT 0,     -- solo LLEVAR (D18)
   cargo_taper        numeric(10,2) NOT NULL DEFAULT 0, -- incluido en total
+  descuento_total    numeric(10,2) NOT NULL DEFAULT 0, -- descuentos y cortesías del pedido
   tiempo_estimado_min smallint,                    -- el que se le dijo al cliente
   version            integer NOT NULL DEFAULT 1,
   idempotency_key    uuid NOT NULL,
@@ -408,6 +414,9 @@ CREATE TABLE pedido_items (
   nota             varchar(140),
   anulado_at       timestamptz,                   -- reemplazado en una corrección
   observacion_id   uuid,                          -- observación que lo anuló
+  precio_lista     numeric(10,2) NOT NULL,        -- antes de descuentos y cortesías
+  cortesia         boolean NOT NULL DEFAULT false,
+  motivo_cortesia  varchar(140),
   orden            smallint NOT NULL
 );
 
@@ -420,6 +429,40 @@ CREATE TABLE pedido_item_opciones (
   nombre        varchar(60) NOT NULL,             -- copia
   precio_extra  numeric(10,2) NOT NULL,           -- copia
   PRIMARY KEY (item_id, opcion_id)
+);
+```
+
+Descuentos y promociones (RF-DSC):
+
+```sql
+CREATE TABLE descuentos (
+  id            uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  tenant_id     uuid NOT NULL REFERENCES negocios(id) ON DELETE CASCADE,
+  nombre        varchar(80) NOT NULL,                -- «Martes de ceviche»
+  tipo          tipo_descuento NOT NULL,
+  valor         numeric(10,2) NOT NULL CHECK (valor > 0),
+  alcance       alcance_descuento NOT NULL,
+  producto_id   uuid REFERENCES productos(id),
+  categoria_id  uuid REFERENCES categorias(id),
+  automatico    boolean NOT NULL DEFAULT false,
+  dias_semana   smallint[],                          -- 1 = lunes … 7 = domingo; null = todos
+  hora_desde    time,
+  hora_hasta    time,
+  vigente_desde date,
+  vigente_hasta date,
+  local_ids     uuid[],                              -- null = todos los locales
+  activo        boolean NOT NULL DEFAULT true,
+  CHECK (tipo <> 'PORCENTAJE' OR valor <= 100)
+);
+
+CREATE TABLE pedido_descuentos (
+  pedido_id     uuid NOT NULL REFERENCES pedidos(id) ON DELETE CASCADE,
+  descuento_id  uuid REFERENCES descuentos(id),      -- null en un descuento libre
+  tenant_id     uuid NOT NULL REFERENCES negocios(id) ON DELETE CASCADE,
+  nombre        varchar(80) NOT NULL,                -- copia
+  monto         numeric(10,2) NOT NULL,
+  aplicado_por  uuid REFERENCES usuarios(id),        -- null si fue automático
+  created_at    timestamptz NOT NULL DEFAULT now()
 );
 ```
 

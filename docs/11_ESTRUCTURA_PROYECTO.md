@@ -222,6 +222,7 @@ Sin dependencias de framework. Probado con cobertura ≥ 90 %.
 | `turno.ts`               | Efectivo esperado y diferencia                                      |
 | `tiempo-espera.ts`       | Tiempo de espera sugerido (04 §5.10)                                |
 | `correccion.ts`          | Crédito, diferencia y devolución de una corrección (04 §5.11)       |
+| `descuentos.ts`          | Orden de descuentos, cortesías y táper (04 §5.12)                   |
 | `dinero.ts`              | Aritmética de soles sin coma flotante                               |
 
 ### 6.3. `packages/yallego-client`

@@ -18,7 +18,7 @@
 | **4**  | Integración con Yallegó y cobro con Yape              | Un Yape (simulado o real) aparece en la caja y se confirma contra un pedido         |
 | **5**  | Cocina, salón y pantalla pública en tiempo real       | Un pedido pagado aparece en cocina, se anuncia en la TV y la mesera o la cajera lo entrega |
 | **6**  | Celular de cobros: avisos, constancia y conciliación  | Con el celular apagado la caja avisa, se valida con constancia y luego se concilia  |
-| **7**  | Cierre de caja, correcciones, reportes y auditoría   | El turno se cierra con arqueo y el dueño ve ventas, constancias y diferencias       |
+| **7**  | Cierre de caja, correcciones, descuentos, reportes y auditoría   | El turno se cierra con arqueo y el dueño ve ventas, constancias y diferencias       |
 | **8**  | Endurecimiento, observabilidad, despliegue y piloto   | El restaurante opera en producción con monitoreo activo                             |
 
 ---
@@ -30,8 +30,8 @@ Tareas sin código, en paralelo al Sprint 1:
 - [ ] Elegir nombre comercial y dominio (P1).
 - [ ] Fijar la fecha de la reunión para mostrar el sistema al restaurante (P8).
 - [ ] Confirmar con el restaurante los equipos de `01_CONTEXTO_Y_ANALISIS.md` §7.4.
-- [ ] Responder las preguntas abiertas de `01_CONTEXTO_Y_ANALISIS.md` §11 (P15 a P23).
-- [ ] Presentar al comercio la propuesta de pantalla táctil en cocina (D17).
+- [ ] Responder las preguntas abiertas de `01_CONTEXTO_Y_ANALISIS.md` §11 (P8, P19 y P24).
+- [ ] Presentar al comercio el TV o monitor de cocina (D23) y la propuesta de pantalla táctil (D17).
 - [ ] *En espera:* referencias visuales, carta completa con precios y fotos, cuenta de Yallegó del restaurante y boleta impresa (P5).
 
 ---
@@ -176,7 +176,7 @@ Tareas sin código, en paralelo al Sprint 1:
 
 ### Backend
 
-- [ ] Dispositivos vinculados (celular de cocina y pantalla pública): alta, código, canje, token, revocación.
+- [ ] Dispositivos vinculados (celular de cocina, monitor de cocina y pantalla pública): alta, código, canje, token, revocación.
 - [ ] Proyecciones de cocina y pública; salas por local.
 - [ ] Acciones de cocina con control de versión y deshacer.
 - [ ] Entrega desde la caja; ocultar listos por tiempo.
@@ -189,6 +189,7 @@ Tareas sin código, en paralelo al Sprint 1:
 - [ ] `/vincular` con código y QR.
 - [ ] Cocina en celular: lista vertical, colores por tipo y demora, sonido, deshacer, cancelados.
 - [ ] Cocina en pantalla táctil (propuesta): columnas y «Para mesa» para la mesera.
+- [ ] Monitor de cocina en solo lectura: columnas que se leen de lejos.
 - [ ] Pantalla pública: columnas, animación y sonido de listo, marca del negocio, Wake Lock, reconexión.
 - [ ] Caja: pestaña Listos con «Entregar» y búsqueda por número.
 - [ ] Salón (celular de la mesera): pedidos con nombre, zona y detalle, aviso de listos y «Entregado».
@@ -228,13 +229,14 @@ Tareas sin código, en paralelo al Sprint 1:
 
 ---
 
-## 9. Sprint 7 — Cierre de caja, correcciones, reportes y auditoría
+## 9. Sprint 7 — Cierre de caja, correcciones, descuentos, reportes y auditoría
 
 ### Backend
 
 - [ ] Movimientos de caja; cierre con arqueo; bloqueo con pendientes; cierre por admin.
 - [ ] Cierre del día: el administrador valida u observa los turnos.
 - [ ] Observaciones y correcciones: reporte desde salón o caja; resolución en caja (corregir con diferencia, cancelar con devolución, sin cambios); la corrección entra primero en cocina.
+- [ ] Descuentos, promociones y cortesías: configuración, aplicación automática y manual, reporte y revisión al cierre.
 - [ ] Pagos divididos y mixtos; diferencia de monto.
 - [ ] Reportes de ventas, productos, cocina y constancias; exportación CSV.
 - [ ] Consulta de auditoría.
@@ -244,6 +246,7 @@ Tareas sin código, en paralelo al Sprint 1:
 
 - [ ] Caja: turno de caja y cierre; observaciones por resolver.
 - [ ] Salón: agregar observación y ver su resolución.
+- [ ] Administración: descuentos y promociones. Caja: aplicar descuentos y cortesías.
 - [ ] Administración: cierre del día (completo desde el celular), reportes, auditoría.
 
 ### Criterios de aceptación
@@ -252,6 +255,7 @@ Tareas sin código, en paralelo al Sprint 1:
 - [ ] No se puede cerrar con un pedido por pagar.
 - [ ] El administrador valida desde su celular el cierre de un día con dos turnos, una constancia y una cancelación.
 - [ ] Una observación «pedido equivocado» se corrige: la corrección entra primero en cocina, la diferencia se cobra o se devuelve y la venta no se cuenta dos veces.
+- [ ] Un «martes de ceviche −20 %» se aplica solo y el Yape que se empareja es el total con descuento.
 - [ ] El reporte de ventas separa efectivo, Yape verificado y constancia, y cuadra con los turnos.
 
 ---

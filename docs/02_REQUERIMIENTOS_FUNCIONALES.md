@@ -25,6 +25,7 @@
 | `PUB`  | Pantalla pública                        |
 | `SAL`  | Salón (meseras)                         |
 | `OBS`  | Observaciones y correcciones de pedido  |
+| `DSC`  | Descuentos, promociones y cortesías     |
 | `CAJ`  | Turnos y cierre de caja                 |
 | `REP`  | Reportes                                |
 | `AUD`  | Auditoría                               |
@@ -73,10 +74,12 @@
 | Gestionar dueños                                 | ✅    | —     | —      | —      | —                  | —                |
 | Gestionar admins, cajeros y meseros              | ✅    | ✅    | —      | —      | —                  | —                |
 | Gestionar locales, carta, mesas y pantallas      | ✅    | ✅    | —      | —      | —                  | —                |
+| Configurar descuentos, promociones y táper       | ✅    | ✅    | —      | —      | —                  | —                |
 | Ver reportes y auditoría                         | ✅    | ✅    | —      | —      | —                  | —                |
 | Validar el cierre del día                        | ✅    | ✅    | —      | —      | —                  | —                |
 | Abrir y cerrar su turno de caja                  | ✅    | ✅    | ✅     | —      | —                  | —                |
 | Tomar pedidos y cobrar                           | ✅    | ✅    | ✅     | —      | —                  | —                |
+| Aplicar un descuento configurado o una cortesía  | ✅    | ✅    | ✅     | —      | —                  | —                |
 | Validar un pago con constancia                   | ✅    | ✅    | ✅ *   | —      | —                  | —                |
 | Cancelar un pedido por pagar                     | ✅    | ✅    | ✅     | —      | —                  | —                |
 | Cancelar un pedido ya pagado                     | ✅    | ✅    | ✅ **  | —      | —                  | —                |
@@ -136,7 +139,7 @@ actual (D8) → MESERO. Las pantallas son dispositivos vinculados, no usuarios (
 | RF-CAR-008 | El precio, nombre y platos de cada ítem se copian al pedido al crearlo; cambios posteriores en la carta no lo alteran.             | MUST      |
 | RF-CAR-009 | Un producto puede tener un precio distinto en un local.                                                                             | COULD     |
 | RF-CAR-010 | La carta se puede importar desde una hoja de cálculo.                                                                               | COULD     |
-| RF-CAR-011 | Cada producto tiene un costo de táper para pedidos para llevar (S/ 0.00 en bebidas y en lo que no lo usa). (D18) | MUST      |
+| RF-CAR-011 | Cada producto tiene un costo de táper para llevar que configura el administrador; el local define un valor por defecto (S/ 0.00 en bebidas). (D18, D21) | MUST      |
 
 ---
 
@@ -250,6 +253,7 @@ actual (D8) → MESERO. Las pantallas son dispositivos vinculados, no usuarios (
 | RF-COC-010 | Un pedido de corrección entra primero en la cola, marcado «Corrección de #0040».                                                | MUST      |
 | RF-COC-011 | La vista de cocina funciona en un celular en vertical (MVP) y en una pantalla grande en horizontal (propuesta, D17).            | MUST      |
 | RF-COC-012 | Con la pantalla táctil compartida, los pedidos para mesa listos quedan en una columna «Para mesa», agrupados por zona, donde la mesera marca «Entregado». | COULD     |
+| RF-COC-013 | Un TV o monitor de cocina, vinculado en solo lectura, muestra la cola en columnas para verla de lejos. Los estados se marcan en el celular. (D23) | MUST      |
 
 ---
 
@@ -257,7 +261,7 @@ actual (D8) → MESERO. Las pantallas son dispositivos vinculados, no usuarios (
 
 | ID         | Requerimiento                                                                                                         | Prioridad |
 | ---------- | --------------------------------------------------------------------------------------------------------------------- | --------- |
-| RF-PUB-001 | La pantalla muestra dos columnas: «En preparación» (`PENDIENTE` y `EN_PREPARACION`, todos los pedidos) y «Listos» (`LISTO`, solo los de llevar: los de mesa los lleva la mesera). (P15) | MUST      |
+| RF-PUB-001 | La pantalla muestra dos columnas: «En preparación» (`PENDIENTE` y `EN_PREPARACION`, todos los pedidos) y «Listos» (`LISTO`, solo los de llevar: los de mesa los lleva la mesera). (D20) | MUST      |
 | RF-PUB-002 | Cada pedido muestra su número y el nombre que dio el cliente, abreviado. Nunca montos ni datos del pagador.                | MUST      |
 | RF-PUB-003 | Cuando un pedido pasa a «Listos», se resalta unos segundos y suena un aviso.                                           | MUST      |
 | RF-PUB-004 | Un pedido entregado sale de la pantalla. Un pedido listo sale solo tras los minutos configurados en el local.         | MUST      |
@@ -287,14 +291,29 @@ actual (D8) → MESERO. Las pantallas son dispositivos vinculados, no usuarios (
 | RF-OBS-002 | La caja recibe el aviso (vibración y contador) y lo mantiene visible hasta que la observación se resuelva.                                                            | MUST      |
 | RF-OBS-003 | La cajera resuelve la observación con una de tres opciones: corregir, cancelar o sin cambios, siempre con comentario.                                                 | MUST      |
 | RF-OBS-004 | Corregir crea un pedido de corrección ligado al original, con el mismo tipo, nombre y zona y los ítems correctos; los ítems equivocados quedan anulados.             | MUST      |
-| RF-OBS-005 | El sistema calcula la diferencia entre la corrección y los ítems reemplazados: si es positiva se cobra como cualquier pago, si es negativa se registra la devolución, si es cero no hay cobro. | MUST      |
+| RF-OBS-005 | El sistema calcula la diferencia entre la corrección y lo pagado por los ítems reemplazados: si es positiva, el cliente paga el adicional como cualquier pago; si es negativa, se le devuelve, con efectivo propuesto por defecto (también puede ser por billetera); si es cero, no hay cobro. (D22) | MUST      |
 | RF-OBS-006 | Cancelar pasa el pedido a `CANCELADO` con devolución obligatoria (efectivo, Yape devuelto o no se devolvió). Si es en efectivo, sale como egreso del turno.          | MUST      |
 | RF-OBS-007 | La mesera ve en su celular cómo se resolvió su observación.                                                                                                           | SHOULD    |
 | RF-OBS-008 | Las observaciones y sus resoluciones aparecen en la validación del cierre del día y en la auditoría.                                                                   | MUST      |
 
 ---
 
-## 15. CAJ — Turnos y cierre de caja
+## 15. DSC — Descuentos, promociones y cortesías
+
+| ID         | Requerimiento                                                                                                                                       | Prioridad |
+| ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------- | --------- |
+| RF-DSC-001 | OWNER o ADMIN configura descuentos: nombre, porcentaje o monto fijo, a todo el pedido o a productos o categorías, locales, días y horario de vigencia. (D24) | MUST      |
+| RF-DSC-002 | La cajera aplica a un pedido un descuento configurado y vigente, eligiéndolo de una lista.                                                          | MUST      |
+| RF-DSC-003 | Un descuento puede ser automático: se aplica solo cuando el pedido cumple sus condiciones («martes de ceviche −20 %»).                              | SHOULD    |
+| RF-DSC-004 | La cajera marca un ítem como cortesía (S/ 0.00) con motivo, si el local lo permite; se conserva su precio de lista para los reportes.                | MUST      |
+| RF-DSC-005 | La cajera hace un descuento libre (monto o porcentaje que ella decide), solo si el administrador lo habilita. (P24)                                 | COULD     |
+| RF-DSC-006 | El total con descuentos y táper es el monto que se empareja con el Yape o se cobra en efectivo.                                                     | MUST      |
+| RF-DSC-007 | Descuentos y cortesías aparecen en la validación del cierre y en un reporte por cajera y por tipo.                                                  | MUST      |
+| RF-DSC-008 | En una corrección, el crédito de un ítem reemplazado es lo que realmente se pagó por él, con su descuento.                                          | MUST      |
+
+---
+
+## 16. CAJ — Turnos y cierre de caja
 
 | ID         | Requerimiento                                                                                                                          | Prioridad |
 | ---------- | -------------------------------------------------------------------------------------------------------------------------------------- | --------- |
@@ -305,12 +324,12 @@ actual (D8) → MESERO. Las pantallas son dispositivos vinculados, no usuarios (
 | RF-CAJ-005 | No se puede cerrar un turno con pedidos por pagar o con pagos «Confirmando…».                                                          | MUST      |
 | RF-CAJ-006 | OWNER y ADMIN ven los turnos de cada local con su detalle y diferencias.                                                                | MUST      |
 | RF-CAJ-007 | OWNER y ADMIN pueden cerrar el turno de otro usuario (la cajera se fue sin cerrar).                                                     | SHOULD    |
-| RF-CAJ-008 | Al final del día, OWNER o ADMIN valida el cierre de cada turno: diferencia de efectivo, pagos con constancia y su conciliación, y observaciones resueltas (correcciones y cancelaciones). Puede marcarlo validado u observado con un comentario. (D14) | MUST      |
+| RF-CAJ-008 | Al final del día, OWNER o ADMIN valida el cierre de cada turno: diferencia de efectivo, pagos con constancia y su conciliación, observaciones resueltas (correcciones y cancelaciones), descuentos y cortesías. Puede marcarlo validado u observado con un comentario. (D14) | MUST      |
 | RF-CAJ-009 | La validación del cierre del día se puede hacer completa desde el celular del administrador.                                            | MUST      |
 
 ---
 
-## 16. REP — Reportes
+## 17. REP — Reportes
 
 | ID         | Requerimiento                                                                                    | Prioridad |
 | ---------- | ------------------------------------------------------------------------------------------------ | --------- |
@@ -325,7 +344,7 @@ actual (D8) → MESERO. Las pantallas son dispositivos vinculados, no usuarios (
 
 ---
 
-## 17. AUD — Auditoría
+## 18. AUD — Auditoría
 
 | ID         | Requerimiento                                                                                                                                                       | Prioridad |
 | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------- |
@@ -335,7 +354,7 @@ actual (D8) → MESERO. Las pantallas son dispositivos vinculados, no usuarios (
 
 ---
 
-## 18. PLT — Administración de plataforma
+## 19. PLT — Administración de plataforma
 
 | ID         | Requerimiento                                                                                         | Prioridad |
 | ---------- | ----------------------------------------------------------------------------------------------------- | --------- |
@@ -347,7 +366,7 @@ actual (D8) → MESERO. Las pantallas son dispositivos vinculados, no usuarios (
 
 ---
 
-## 19. Trazabilidad: requerimientos por sprint
+## 20. Trazabilidad: requerimientos por sprint
 
 | Sprint | Módulos y requerimientos principales                                                     |
 | ------ | ---------------------------------------------------------------------------------------- |
@@ -355,7 +374,7 @@ actual (D8) → MESERO. Las pantallas son dispositivos vinculados, no usuarios (
 | 2      | CAR-001…008, MES-001…003, TEN-005, CAR-011 |
 | 3      | PED-001…006, PED-008, PED-009, PED-012…015, PAG-001, CAJ-001, CAJ-002, COB-008, PED-017 |
 | 4      | YLG-001…007, YLG-010, PAG-002…010                                                        |
-| 5      | PAN-001…005, COC-001…009, PUB-001…006, SAL-001…005, PED-007, PED-011, PED-016, PAN-006, COC-011, COC-012 (si el comercio compra la pantalla) |
+| 5      | PAN-001…005, COC-001…009, PUB-001…006, SAL-001…005, PED-007, PED-011, PED-016, PAN-006, COC-011, COC-012 (si el comercio compra la pantalla), COC-013 |
 | 6      | COB-001…007, PAG-013…017                                                                 |
-| 7      | CAJ-003…009, OBS-001…008, COC-010, PED-010, PAG-011, PAG-012, REP-001…008, AUD-001…003, YLG-008, YLG-009 |
+| 7      | CAJ-003…009, OBS-001…008, COC-010, PED-010, PAG-011, PAG-012, REP-001…008, AUD-001…003, YLG-008, YLG-009, DSC-001…008 |
 | 8      | PLT-002…004, TEN-006, endurecimiento y piloto                                            |

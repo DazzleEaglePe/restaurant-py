@@ -25,7 +25,7 @@
 
 | ID          | Requerimiento                                                                                          |
 | ----------- | ------------------------------------------------------------------------------------------------------ |
-| RNF-ESC-001 | Un local soporta 120 pedidos por hora en hora punta con 3 cajas, 2 meseras, 2 pantallas de cocina y 2 públicas.    |
+| RNF-ESC-001 | Un local soporta 120 pedidos por hora en hora punta con 3 cajas, 2 meseras, 2 pantallas de cocina y 2 públicas. El piloto es muy concurrido pero sin cifras: su volumen real se mide en las primeras semanas. |
 | RNF-ESC-002 | La plataforma soporta 200 locales activos en el primer año con una sola instancia de API y una de worker. |
 | RNF-ESC-003 | La API no guarda estado en memoria: se puede escalar horizontalmente, con Socket.io sobre el adaptador de Redis. |
 | RNF-ESC-004 | Las consultas a Yallegó por negocio no superan 10 por minuto (el plan Negocio permite 60).              |

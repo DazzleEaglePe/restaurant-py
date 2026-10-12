@@ -170,8 +170,8 @@ Solo un OWNER puede invitar o modificar a otro OWNER (`403 FORBIDDEN`).
 ### `POST /v1/pantallas`
 
 ```json
-// Solicitud
-{ "local_id": "…", "tipo": "COCINA", "nombre": "Cocina principal" }
+// Solicitud. tipo: COCINA (celular que marca), COCINA_MONITOR (solo lectura) o PUBLICA
+{ "local_id": "…", "tipo": "COCINA", "nombre": "Celular de cocina" }
 
 // 201
 {
@@ -215,6 +215,10 @@ El token se muestra una sola vez; límite de 5 intentos por IP cada 10 minutos.
 | `PUT`    | `/v1/productos/{id}/locales/{local_id}`    | ADMIN      | Habilita y fija precio en un local             |
 | `POST`   | `/v1/productos/{id}/agotado`               | CAJERO     | Marca agotado en el local de `X-Local-Id`      |
 | `DELETE` | `/v1/productos/{id}/agotado`               | CAJERO     | Lo vuelve a habilitar                          |
+| `GET`    | `/v1/descuentos?vigentes=true`             | CAJERO     | Descuentos que se pueden aplicar ahora en el local |
+| `GET`    | `/v1/descuentos`                           | ADMIN      | Lista descuentos y promociones                 |
+| `POST`   | `/v1/descuentos`                           | ADMIN      | Crea                                           |
+| `PATCH`  | `/v1/descuentos/{id}`                      | ADMIN      | Edita o desactiva                              |
 
 ### `GET /v1/carta?local_id=…`
 
@@ -331,6 +335,7 @@ La caja guarda la carta en caché y la invalida con el evento `carta.actualizada
     { "producto_id": "…", "cantidad": 1, "nota": "sin ají" },
     { "producto_id": "…", "cantidad": 2 }
   ],
+  "descuento_ids": [],
   "total_esperado": "97.00"
 }
 
@@ -349,6 +354,7 @@ La caja guarda la carta en caché y la invalida con el evento `carta.actualizada
   "tiempo_estimado_min": 30,
   "taperes": 0,
   "cargo_taper": "0.00",
+  "descuento_total": "0.00",
   "items": [
     { "id": "…", "nombre": "Mixto", "cantidad": 2, "precio_unitario": "32.00", "subtotal": "64.00", "componentes": ["Ceviche de pescado", "Chicharrón de pota"], "nota": null },
     { "id": "…", "nombre": "Ceviche de pescado", "cantidad": 1, "precio_unitario": "25.00", "subtotal": "25.00", "componentes": [], "nota": "sin ají" },
@@ -372,6 +378,10 @@ En un pedido para llevar, el sistema suma solo los táperes según el `costo_tap
 de cada producto. Con S/ 1.00 por plato, este mismo pedido llevaría 3 táperes (2
 mixtos y 1 ceviche; las bebidas no) y su total sería S/ 100.00. La cajera puede
 ajustar la cantidad enviando `taperes` en el `PATCH`.
+
+Los descuentos automáticos vigentes se aplican solos; `descuento_ids` agrega los que
+elige la cajera. Una cortesía se marca por ítem con
+`{ "cortesia": { "motivo": "Cliente frecuente" } }`.
 
 ### `POST /v1/pedidos/{id}/cancelar`
 
