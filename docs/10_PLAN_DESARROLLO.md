@@ -13,10 +13,10 @@
 | Sprint | Objetivo                                              | Entregable verificable                                                              |
 | ------ | ----------------------------------------------------- | ----------------------------------------------------------------------------------- |
 | **1**  | Fundación, autenticación y multi-tenancy              | Un dueño invitado entra, crea locales e invita cajeras con permisos efectivos       |
-| **2**  | Carta, mesas y administración base                    | El administrador arma la carta con combos y opciones, y la ve como la verá la caja  |
+| **2**  | Carta, mesas y administración base                    | El administrador arma la carta con sus combos y la ve como la verá la caja          |
 | **3**  | Caja móvil: pedidos y efectivo                        | Una cajera abre turno, arma un pedido en el celular y lo cobra en efectivo          |
 | **4**  | Integración con Yallegó y cobro con Yape              | Un Yape (simulado o real) aparece en la caja y se confirma contra un pedido         |
-| **5**  | Cocina y pantalla pública en tiempo real              | Un pedido pagado aparece en cocina, avanza y se anuncia como listo en la TV         |
+| **5**  | Cocina, salón y pantalla pública en tiempo real       | Un pedido pagado aparece en cocina, se anuncia en la TV y la mesera o la cajera lo entrega |
 | **6**  | Celular de cobros: avisos, constancia y conciliación  | Con el celular apagado la caja avisa, se valida con constancia y luego se concilia  |
 | **7**  | Cierre de caja, cancelaciones, reportes y auditoría   | El turno se cierra con arqueo y el dueño ve ventas, constancias y diferencias       |
 | **8**  | Endurecimiento, observabilidad, despliegue y piloto   | El restaurante opera en producción con monitoreo activo                             |
@@ -33,8 +33,8 @@ Tareas sin código, en paralelo al Sprint 1:
 - [ ] Definir con el restaurante los equipos: celular de cobros dedicado, celular de
       caja, tablet de cocina y TV pública (P9).
 - [ ] Crear la cuenta de Yallegó del restaurante en plan Negocio o superior.
-- [ ] Acordar fecha de presentación (P8).
-- [ ] Resolver P2, P3 y P10 (entrega, combos con opciones, controles de constancia).
+- [ ] Fijar la fecha de la reunión para mostrar el sistema al restaurante (P8).
+- [ ] Resolver P5, P10 y P11 (boleta impresa, controles de la constancia, mesa del pedido).
 
 ---
 
@@ -84,13 +84,13 @@ Tareas sin código, en paralelo al Sprint 1:
 
 ### Backend
 
-- [ ] Categorías, productos, combos con componentes, grupos de opciones y opciones.
+- [ ] Categorías, productos y combos con sus platos fijos.
 - [ ] Disponibilidad por local (`producto_locales`) y agotado.
 - [ ] `GET /v1/carta?local_id=` con versión para caché.
 - [ ] Zonas y mesas.
 - [ ] Subida de fotos (almacenamiento de objetos) con redimensionado.
 - [ ] Configuración del local (`PATCH /v1/locales/{id}`).
-- [ ] Datos semilla de la «Pollería Demo».
+- [ ] Datos semilla de la «Cevichería Demo».
 
 ### Web
 
@@ -101,7 +101,7 @@ Tareas sin código, en paralelo al Sprint 1:
 
 ### Criterios de aceptación
 
-- [ ] El administrador crea el «Combo ¼ + gaseosa» con el grupo «Elige tu gaseosa» y lo ve en la vista previa.
+- [ ] El administrador crea el combo «Mixto» con sus platos y lo ve en la vista previa.
 - [ ] Un producto deshabilitado en un local no aparece en la carta de ese local.
 - [ ] Cambiar un precio queda en auditoría.
 
@@ -116,6 +116,7 @@ Tareas sin código, en paralelo al Sprint 1:
 - [ ] `POST /v1/pedidos` con numeración diaria atómica e idempotencia.
 - [ ] Edición y cancelación de pedidos `POR_PAGAR`.
 - [ ] Pago en efectivo con vuelto; paso a `EN_ESPERA` al cubrir el total.
+- [ ] Tiempo estimado de espera sugerido (`packages/dominio/tiempo-espera.ts`).
 - [ ] Listado de pedidos del día por estado.
 - [ ] Outbox y relay de eventos; gateway Socket.io con salas de caja.
 
@@ -123,9 +124,10 @@ Tareas sin código, en paralelo al Sprint 1:
 
 - [ ] Manifest e instalación; ícono y pantalla de carga.
 - [ ] Ingreso, elección de local, apertura de turno.
-- [ ] Inicio con la carta, categorías, hoja de opciones, barra de pedido.
+- [ ] Inicio con la carta, categorías, hoja del ítem (cantidad y nota), barra de pedido.
 - [ ] Resumen: tipo, mesa, nombre, ítems editables.
 - [ ] Cobro en efectivo.
+- [ ] Confirmación con número, detalle, total y tiempo estimado ajustable.
 - [ ] Pestaña Pedidos.
 - [ ] Detección de falta de internet en el propio celular.
 
@@ -171,7 +173,7 @@ Tareas sin código, en paralelo al Sprint 1:
 
 ---
 
-## 7. Sprint 5 — Cocina y pantalla pública en tiempo real
+## 7. Sprint 5 — Cocina, salón y pantalla pública en tiempo real
 
 ### Backend
 
@@ -179,6 +181,8 @@ Tareas sin código, en paralelo al Sprint 1:
 - [ ] Proyecciones de cocina y pública; salas por local.
 - [ ] Acciones de cocina con control de versión y deshacer.
 - [ ] Entrega desde la caja; ocultar listos por tiempo.
+- [ ] Rol MESERO, proyección y sala de salón; entrega y mesa desde el salón.
+- [ ] Búsqueda de pedidos por número.
 - [ ] Pedidos sin ítems de cocina directo a `LISTO`.
 
 ### Web
@@ -186,11 +190,13 @@ Tareas sin código, en paralelo al Sprint 1:
 - [ ] `/vincular` con código y QR.
 - [ ] Cocina: tablero, colores por tipo y demora, sonido, deshacer, cancelados.
 - [ ] Pantalla pública: columnas, animación y sonido de listo, marca del negocio, Wake Lock, reconexión.
-- [ ] Caja: pestaña Listos con «Entregar».
+- [ ] Caja: pestaña Listos con «Entregar» y búsqueda por número.
+- [ ] Salón: lista «Para mesas» con aviso de listos y «Entregado».
 
 ### Criterios de aceptación
 
 - [ ] Un pedido pagado aparece en cocina en menos de 1 s y en la pantalla pública al pasar a preparación.
+- [ ] Un pedido para comer en el local pasa a listo, el celular de la mesera vibra y, al marcarlo entregado, sale de la pantalla pública.
 - [ ] Desenchufar y volver a enchufar la TV la deja en su pantalla sin intervención.
 - [ ] La pantalla pública no recibe montos ni nombres de pagadores (verificado en el tráfico de red).
 - [ ] **Demo de punta a punta con el simulador lista para presentar al restaurante.**
@@ -289,7 +295,8 @@ Y1 y Y2 ya tienen una tarea propuesta en el repositorio de Yallegó.
 | Funcionalidad                                     | Versión |
 | ------------------------------------------------- | ------- |
 | Boletas y facturas electrónicas                   | v0.2    |
-| Impresión de tickets y comandas                   | v0.2    |
+| Impresión de la boleta simple y de comandas       | Según P5 |
+| Opciones a elegir en productos (RF-CAR-004)       | v0.2    |
 | Estaciones de cocina                              | v0.2    |
 | PIN de administrador y foto de la constancia       | v0.2    |
 | Registro autoservicio y cobro automático de la suscripción | v0.2 |

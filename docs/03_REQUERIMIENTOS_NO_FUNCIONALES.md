@@ -25,7 +25,7 @@
 
 | ID          | Requerimiento                                                                                          |
 | ----------- | ------------------------------------------------------------------------------------------------------ |
-| RNF-ESC-001 | Un local soporta 120 pedidos por hora en hora punta con 3 cajas, 2 pantallas de cocina y 2 públicas.    |
+| RNF-ESC-001 | Un local soporta 120 pedidos por hora en hora punta con 3 cajas, 2 meseras, 2 pantallas de cocina y 2 públicas.    |
 | RNF-ESC-002 | La plataforma soporta 200 locales activos en el primer año con una sola instancia de API y una de worker. |
 | RNF-ESC-003 | La API no guarda estado en memoria: se puede escalar horizontalmente, con Socket.io sobre el adaptador de Redis. |
 | RNF-ESC-004 | Las consultas a Yallegó por negocio no superan 10 por minuto (el plan Negocio permite 60).              |
@@ -70,7 +70,7 @@ Detalle en `07_SEGURIDAD_AUTH.md`.
 | ------------ | ------------------------------------------------------------------------------------------------------------------------------ |
 | RNF-PRIV-001 | Cumplimiento de la Ley 29733 de Protección de Datos Personales y su reglamento.                                                |
 | RNF-PRIV-002 | El nombre del pagador se cifra en reposo y solo lo ve la caja y la administración del negocio.                                 |
-| RNF-PRIV-003 | La pantalla pública y la de cocina nunca reciben montos ni datos del pagador, ni siquiera en el tráfico de red.               |
+| RNF-PRIV-003 | La pantalla pública, la de cocina y la vista de salón nunca reciben montos ni datos del pagador, ni siquiera en el tráfico de red.               |
 | RNF-PRIV-004 | La copia local de cobros se depura a los 90 días; los pagos conservan solo el nombre abreviado del pagador. Sujeto a revisión legal. |
 | RNF-PRIV-005 | Los registros de la aplicación no contienen nombres de pagadores, claves ni tokens.                                            |
 

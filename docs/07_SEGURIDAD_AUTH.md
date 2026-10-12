@@ -7,6 +7,7 @@
 | Audiencia                | Riesgo principal                                         | Mecanismo                                                         |
 | ------------------------ | -------------------------------------------------------- | ----------------------------------------------------------------- |
 | Cajeras (celular)        | Celular compartido o perdido; sesión larga               | JWT de 15 min + refresh rotativo en cookie `HttpOnly`             |
+| Meseras (celular)        | Igual que cajeras, con menos permisos                    | Igual que cajeras                                                 |
 | Administración (escritorio) | XSS, CSRF, robo de sesión                             | Igual que cajeras                                                 |
 | Pantallas de cocina y pública | Equipo fijo y sin vigilancia en el local            | Token opaco de pantalla, vinculado a un local y revocable         |
 | Yallegó (webhooks)       | Eventos falsificados o repetidos                          | Firma HMAC-SHA256, ventana de 5 min, idempotencia por `event_id`  |
@@ -32,7 +33,7 @@ a las audiencias de un restaurante.
 }
 ```
 
-`loc` lista los locales asignados de un CAJERO; para OWNER y ADMIN va vacío y
+`loc` lista los locales asignados de un CAJERO o MESERO; para OWNER y ADMIN va vacío y
 significa «todos». Un cambio de rol o de locales invalida los refresh tokens del
 usuario para que el siguiente token refleje el cambio.
 

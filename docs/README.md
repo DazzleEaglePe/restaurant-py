@@ -21,7 +21,7 @@ Una pantalla frente a los clientes muestra qué está en preparación y qué est
 | #   | Documento                                                              | Contenido                                                                                  |
 | --- | ---------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
 | 01  | [Contexto y Análisis](./01_CONTEXTO_Y_ANALISIS.md)                     | Problema, propuesta de valor, relación con Yallegó y sus brechas, decisiones, riesgos      |
-| 02  | [Requerimientos Funcionales](./02_REQUERIMIENTOS_FUNCIONALES.md)       | 16 módulos con prioridad, matriz de roles y trazabilidad por sprint                        |
+| 02  | [Requerimientos Funcionales](./02_REQUERIMIENTOS_FUNCIONALES.md)       | 17 módulos con prioridad, matriz de roles y trazabilidad por sprint                        |
 | 03  | [Requerimientos No Funcionales](./03_REQUERIMIENTOS_NO_FUNCIONALES.md) | Rendimiento, disponibilidad, seguridad, privacidad, usabilidad, compatibilidad             |
 | 04  | [Arquitectura de Software](./04_ARQUITECTURA_SOFTWARE.md)              | Monolito modular, capa anticorrupción con Yallegó, flujos de cobro, concurrencia, ADRs     |
 | 05  | [Modelo de Datos](./05_MODELO_DATOS.md)                                | Diagrama, DDL completo, Row Level Security, semillas, Redis, retención                     |
@@ -60,11 +60,12 @@ Una pantalla frente a los clientes muestra qué está en preparación y qué est
 | ------------------------------------------------------------- | --------------------------------------------------------------------------- |
 | Proyecto aparte que usa solo la API pública de Yallegó        | El restaurante es el primer integrador real; cada brecha mejora Yallegó     |
 | Siempre se cobra antes de cocina                              | Decisión del negocio (D2)                                                   |
+| Entrega: la cajera (para llevar) y la mesera (en el local)    | Así trabaja hoy el restaurante piloto (D8)                                  |
 | Yape vía Yallegó y efectivo; sin tarjeta                      | Decisión del negocio (D3)                                                   |
 | La cajera siempre confirma qué pago corresponde a qué pedido  | Yape no trae número de pedido y los montos se repiten                       |
 | Un cobro en un solo pago, garantizado en nuestra base         | No depender de la atomicidad de Yallegó (brecha Y1)                         |
 | Constancia solo con el celular de cobros caído, y conciliada  | Mantener la operación sin abrir una vía cómoda para el fraude               |
-| Una sola app web instalable para las cuatro superficies       | Celular, tablet, TV y escritorio con un desarrollo, sin tiendas de apps     |
+| Una sola app web instalable para todas las superficies       | Celular, tablet, TV y escritorio con un desarrollo, sin tiendas de apps     |
 | Negocio → local con RLS desde el primer sprint                | Multi-tenant y multi-local son la visión del producto                       |
 
 ---

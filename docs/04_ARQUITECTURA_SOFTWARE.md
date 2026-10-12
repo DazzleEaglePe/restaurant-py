@@ -74,7 +74,7 @@ consume Yallegó como un integrador externo a través de una capa anticorrupció
 | `negocios`         | Tenants, locales y su configuración                                                        |
 | `usuarios`         | Membresías, roles y locales asignados                                                      |
 | `pantallas`        | Vinculación y tokens de cocina y pantalla pública                                          |
-| `carta`            | Categorías, productos, combos, opciones y disponibilidad por local                          |
+| `carta`            | Categorías, productos, combos fijos y disponibilidad por local                          |
 | `mesas`            | Zonas y mesas                                                                              |
 | `pedidos`          | Ciclo de vida del pedido, numeración diaria, idempotencia                                  |
 | `pagos`            | Efectivo, billetera, constancia, emparejamiento y confirmación                             |
@@ -351,6 +351,7 @@ recupera cobros ocurridos con su app detenida. El dueño revisa en su app de Yap
 | ------------------------ | ------------------------------------ | ----------------------------------------------------------- |
 | `local:{id}:caja`        | Cajeras con turno en el local        | `pedido.*`, `pago.*`, `cobro.recibido`, `cobros.estado`, `carta.disponibilidad` |
 | `local:{id}:cocina`      | Pantallas de cocina del local        | `cocina.pedido` (vista de cocina, sin montos)               |
+| `local:{id}:salon`       | Meseros con el local asignado        | `salon.pedido` (pedidos para comer en el local, sin montos) |
 | `local:{id}:publica`     | Pantallas públicas del local         | `publica.pedido` (número, nombre abreviado, mesa, estado)   |
 | `negocio:{id}:admin`     | OWNER y ADMIN                        | `cobros.estado`, `turno.*`, `yallego.conexion`              |
 
@@ -388,6 +389,20 @@ Se ejecuta dentro de la transacción que crea el pedido. La fecha es la del loca
 - Si la primera aún se procesa, `409 SOLICITUD_EN_CURSO`.
 - Respaldo en base de datos: único `(tenant_id, idempotency_key)` en pedidos y pagos.
 
+### 5.10. Tiempo estimado de espera
+
+Hoy la cajera le dice al cliente cuánto demorará su pedido (por ejemplo, 30
+minutos). El sistema le sugiere ese tiempo al crear el pedido:
+
+| Situación                                                | Sugerencia                                                 |
+| -------------------------------------------------------- | ---------------------------------------------------------- |
+| Menos de 5 pedidos pasaron a listo en las últimas 2 horas | `tiempo_base_min` del local (20 min por defecto)          |
+| 5 o más                                                  | Percentil 75 de `listo_at − pagado_at` de esos pedidos     |
+
+Se redondea a múltiplos de 5 minutos. La cajera puede cambiarlo antes de cobrar; el
+valor final se guarda en `pedidos.tiempo_estimado_min` y permite medir qué tan
+acertada fue la promesa. La regla vive en `packages/dominio/tiempo-espera.ts`.
+
 ---
 
 ## 6. Multi-tenancy
@@ -424,11 +439,12 @@ las rutas `/platform/v1`, y cada acción queda en auditoría.
 
 ## 7. Arquitectura del frontend
 
-### 7.1. Una sola app Next.js con cuatro superficies
+### 7.1. Una sola app Next.js para todas las superficies
 
 | Ruta           | Superficie        | Forma                                                           |
 | -------------- | ----------------- | --------------------------------------------------------------- |
 | `/caja`        | Caja              | App web instalable (PWA), vertical, móvil                       |
+| `/salon`       | Salón             | Misma app instalable, vertical, para la mesera                  |
 | `/cocina`      | Cocina            | Pantalla completa, horizontal, sesión de pantalla vinculada     |
 | `/pantalla`    | Pantalla pública  | Pantalla completa, sin interacción, sesión de pantalla vinculada |
 | `/admin`       | Administración    | Escritorio, responsiva                                          |
@@ -513,7 +529,7 @@ respaldos de PostgreSQL y observabilidad con Prometheus, Loki y Grafana.
 | ADR-04 | Webhook más consulta de respaldo, sin el WebSocket de Yallegó                    | El WebSocket exige plan Comercio; el webhook más la consulta cubren pérdidas                 |
 | ADR-05 | Restricción única local antes de llamar a `confirm`                              | No depender de la atomicidad de Yallegó (brecha Y1)                                          |
 | ADR-06 | La cajera siempre confirma el emparejamiento                                     | Montos repetidos son normales en un restaurante                                              |
-| ADR-07 | Una sola app web instalable con cuatro superficies                               | Un desarrollo para celular, tablet, TV y escritorio, sin tiendas de apps                     |
+| ADR-07 | Una sola app web instalable para caja, salón, cocina, pantalla pública y administración | Un desarrollo para celular, tablet, TV y escritorio, sin tiendas de apps                     |
 | ADR-08 | Cocina y pantalla pública como pantallas vinculadas, no usuarios                 | Equipos compartidos, sin contraseñas que se olviden ni se compartan                          |
 | ADR-09 | Negocio → local desde el primer sprint, con RLS                                  | Multi-tenant y multi-local son la visión; agregarlos después obliga a migrar todo            |
 | ADR-10 | Validación con constancia solo con el celular caído, siempre conciliada          | Mantiene la operación sin abrir una vía cómoda para el fraude                                |

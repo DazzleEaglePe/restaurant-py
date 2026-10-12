@@ -11,7 +11,7 @@
 | `tenant_id` en toda tabla de negocio, aunque se pueda deducir    | RLS simple y uniforme; índices por negocio                                               |
 | Dinero en `numeric(10,2)` y moneda `PEN`                         | Sin errores de coma flotante                                                             |
 | Fechas en `timestamptz`; la fecha de operación del pedido en `date` local | El «día» del restaurante es el de Lima, no el del servidor                      |
-| Copias (snapshots) de nombre, precio y opciones en los ítems     | El pedido no cambia si después se edita la carta                                         |
+| Copias (snapshots) de nombre, precio y platos en los ítems        | El pedido no cambia si después se edita la carta                                         |
 | Estados como `enum` de PostgreSQL                                | Valores cerrados y validados por el motor                                                |
 | Índice único parcial para el uso de un cobro                     | Un cobro de Yallegó en un solo pago activo (ver `04_ARQUITECTURA_SOFTWARE.md` §5.2)       |
 | Copia local de cobros de Yallegó                                 | Lista rápida en caja y conciliación sin depender de Yallegó                              |
@@ -63,7 +63,7 @@ CREATE EXTENSION IF NOT EXISTS pg_trgm;
 CREATE EXTENSION IF NOT EXISTS citext;
 
 CREATE TYPE estado_negocio      AS ENUM ('ACTIVO', 'SUSPENDIDO');
-CREATE TYPE rol_usuario         AS ENUM ('OWNER', 'ADMIN', 'CAJERO');
+CREATE TYPE rol_usuario         AS ENUM ('OWNER', 'ADMIN', 'CAJERO', 'MESERO');
 CREATE TYPE tipo_pantalla       AS ENUM ('COCINA', 'PUBLICA');
 CREATE TYPE tipo_pedido         AS ENUM ('AQUI', 'LLEVAR');
 CREATE TYPE estado_pedido       AS ENUM ('POR_PAGAR', 'EN_ESPERA', 'EN_PREPARACION', 'LISTO', 'ENTREGADO', 'CANCELADO');
@@ -112,6 +112,7 @@ CREATE TABLE locales (
   cocina_alerta_min      smallint NOT NULL DEFAULT 10,
   cocina_critico_min     smallint NOT NULL DEFAULT 20,
   ocultar_listos_min     smallint NOT NULL DEFAULT 10,
+  tiempo_base_min        smallint NOT NULL DEFAULT 20,     -- espera sugerida sin historial (04 §5.10)
   -- Estado de cobros calculado (04 §5.5)
   estado_cobros          estado_cobros_local NOT NULL DEFAULT 'SIN_CELULAR',
   estado_cobros_desde    timestamptz NOT NULL DEFAULT now(),
@@ -141,7 +142,7 @@ CREATE TABLE membresias (
   UNIQUE (tenant_id, usuario_id)
 );
 
--- Locales en los que puede operar un CAJERO. OWNER y ADMIN operan en todos.
+-- Locales en los que puede operar un CAJERO o un MESERO. OWNER y ADMIN operan en todos.
 CREATE TABLE membresia_locales (
   membresia_id uuid NOT NULL REFERENCES membresias(id) ON DELETE CASCADE,
   local_id     uuid NOT NULL REFERENCES locales(id) ON DELETE CASCADE,
@@ -233,7 +234,8 @@ CREATE TABLE combo_componentes (
   PRIMARY KEY (combo_id, producto_id)
 );
 
--- «Elige tu gaseosa» (RF-CAR-004)
+-- Opciones a elegir (RF-CAR-004, COULD). No se crean en el MVP: los combos del
+-- piloto son fijos (D9). Se dejan aquí para no rediseñar cuando se necesiten.
 CREATE TABLE grupos_opciones (
   id           uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   tenant_id    uuid NOT NULL REFERENCES negocios(id) ON DELETE CASCADE,
@@ -352,6 +354,7 @@ CREATE TABLE pedidos (
   estado             estado_pedido NOT NULL DEFAULT 'POR_PAGAR',
   total              numeric(10,2) NOT NULL CHECK (total >= 0),
   pagado             numeric(10,2) NOT NULL DEFAULT 0,
+  tiempo_estimado_min smallint,                    -- el que se le dijo al cliente
   version            integer NOT NULL DEFAULT 1,
   idempotency_key    uuid NOT NULL,
   creado_por         uuid NOT NULL REFERENCES usuarios(id),
@@ -389,6 +392,7 @@ CREATE TABLE pedido_items (
   orden            smallint NOT NULL
 );
 
+-- v0.2, junto con grupos_opciones y opciones (RF-CAR-004)
 CREATE TABLE pedido_item_opciones (
   item_id       uuid NOT NULL REFERENCES pedido_items(id) ON DELETE CASCADE,
   opcion_id     uuid NOT NULL REFERENCES opciones(id),
@@ -651,12 +655,12 @@ Usan `withoutTenantScope` y están enumeradas en el código:
 
 | Elemento   | Valor                                                                                     |
 | ---------- | ----------------------------------------------------------------------------------------- |
-| Negocio    | «Pollería Demo»                                                                           |
+| Negocio    | «Cevichería Demo»                                                                         |
 | Locales    | «Centro» y «Norte»                                                                        |
-| Usuarios   | `dueno@demo.test` (OWNER), `admin@demo.test` (ADMIN), `caja1@demo.test` y `caja2@demo.test` (CAJERO) |
-| Categorías | Pollos, Combos, Bebidas, Adicionales                                                      |
-| Productos  | ¼ pollo con papas (S/ 18.00), ½ pollo (S/ 32.00), 1 pollo (S/ 58.00), Inca Kola 500 ml (S/ 4.00, sin cocina), Chicha 1 L (S/ 9.00, sin cocina), Papas familiares (S/ 12.00) |
-| Combo      | «Combo ¼ + gaseosa» (S/ 21.00) con grupo «Elige tu gaseosa»: Inca Kola, Coca-Cola, Chicha (+ S/ 1.00) |
+| Usuarios   | `dueno@demo.test` (OWNER), `admin@demo.test` (ADMIN), `caja1@demo.test` y `caja2@demo.test` (CAJERO), `mesera1@demo.test` (MESERO) |
+| Categorías | Ceviches, Combinados, Platos de fondo, Bebidas, Adicionales                               |
+| Productos  | Ceviche de pescado (S/ 25.00), Chicharrón de pescado (S/ 28.00), Chicharrón de pota (S/ 22.00), Jalea mixta (S/ 38.00), Arroz con mariscos (S/ 30.00), Coca-Cola personal (S/ 4.00, sin cocina), Inca Kola personal (S/ 4.00, sin cocina), Chicha morada 1 L (S/ 10.00, sin cocina), Canchita adicional (S/ 3.00) |
+| Combos     | «Mixto» (S/ 32.00): ceviche de pescado + chicharrón de pota. «Trío marino» (S/ 42.00): ceviche + chicharrón de pescado + arroz con mariscos |
 | Mesas      | Salón: 1 a 8; Terraza: T1 a T4                                                            |
 | Yallegó    | Conexión contra el simulador con dos celulares: «Yape Centro» y «Yape Norte»              |
 

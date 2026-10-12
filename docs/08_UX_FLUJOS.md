@@ -11,6 +11,7 @@
 | Actor                | Dispositivo                       | Objetivo                                                   |
 | -------------------- | --------------------------------- | ---------------------------------------------------------- |
 | Cajera               | Celular                           | Atender rápido y no aceptar pagos falsos                   |
+| Mesera               | Celular                           | Llevar a la mesa los pedidos listos y marcarlos entregados |
 | Cocina               | Tablet o monitor táctil (pantalla vinculada) | Saber qué preparar y en qué orden                 |
 | Cliente              | Pantalla pública (solo mira)      | Saber cuándo recoger su pedido                             |
 | Administrador        | Escritorio                        | Mantener carta, mesas, usuarios y pantallas; ver reportes  |
@@ -61,6 +62,12 @@ Inicio (hoy por local) ─┬─ Pedidos
                         └─ Configuración: negocio · Yallegó · suscripción
 ```
 
+### 2.5. Salón (mesera)
+
+Una sola lista, **Para mesas**, con dos segmentos: **Listos** (primero) y **En
+cocina**. Cada pedido muestra número, mesa, nombre y platos, sin montos. El menú ☰
+solo tiene Mi cuenta y Salir.
+
 ---
 
 ## 3. Flujo: puesta en marcha de un negocio
@@ -76,9 +83,9 @@ Alta asistida en el MVP. Lo acompaña soporte, idealmente en el local.
 | 5    | Dueño    | Pega la clave en Configuración → Yallegó                               | «Conectado» y lista de celulares               |
 | 6    | Dueño    | Asigna cada celular a su local                                         | Estado de cobros del local en verde            |
 | 7    | Dueño    | Prueba la conexión                                                     | «Evento de prueba recibido»                    |
-| 8    | Admin    | Carga la carta (categorías, productos, combos, opciones)               | Vista previa de la carta como la ve la caja    |
+| 8    | Admin    | Carga la carta (categorías, productos y combos)                        | Vista previa de la carta como la ve la caja    |
 | 9    | Admin    | Crea zonas y mesas                                                     | Lista de mesas                                 |
-| 10   | Admin    | Invita a las cajeras y les asigna locales                              | Invitaciones enviadas                          |
+| 10   | Admin    | Invita a cajeras y meseras y les asigna locales                              | Invitaciones enviadas                          |
 | 11   | Admin    | Vincula la pantalla de cocina y la pública con su código               | Ambas «En línea»                               |
 | 12   | Todos    | Prueba de punta a punta: un pedido de S/ 1.00 pagado con Yape real      | El pedido aparece en cocina y en la pantalla pública |
 
@@ -103,26 +110,26 @@ avance hasta completarlos.
 ```
 ┌──────────────────────────────┐
 │ Centro          ● Cobros OK ☰│
-│ [Pollos][Combos][Bebidas][+] │
+│ [Ceviches][Combinados][+]    │
 │ ┌──────────┐  ┌──────────┐   │
 │ │  foto    │  │  foto    │   │
-│ │ ¼ pollo  │  │ ½ pollo  │   │
-│ │ S/ 18.00 │  │ S/ 32.00 │   │
+│ │ Ceviche  │  │ Mixto    │   │
+│ │ S/ 25.00 │  │ S/ 32.00 │   │
 │ └──────────┘  └──────────┘   │
 │ ┌──────────┐  ┌──────────┐   │
-│ │ Combo ¼  │  │ Inca 500 │   │
-│ │ S/ 21.00 │  │ Agotado  │   │
+│ │ Jalea    │  │ Chicha   │   │
+│ │ S/ 38.00 │  │ Agotado  │   │
 │ └──────────┘  └──────────┘   │
 │ ┌──────────────────────────┐ │
-│ │ Ver pedido · 3 · S/ 43.00│ │
+│ │ Ver pedido · 5 · S/ 97.00│ │
 │ └──────────────────────────┘ │
 │   Inicio          Pedidos    │
 └──────────────────────────────┘
 ```
 
-1. Toca un producto: se agrega con cantidad 1. Si tiene opciones obligatorias,
-   abre una hoja inferior para elegirlas.
-2. Mantener presionado abre la hoja de detalle: cantidad, opciones y nota.
+1. Toca un producto: se agrega con cantidad 1. Un combo (un mixto) se agrega
+   igual: sus platos son fijos.
+2. Mantener presionado abre la hoja del ítem: cantidad y nota («sin ají»).
 3. La barra «Ver pedido» muestra cantidad de ítems y total.
 
 **Pedido en armado (resumen)**
@@ -131,12 +138,13 @@ avance hasta completarlos.
    **Para llevar**.
 2. Nombre del cliente (sugerido para llevar; se muestra abreviado en la pantalla
    pública).
-3. Ítems editables: cantidad, opciones, nota, quitar.
-4. Botones: **Cancelar** y **Cobrar S/ 43.00**.
+3. Ítems editables: cantidad, nota, quitar.
+4. Botones: **Cancelar** y **Cobrar S/ 97.00**.
 
 Al tocar **Cobrar**, el pedido se crea (`POR_PAGAR`, número asignado) y pasa a la
 pantalla de cobro. Si un precio cambió mientras tanto, se muestra el total nuevo
-antes de continuar.
+antes de continuar. La pantalla de cobro muestra el tiempo de espera sugerido
+(«~30 min»), que la cajera puede cambiar.
 
 ---
 
@@ -147,20 +155,20 @@ antes de continuar.
 ```
 ┌──────────────────────────────┐
 │ ← Pedido #0042    ● Cobros OK│
-│ Cobrar S/ 43.00               │
+│ Cobrar S/ 97.00               │
 │ [ Yape ] [ Efectivo ]         │
 │                               │
 │ ⚠ El pedido #0041 también     │
-│   espera S/ 43.00             │
+│   espera S/ 97.00             │
 │                               │
 │ ÚLTIMOS PAGOS                 │
 │ ┌──────────────────────────┐ │
-│ │ Yape · S/ 43.00  ✓Coincide│ │
+│ │ Yape · S/ 97.00  ✓Coincide│ │
 │ │ Victor A. Capitan N.      │ │
 │ │ 18:30 · código 315        │ │
 │ └──────────────────────────┘ │
 │ ┌──────────────────────────┐ │
-│ │ Yape · S/ 43.00  ✓Coincide│ │
+│ │ Yape · S/ 97.00  ✓Coincide│ │
 │ │ Lucía R. Quispe M.        │ │
 │ │ 18:29 · código 802        │ │
 │ └──────────────────────────┘ │
@@ -173,7 +181,7 @@ antes de continuar.
 
 - Los pagos con el monto exacto van primero, con la etiqueta «Coincide».
 - Un pago nuevo aparece arriba con una animación breve y una vibración corta.
-- Si no hay pagos: «Esperando pago de S/ 43.00…» con un indicador animado.
+- Si no hay pagos: «Esperando pago de S/ 97.00…» con un indicador animado.
 - Pista para la cajera bajo el título: «Pide al cliente el código de 3 dígitos de
   su Yape».
 
@@ -183,7 +191,7 @@ antes de continuar.
 ┌──────────────────────────────┐
 │ ← Detalle del pago            │
 │                               │
-│         S/ 43.00              │
+│         S/ 97.00              │
 │   Yape · hoy 18:30:58         │
 │                               │
 │   Victor A. Capitan N.        │
@@ -191,7 +199,7 @@ antes de continuar.
 │   Código de seguridad         │
 │          3 1 5                │
 │                               │
-│   Pedido #0042 · S/ 43.00 ✓   │
+│   Pedido #0042 · S/ 97.00 ✓   │
 │                               │
 │ ┌───────────┐ ┌─────────────┐ │
 │ │ Cancelar  │ │  Confirmar  │ │
@@ -207,7 +215,7 @@ antes de continuar.
 
 | Resultado                    | Pantalla                                                                                   |
 | ---------------------------- | ------------------------------------------------------------------------------------------ |
-| Confirmado                   | «Pedido #0042 enviado a cocina» con check verde; tras 2 s vuelve a Inicio con la carta vacía |
+| Confirmado                   | Confirmación con el número **#0042** grande, el detalle, el total y «Listo en ~30 min» para decírselo al cliente; botón **Nuevo pedido** |
 | Falta saldo                  | «Pago registrado. Falta S/ 5.00» y vuelve a «Últimos pagos»                                 |
 | Confirmando (Yallegó lento)  | «Confirmando el pago…»; la cajera puede volver a Inicio. El resultado llega como aviso       |
 | Ya usado                     | «Este pago ya se usó en el pedido #0039.» El pago desaparece de la lista                    |
@@ -219,13 +227,13 @@ antes de continuar.
 
 1. Pestaña **Efectivo**.
 2. Atajos: «Exacto», S/ 50, S/ 100, S/ 200, y teclado numérico para otro monto.
-3. El vuelto aparece grande: «Vuelto S/ 7.00».
+3. El vuelto aparece grande: «Vuelto S/ 3.00».
 4. **Confirmar** → «Pedido #0042 enviado a cocina».
 
 ### 7.1. Pagos divididos o mixtos
 
 Si el pago cubre solo parte del total, el pedido queda con saldo y la pantalla de
-cobro sigue abierta mostrando «Pagado S/ 20.00 · Falta S/ 23.00». Se puede seguir
+cobro sigue abierta mostrando «Pagado S/ 50.00 · Falta S/ 47.00». Se puede seguir
 con Yape o con efectivo. Recién al cubrir el total pasa a cocina.
 
 ---
@@ -297,8 +305,8 @@ Conexión inválida, y si el local lo permite.
 ├───────────────────┬───────────────────┬───────────────────┬─────────────────────┤
 │ #0039  LLEVAR     │ #0040  AQUÍ · M5  │ #0041  LLEVAR     │ #0042  AQUÍ · M2    │
 │ 12 min  (rojo)    │ 9 min   (ámbar)   │ 4 min             │ 1 min               │
-│ 2 × ¼ pollo       │ 1 × ½ pollo       │ 1 × Combo ¼       │ 2 × Combo ¼         │
-│ 1 × Papas fam.    │   sin ensalada    │   · Inca Kola     │   · Inca Kola       │
+│ 2 × Mixto         │ 1 × Jalea mixta   │ 1 × Ceviche       │ 2 × Mixto           │
+│ 1 × Ceviche       │   sin cebolla     │   sin ají         │ 1 × Ceviche         │
 │                   │                   │                   │   sin ají           │
 │ EN PREPARACIÓN    │ EN PREPARACIÓN    │                   │                     │
 │ ┌───────────────┐ │ ┌───────────────┐ │ ┌───────────────┐ │ ┌─────────────────┐ │
@@ -323,7 +331,7 @@ Conexión inválida, y si el local lo permite.
 
 ```
 ┌──────────────────────────────────────────────────────────────────┐
-│  [logo]  Pollería Demo                                    18:44  │
+│  [logo]  Cevichería Demo                                  18:44  │
 ├────────────────────────────────┬─────────────────────────────────┤
 │        EN PREPARACIÓN          │            LISTOS               │
 │                                │                                 │
@@ -345,12 +353,23 @@ Conexión inválida, y si el local lo permite.
 
 ## 12. Flujo: entrega
 
-1. La caja vibra: «#0039 está listo».
-2. La cajera entrega y en **Pedidos → Listos** toca **Entregar**.
-3. El pedido sale de la pantalla pública.
+### 12.1. Para llevar (cajera)
 
-Decisión pendiente P2: si otra persona (un mozo) entrega, se le dará acceso a esta
-misma pestaña.
+1. La caja vibra: «#0039 está listo».
+2. El cliente vuelve con su boleta o su número.
+3. La cajera busca el número en **Pedidos → Listos** y toca **Entregar**.
+4. El pedido sale de la pantalla pública.
+
+### 12.2. Para comer en el local (mesera)
+
+1. El celular de la mesera vibra: «#0040 · Mesa 5 está listo».
+2. La mesera alista los platos y los lleva a la mesa.
+3. En **Para mesas → Listos** toca **Entregado**. El pedido sale de la pantalla
+   pública.
+
+Si el pedido no tiene mesa, la mesera lo ubica por número y nombre, y puede anotar
+la mesa al entregarlo (decisión pendiente P11). Si no hay mesera en el turno, la
+cajera lo marca desde **Pedidos → Listos**.
 
 ---
 
@@ -392,7 +411,7 @@ cancela.
 
 | Lugar                         | Mensaje                                                      |
 | ----------------------------- | ------------------------------------------------------------ |
-| Últimos pagos                 | «Esperando pago de S/ 43.00…»                                |
+| Últimos pagos                 | «Esperando pago de S/ 97.00…»                                |
 | Pedidos → Por pagar           | «No hay pedidos por cobrar.»                                 |
 | Pedidos → Listos              | «Nada listo por ahora.»                                      |
 | Cocina                        | «Sin pedidos pendientes.»                                    |
@@ -440,4 +459,4 @@ cancela.
   18:02. Revisa…».
 - Sin tecnicismos frente a cajeras: «celular de cobros», no «dispositivo»; «pago»,
   no «transacción».
-- Montos siempre como `S/ 43.00`.
+- Montos siempre como `S/ 97.00`.

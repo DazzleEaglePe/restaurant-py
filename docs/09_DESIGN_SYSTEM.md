@@ -15,7 +15,7 @@
 3. **Un toque, una acción.** Botones grandes, sin menús escondidos en el flujo de cobro.
 4. **Nada se pierde en silencio.** Todo cambio importante tiene una señal visual y,
    cuando corresponde, sonora o háptica.
-5. **Tres superficies, un sistema.** Caja, cocina y pantalla pública comparten
+5. **Un sistema para todas las superficies.** Caja, salón, cocina y pantalla pública comparten
    tokens y componentes; cambian la escala y la densidad.
 
 ---
@@ -131,7 +131,7 @@ Los tamaños mínimos son requisitos; la escala completa se ajusta con la famili
 
 ### 4.3. Tratamiento de cifras
 
-- Montos: `S/ 43.00`, con espacio fino entre `S/` y el número y siempre dos decimales.
+- Montos: `S/ 97.00`, con espacio fino entre `S/` y el número y siempre dos decimales.
 - Números de pedido: `#0042` con cuatro dígitos.
 - Código de seguridad: dígitos separados (`3 1 5`) para leerlo en voz alta.
 
@@ -174,8 +174,8 @@ igual que Yallegó.
 | ---------------------- | --------------- | --------------------------------------------------------------- |
 | `ProductoCard`         | Caja            | Foto, nombre, precio; estados normal, agotado, en el pedido     |
 | `CategoriaChips`       | Caja            | Filtro horizontal con desplazamiento                            |
-| `HojaOpciones`         | Caja            | Hoja inferior para opciones, cantidad y nota                    |
-| `BarraPedido`          | Caja            | «Ver pedido · 3 · S/ 43.00»                                     |
+| `HojaItem`             | Caja            | Hoja inferior para cantidad y nota                              |
+| `BarraPedido`          | Caja            | «Ver pedido · 5 · S/ 97.00»                                     |
 | `CobroCandidatoCard`   | Caja            | Pago recibido con monto, nombre, hora, código e insignia «Coincide» |
 | `DetallePago`          | Caja            | Monto grande, código de seguridad, comparación con el saldo     |
 | `TecladoEfectivo`      | Caja            | Atajos y teclado numérico, vuelto grande                        |
@@ -184,6 +184,7 @@ igual que Yallegó.
 | `EstadoPedidoBadge`    | Todas           | Color y texto del estado                                        |
 | `TipoPedidoBadge`      | Caja, cocina    | AQUÍ · Mesa / LLEVAR                                            |
 | `TarjetaCocina`        | Cocina          | Pedido con ítems, tiempo, botón de avance y deshacer            |
+| `SalonPedidoCard`      | Salón           | Pedido para mesa: número, mesa, nombre, platos y «Entregado»    |
 | `ColumnaPublica`       | Pantalla pública | Lista de números y nombres; animación de entrada               |
 | `Monto`                | Todas           | Formato `S/ 0.00` con cifras tabulares                          |
 | `ResumenTurno`         | Caja, admin     | Totales por método y diferencia                                 |
@@ -209,7 +210,7 @@ igual que Yallegó.
 | ------------------ | ----------------------------------------------------------------------- |
 | Franja superior    | Color del tipo de pedido, con «AQUÍ · M5» o «LLEVAR»                    |
 | Número y tiempo    | Número a 40 px; tiempo transcurrido con el color de demora              |
-| Ítems              | Cantidad en negrita; opciones y notas en una línea debajo, con sangría  |
+| Ítems              | Cantidad en negrita; platos del combo y notas debajo, con sangría  |
 | Botón              | «PREPARAR» o «LISTO», 72 px, ancho completo                             |
 | Deshacer           | Enlace sobre el botón durante 10 s                                      |
 

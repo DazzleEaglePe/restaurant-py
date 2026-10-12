@@ -159,6 +159,7 @@ apps/web/
     │   │   ├── pedido/           # Pedido en armado y cobro
     │   │   ├── pedidos/
     │   │   └── turno/
+    │   ├── (salon)/salon/        # Mesera: pedidos para mesa
     │   ├── (cocina)/cocina/      # Pantalla completa horizontal
     │   ├── (pantalla)/pantalla/  # Pantalla pública
     │   ├── vincular/             # Canje de código de pantalla
@@ -168,6 +169,7 @@ apps/web/
     │   ├── pedido-en-armado/
     │   ├── cobro/
     │   ├── cobros-estado/
+    │   ├── salon/
     │   ├── cocina/
     │   ├── pantalla-publica/
     │   ├── turno/
@@ -212,11 +214,12 @@ Sin dependencias de framework. Probado con cobertura ≥ 90 %.
 | Archivo                  | Contenido                                                           |
 | ------------------------ | ------------------------------------------------------------------- |
 | `pedido-estados.ts`      | Transiciones permitidas y quién puede hacerlas                      |
-| `totales.ts`             | Total de ítems con opciones, saldo, vuelto                          |
+| `totales.ts`             | Total de ítems, saldo, vuelto                          |
 | `emparejamiento.ts`      | Orden de candidatos, preselección, ambigüedad (04 §5.1)             |
 | `conciliacion.ts`        | Reglas de conciliación de constancias (04 §5.6)                     |
 | `estado-cobros.ts`       | Cálculo del estado del local a partir de sus celulares (04 §5.5)    |
 | `turno.ts`               | Efectivo esperado y diferencia                                      |
+| `tiempo-espera.ts`       | Tiempo de espera sugerido (04 §5.10)                                |
 | `dinero.ts`              | Aritmética de soles sin coma flotante                               |
 
 ### 6.3. `packages/yallego-client`
@@ -379,6 +382,7 @@ corepack pnpm dev:stack
 Luego:
 
 - Caja: `http://localhost:4000/caja` con `caja1@demo.test`.
+- Salón: `http://localhost:4000/salon` con `mesera1@demo.test`.
 - Cocina y pantalla pública: crear pantallas en la administración y vincular en
   `http://localhost:4000/vincular`.
 - Simular un Yape: `http://localhost:4010`.

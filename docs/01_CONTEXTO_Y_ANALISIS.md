@@ -24,6 +24,23 @@ El primer cliente es un restaurante al que se le presentará el sistema. El
 producto se diseña desde el inicio para venderse a muchos restaurantes y a cadenas
 con varios locales.
 
+### 1.1. Cómo trabaja hoy el restaurante piloto
+
+1. El cliente se acerca a la cajera, que atiende en un escritorio, y pide. Por
+   ejemplo: dos mixtos, un ceviche y dos Coca-Cola personales.
+2. La cajera le dice el total. El cliente paga con Yape o en efectivo y le muestra
+   la constancia.
+3. La cajera le entrega una **boleta simple** firmada (no es un comprobante
+   electrónico) con el detalle y los montos, y le dice el tiempo de espera
+   aproximado, por ejemplo 30 minutos.
+4. **Para llevar:** el cliente se va y vuelve. Le devuelve la boleta a la cajera y
+   ella le entrega su pedido.
+5. **Para comer en el local:** el cliente se sienta. Cuando los platos salen de
+   cocina, una **mesera** los alista y los lleva a su mesa.
+
+El sistema reemplaza la verificación del pago a ojo y el registro en papel, ordena
+la cocina y avisa a la cajera y a la mesera cuando un pedido está listo.
+
 ---
 
 ## 2. El problema
@@ -62,6 +79,7 @@ cajera recuerda haber vendido.
 | Dueño      | Ningún pedido entra a cocina sin un pago verificado; cuadre de caja automático    |
 | Cajera     | Toma el pedido y ve llegar el Yape en el mismo celular; no depende de nadie       |
 | Cocina     | Una pantalla con los pedidos pagados, en orden, con su tiempo y tipo              |
+| Mesera     | Sabe qué pedido de mesa está listo sin ir a preguntar a cocina                    |
 | Cliente    | Ve en una pantalla cuándo su pedido está listo                                    |
 
 ### 3.1. Diferenciadores
@@ -172,6 +190,9 @@ de Yallegó.
 | D5  | El celular de cobros debe estar activo siempre. Si falla, el sistema **avisa con la causa**      |
 | D6  | Con el celular de cobros caído, la cajera **puede validar mirando la constancia** del cliente (monto y hora). Es una contingencia: queda registrada y se concilia después |
 | D7  | Dos pantallas fijas: **cocina** y **pantalla pública** para clientes                             |
+| D8  | Marca «entregado» **la cajera** en pedidos para llevar y **la mesera** en pedidos para comer en el local. Se agrega el rol MESERO |
+| D9  | Los **combos son combinaciones fijas de platos** (un mixto). No tienen opciones a elegir; las bebidas se piden aparte |
+| D10 | `resto` es el nombre de trabajo en el código hasta definir el nombre comercial                   |
 
 ### 7.2. Restricciones heredadas de Yallegó
 
@@ -187,6 +208,7 @@ de Yallegó.
 | Componente          | Dispositivo                           | Usuario                       |
 | ------------------- | ------------------------------------- | ----------------------------- |
 | Caja                | Celular (app web instalable)          | Cajera                        |
+| Salón               | Celular (misma app web)               | Mesera                        |
 | Cocina              | Tablet o monitor táctil               | Pantalla vinculada, sin usuario |
 | Pantalla pública    | TV o monitor                          | Pantalla vinculada, sin usuario |
 | Panel de administración | Navegador de escritorio           | Dueño y administrador         |
@@ -256,7 +278,7 @@ comparten equipo, una falla de internet tumba ambos a la vez.
 ### MVP (v0.1) — 8 sprints
 
 Caja móvil, carta, pedidos, cobro con Yape vía Yallegó y efectivo, cocina,
-pantalla pública, avisos del celular de cobros, validación manual con
+vista de salón para la mesera, pantalla pública, avisos del celular de cobros, validación manual con
 conciliación, turnos y cierre de caja, reportes básicos, multi-local.
 
 ### v0.2
@@ -274,15 +296,17 @@ reportes consolidados de cadena, integraciones con delivery.
 
 ## 11. Decisiones pendientes
 
-| #   | Pregunta                                                                                   | Valor por defecto mientras no se decida                           |
-| --- | ------------------------------------------------------------------------------------------ | ----------------------------------------------------------------- |
-| P1  | Nombre comercial del producto                                                               | Nombre de trabajo `resto`                                         |
-| P2  | ¿Quién marca «entregado»?                                                                   | La cajera desde la pestaña Pedidos; la pantalla pública oculta los listos tras 10 min |
-| P3  | ¿Los combos tienen opciones (elegir gaseosa, «sin cebolla»)?                                | Sí: grupos de opciones y notas libres por ítem                    |
-| P4  | ¿Se emiten boletas o facturas desde el sistema?                                             | No en el MVP                                                      |
-| P5  | ¿Se imprime ticket o comanda?                                                               | No en el MVP; cocina trabaja con pantalla                         |
-| P6  | ¿La cuenta de Yallegó va incluida en nuestro precio?                                        | No; cada restaurante conecta su cuenta                            |
-| P7  | Precios de los planes                                                                       | Por definir                                                       |
-| P8  | Fecha de presentación al restaurante                                                        | Demo con simulador al cierre del Sprint 5                         |
-| P9  | Equipos de cocina y pantalla pública del primer restaurante                                 | Tablet Android de 10" y TV con Android TV                         |
-| P10 | ¿La validación manual exige PIN del administrador o tiene monto máximo?                     | Sin PIN; monto máximo configurable, sin límite por defecto        |
+Resueltas el 2026-10-11: P2 (quién entrega, ver D8) y P3 (combos, ver D9). El
+nombre de trabajo `resto` quedó aprobado para el código (D10).
+
+| #   | Pregunta                                                                                                                                                         | Valor por defecto mientras no se decida                                              |
+| --- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| P1  | Nombre comercial del producto                                                                                                                                    | `resto` en el código                                                                 |
+| P4  | ¿Se emiten boletas o facturas electrónicas (SUNAT) desde el sistema?                                                                                             | No en el MVP                                                                         |
+| P5  | Hoy la cajera entrega una boleta simple firmada que el cliente devuelve al recoger. ¿Se sigue imprimiendo (con una impresora térmica pequeña junto al celular de caja) o se reemplaza por el número en pantalla? | Pendiente. Mientras tanto, la caja muestra número, detalle, total y tiempo estimado |
+| P6  | ¿La cuenta de Yallegó va incluida en nuestro precio?                                                                                                             | No; cada restaurante conecta su cuenta                                               |
+| P7  | Precios de los planes                                                                                                                                            | Por definir                                                                          |
+| P8  | ¿En qué fecha será la reunión para mostrarle el sistema al restaurante? Sirve para ordenar los sprints y llegar con la demo lista                                 | Demo con simulador al cierre del Sprint 5                                            |
+| P9  | ¿Qué equipos tiene o comprará el restaurante: celular dedicado para cobros, celular de caja, celular de la mesera, tablet de cocina y TV para clientes?          | Tablet Android de 10" y TV con Android TV                                            |
+| P10 | Cuando el celular de cobros está caído y la cajera valida mirando la constancia del cliente, ¿se agrega un control extra? (a) un monto máximo, por ejemplo S/ 100; (b) que el administrador lo apruebe con un PIN; (c) ninguno: queda registrado y se revisa después | (c) Ninguno extra                                                                    |
+| P11 | En pedidos para comer en el local, ¿cómo sabe la mesera a qué mesa llevar los platos? ¿El cliente ya tiene mesa al pedir, recibe un número para su mesa, o la mesera lo llama? | La cajera anota la mesa si el cliente ya la tiene; si no, la mesera lo ubica por número y nombre |

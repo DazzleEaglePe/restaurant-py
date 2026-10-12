@@ -103,7 +103,7 @@ Mismo esquema que Yallegó.
   "access_token": "eyJ…",
   "expires_in": 900,
   "user": { "id": "…", "nombre": "Rosa", "email": "caja1@demo.test" },
-  "tenant": { "id": "…", "nombre_comercial": "Pollería Demo" },
+  "tenant": { "id": "…", "nombre_comercial": "Cevichería Demo" },
   "rol": "CAJERO",
   "locales": [{ "id": "…", "nombre": "Centro" }]
 }
@@ -193,7 +193,7 @@ Solo un OWNER puede invitar o modificar a otro OWNER (`403 FORBIDDEN`).
   "token": "pt_3f6a8c2e…",
   "pantalla": { "id": "…", "tipo": "COCINA", "nombre": "Cocina principal" },
   "local": { "id": "…", "nombre": "Centro" },
-  "negocio": { "nombre_comercial": "Pollería Demo", "logo_url": "…", "color_acento": "#E4572E" }
+  "negocio": { "nombre_comercial": "Cevichería Demo", "logo_url": "…", "color_acento": "#E4572E" }
 }
 ```
 
@@ -205,12 +205,12 @@ El token se muestra una sola vez; límite de 5 intentos por IP cada 10 minutos.
 
 | Método   | Ruta                                       | Rol mínimo | Descripción                                    |
 | -------- | ------------------------------------------ | ---------- | ---------------------------------------------- |
-| `GET`    | `/v1/carta?local_id=`                      | CAJERO     | Carta del local: categorías, productos, opciones y disponibilidad |
+| `GET`    | `/v1/carta?local_id=`                      | CAJERO     | Carta del local: categorías, productos, combos y disponibilidad |
 | `GET`    | `/v1/categorias`                           | ADMIN      | Lista categorías                               |
 | `POST`   | `/v1/categorias`                           | ADMIN      | Crea                                           |
 | `PATCH`  | `/v1/categorias/{id}`                      | ADMIN      | Edita, ordena o desactiva                      |
 | `GET`    | `/v1/productos`                            | ADMIN      | Lista productos                                |
-| `POST`   | `/v1/productos`                            | ADMIN      | Crea producto o combo con opciones             |
+| `POST`   | `/v1/productos`                            | ADMIN      | Crea producto o combo con sus platos           |
 | `PATCH`  | `/v1/productos/{id}`                       | ADMIN      | Edita                                          |
 | `PUT`    | `/v1/productos/{id}/locales/{local_id}`    | ADMIN      | Habilita y fija precio en un local             |
 | `POST`   | `/v1/productos/{id}/agotado`               | CAJERO     | Marca agotado en el local de `X-Local-Id`      |
@@ -224,25 +224,19 @@ El token se muestra una sola vez; límite de 5 intentos por IP cada 10 minutos.
   "categorias": [
     {
       "id": "…",
-      "nombre": "Combos",
+      "nombre": "Combinados",
       "productos": [
         {
           "id": "…",
-          "nombre": "Combo ¼ + gaseosa",
-          "precio": "21.00",
+          "nombre": "Mixto",
+          "precio": "32.00",
           "foto_url": "…",
           "agotado": false,
-          "grupos_opciones": [
-            {
-              "id": "…",
-              "nombre": "Elige tu gaseosa",
-              "minimo": 1,
-              "maximo": 1,
-              "opciones": [
-                { "id": "…", "nombre": "Inca Kola", "precio_extra": "0.00" },
-                { "id": "…", "nombre": "Chicha", "precio_extra": "1.00" }
-              ]
-            }
+          "es_combo": true,
+          "requiere_cocina": true,
+          "componentes": [
+            { "nombre": "Ceviche de pescado", "cantidad": 1 },
+            { "nombre": "Chicharrón de pota", "cantidad": 1 }
           ]
         }
       ]
@@ -310,11 +304,13 @@ La caja guarda la carta en caché y la invalida con el evento `carta.actualizada
 | Método  | Ruta                              | Rol mínimo | Descripción                                          |
 | ------- | --------------------------------- | ---------- | ---------------------------------------------------- |
 | `POST`  | `/v1/pedidos`                     | CAJERO     | Crea un pedido `POR_PAGAR` (idempotente)             |
-| `GET`   | `/v1/pedidos?estado=&fecha=`      | CAJERO     | Pedidos del local                                    |
+| `GET`   | `/v1/pedidos?estado=&fecha=&numero=`      | CAJERO     | Pedidos del local                                    |
 | `GET`   | `/v1/pedidos/{id}`                | CAJERO     | Detalle con ítems y pagos                            |
 | `PATCH` | `/v1/pedidos/{id}`                | CAJERO     | Edita un pedido `POR_PAGAR`                          |
 | `POST`  | `/v1/pedidos/{id}/cancelar`       | CAJERO *   | Cancela                                              |
-| `POST`  | `/v1/pedidos/{id}/entregar`       | CAJERO     | `LISTO` → `ENTREGADO`                                |
+| `POST`  | `/v1/pedidos/{id}/entregar`       | CAJERO o MESERO | `LISTO` → `ENTREGADO`; el MESERO solo en pedidos para comer en el local |
+| `PATCH` | `/v1/pedidos/{id}/mesa`           | MESERO     | Indica o corrige la mesa                             |
+| `GET`   | `/v1/salon/pedidos`               | MESERO     | Pedidos para comer en el local en cocina y listos, sin montos |
 
 \* Un CAJERO solo cancela pedidos `POR_PAGAR` sin pagos confirmados.
 
@@ -323,18 +319,15 @@ La caja guarda la carta en caché y la invalida con el evento `carta.actualizada
 ```json
 // Cabeceras: Idempotency-Key: 6f1c…  ·  X-Local-Id: …
 {
-  "tipo": "AQUI",
-  "mesa_id": "…",
+  "tipo": "LLEVAR",
+  "mesa_id": null,
   "nombre_cliente": "Carlos",
   "items": [
-    {
-      "producto_id": "…",
-      "cantidad": 2,
-      "opcion_ids": ["…"],
-      "nota": "sin ají"
-    }
+    { "producto_id": "…", "cantidad": 2 },
+    { "producto_id": "…", "cantidad": 1, "nota": "sin ají" },
+    { "producto_id": "…", "cantidad": 2 }
   ],
-  "total_esperado": "42.00"
+  "total_esperado": "97.00"
 }
 
 // 201
@@ -343,13 +336,18 @@ La caja guarda la carta en caché y la invalida con el evento `carta.actualizada
   "numero": 42,
   "fecha_operacion": "2026-10-11",
   "estado": "POR_PAGAR",
-  "tipo": "AQUI",
-  "mesa": { "id": "…", "numero": "5" },
+  "tipo": "LLEVAR",
+  "mesa": null,
   "nombre_cliente": "Carlos",
-  "total": "42.00",
+  "total": "97.00",
   "pagado": "0.00",
-  "saldo": "42.00",
-  "items": [ { "id": "…", "nombre": "Combo ¼ + gaseosa", "cantidad": 2, "precio_unitario": "21.00", "subtotal": "42.00", "opciones": [{ "grupo": "Elige tu gaseosa", "nombre": "Inca Kola" }], "nota": "sin ají" } ],
+  "saldo": "97.00",
+  "tiempo_estimado_min": 30,
+  "items": [
+    { "id": "…", "nombre": "Mixto", "cantidad": 2, "precio_unitario": "32.00", "subtotal": "64.00", "componentes": ["Ceviche de pescado", "Chicharrón de pota"], "nota": null },
+    { "id": "…", "nombre": "Ceviche de pescado", "cantidad": 1, "precio_unitario": "25.00", "subtotal": "25.00", "componentes": [], "nota": "sin ají" },
+    { "id": "…", "nombre": "Coca-Cola personal", "cantidad": 2, "precio_unitario": "4.00", "subtotal": "8.00", "componentes": [], "nota": null }
+  ],
   "pagos": [],
   "version": 1,
   "created_at": "2026-10-11T18:31:40Z"
@@ -359,6 +357,10 @@ La caja guarda la carta en caché y la invalida con el evento `carta.actualizada
 `total_esperado` es el total que vio la cajera. Si el servidor calcula otro (cambió
 un precio), responde `409 ESTADO_CAMBIADO` con la carta nueva para que la caja lo
 muestre antes de cobrar.
+
+`tiempo_estimado_min` es la sugerencia del sistema (`04_ARQUITECTURA_SOFTWARE.md`
+§5.10). La cajera puede cambiarlo con `PATCH /v1/pedidos/{id}` antes de cobrar; es
+el que se le dice al cliente.
 
 ### `POST /v1/pedidos/{id}/cancelar`
 
@@ -384,14 +386,14 @@ muestre antes de cobrar.
 
 ```json
 {
-  "saldo": "25.00",
+  "saldo": "97.00",
   "estado_cobros": "ACTIVO",
   "otros_pedidos_mismo_monto": [{ "id": "…", "numero": 41 }],
   "candidatos": [
     {
       "id": "…",
       "billetera": { "codigo": "YAPE", "nombre": "Yape" },
-      "monto": "25.00",
+      "monto": "97.00",
       "nombre_pagador": "Victor A. Capitan N.",
       "codigo_seguridad": "315",
       "ocurrido_at": "2026-10-11T18:30:58Z",
@@ -411,7 +413,7 @@ Tres variantes según `tipo`:
 
 ```json
 // Efectivo
-{ "tipo": "EFECTIVO", "monto": "25.00", "recibido": "50.00" }
+{ "tipo": "EFECTIVO", "monto": "97.00", "recibido": "100.00" }
 
 // Billetera verificada por Yallegó
 { "tipo": "BILLETERA", "cobro_id": "…" }
@@ -420,7 +422,7 @@ Tres variantes según `tipo`:
 {
   "tipo": "CONSTANCIA",
   "billetera": "YAPE",
-  "monto": "25.00",
+  "monto": "97.00",
   "hora": "2026-10-11T18:30:00Z",
   "nombre_pagador": "Victor Capitan",
   "operacion": "18273645",
@@ -487,7 +489,8 @@ Proyección de cocina (sin montos ni datos del pagador):
   "estado": "EN_ESPERA",
   "pagado_at": "2026-10-11T18:31:59Z",
   "items": [
-    { "nombre": "Combo ¼ + gaseosa", "cantidad": 2, "opciones": ["Inca Kola"], "nota": "sin ají" }
+    { "nombre": "Mixto", "cantidad": 2, "componentes": ["Ceviche de pescado", "Chicharrón de pota"], "nota": null },
+    { "nombre": "Ceviche de pescado", "cantidad": 1, "componentes": [], "nota": "sin ají" }
   ],
   "version": 3
 }
@@ -620,6 +623,7 @@ El servidor une la conexión a sus salas según el token (ver
 | `cobros.estado`        | caja, admin          | Como `GET /v1/cobros/estado`                                |
 | `carta.actualizada`    | caja                 | `{ version }`                                               |
 | `cocina.pedido`        | cocina               | Proyección de cocina; `estado: "CANCELADO"` para retirarlo  |
+| `salon.pedido`         | salón                | Proyección de salón (como cocina, con mesa); `estado: "ENTREGADO"` para retirarlo |
 | `publica.pedido`       | pública              | Proyección pública; `estado: "ENTREGADO"` para retirarlo    |
 | `turno.cerrado`        | admin                | Resumen del turno                                           |
 | `yallego.conexion`     | admin                | `{ estado, ultimo_error }`                                  |

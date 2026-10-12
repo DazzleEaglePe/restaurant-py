@@ -23,6 +23,7 @@
 | `COB`  | Celular de cobros                       |
 | `COC`  | Pantalla de cocina                      |
 | `PUB`  | Pantalla pública                        |
+| `SAL`  | Salón (meseras)                         |
 | `CAJ`  | Turnos y cierre de caja                 |
 | `REP`  | Reportes                                |
 | `AUD`  | Auditoría                               |
@@ -64,36 +65,39 @@
 
 ### 3.1. Matriz de roles
 
-| Acción                                         | OWNER | ADMIN | CAJERO | Pantalla de cocina | Pantalla pública |
-| ---------------------------------------------- | :---: | :---: | :----: | :----------------: | :--------------: |
-| Conectar Yallegó y asignar celulares a locales | ✅    | —     | —      | —                  | —                |
-| Gestionar suscripción                          | ✅    | —     | —      | —                  | —                |
-| Gestionar dueños                               | ✅    | —     | —      | —                  | —                |
-| Gestionar admins y cajeros                     | ✅    | ✅    | —      | —                  | —                |
-| Gestionar locales, carta, mesas y pantallas    | ✅    | ✅    | —      | —                  | —                |
-| Ver reportes y auditoría                       | ✅    | ✅    | —      | —                  | —                |
-| Abrir y cerrar su turno de caja                | ✅    | ✅    | ✅     | —                  | —                |
-| Tomar pedidos y cobrar                         | ✅    | ✅    | ✅     | —                  | —                |
-| Validar un pago con constancia                 | ✅    | ✅    | ✅ *   | —                  | —                |
-| Cancelar un pedido por pagar                   | ✅    | ✅    | ✅     | —                  | —                |
-| Cancelar un pedido ya pagado                   | ✅    | ✅    | —      | —                  | —                |
-| Marcar pedido entregado                        | ✅    | ✅    | ✅     | —                  | —                |
-| Marcar agotado un producto                     | ✅    | ✅    | ✅     | —                  | —                |
-| Pasar un pedido a preparación o listo          | —     | —     | —      | ✅                 | —                |
-| Ver pedidos en curso (sin montos)              | —     | —     | —      | ✅                 | ✅               |
+| Acción                                           | OWNER | ADMIN | CAJERO | MESERO | Pantalla de cocina | Pantalla pública |
+| ------------------------------------------------ | :---: | :---: | :----: | :----: | :----------------: | :--------------: |
+| Conectar Yallegó y asignar celulares a locales   | ✅    | —     | —      | —      | —                  | —                |
+| Gestionar suscripción                            | ✅    | —     | —      | —      | —                  | —                |
+| Gestionar dueños                                 | ✅    | —     | —      | —      | —                  | —                |
+| Gestionar admins, cajeros y meseros              | ✅    | ✅    | —      | —      | —                  | —                |
+| Gestionar locales, carta, mesas y pantallas      | ✅    | ✅    | —      | —      | —                  | —                |
+| Ver reportes y auditoría                         | ✅    | ✅    | —      | —      | —                  | —                |
+| Abrir y cerrar su turno de caja                  | ✅    | ✅    | ✅     | —      | —                  | —                |
+| Tomar pedidos y cobrar                           | ✅    | ✅    | ✅     | —      | —                  | —                |
+| Validar un pago con constancia                   | ✅    | ✅    | ✅ *   | —      | —                  | —                |
+| Cancelar un pedido por pagar                     | ✅    | ✅    | ✅     | —      | —                  | —                |
+| Cancelar un pedido ya pagado                     | ✅    | ✅    | —      | —      | —                  | —                |
+| Marcar entregado un pedido para llevar           | ✅    | ✅    | ✅     | —      | —                  | —                |
+| Marcar entregado un pedido para comer en el local | ✅   | ✅    | ✅     | ✅     | —                  | —                |
+| Indicar o corregir la mesa de un pedido          | ✅    | ✅    | ✅     | ✅     | —                  | —                |
+| Marcar agotado un producto                       | ✅    | ✅    | ✅     | —      | —                  | —                |
+| Pasar un pedido a preparación o listo            | —     | —     | —      | —      | ✅                 | —                |
+| Ver pedidos en curso (sin montos)                | —     | —     | —      | ✅     | ✅                 | ✅               |
 
 \* Solo mientras el celular de cobros del local no esté activo (RF-PAG-013).
 
 Correspondencia con el tablero: `admin` → OWNER y ADMIN, `cajita` → CAJERO,
-`cocina` → pantalla de cocina, `vpublic` → pantalla pública. Las pantallas son
-dispositivos vinculados, no usuarios (ver `07_SEGURIDAD_AUTH.md` §4).
+`cocina` → pantalla de cocina, `vpublic` → pantalla pública. La mesera del flujo
+actual (D8) → MESERO. Las pantallas son dispositivos vinculados, no usuarios (ver
+`07_SEGURIDAD_AUTH.md` §3).
 
 ### 3.2. Requerimientos
 
 | ID         | Requerimiento                                                                                       | Prioridad |
 | ---------- | --------------------------------------------------------------------------------------------------- | --------- |
 | RF-USR-001 | OWNER y ADMIN invitan usuarios por correo con un rol.                                               | MUST      |
-| RF-USR-002 | Un cajero se asigna a uno o más locales y solo opera en esos locales.                               | MUST      |
+| RF-USR-002 | Un cajero o un mesero se asigna a uno o más locales y solo opera en esos locales.                    | MUST      |
 | RF-USR-003 | OWNER y ADMIN cambian el rol de un usuario o lo desactivan; desactivarlo cierra sus sesiones.        | MUST      |
 | RF-USR-004 | Un negocio siempre tiene al menos un OWNER activo.                                                  | MUST      |
 | RF-USR-005 | Un usuario puede pertenecer a varios negocios y elegir con cuál trabajar.                           | SHOULD    |
@@ -118,12 +122,12 @@ dispositivos vinculados, no usuarios (ver `07_SEGURIDAD_AUTH.md` §4).
 | ---------- | ---------------------------------------------------------------------------------------------------------------------------------- | --------- |
 | RF-CAR-001 | OWNER o ADMIN crea, edita, ordena y desactiva categorías (platos, bebidas, combos).                                                 | MUST      |
 | RF-CAR-002 | OWNER o ADMIN crea, edita y desactiva productos con nombre, descripción, precio, foto, categoría y si requiere preparación en cocina. | MUST      |
-| RF-CAR-003 | Un combo es un producto con un precio propio y componentes fijos.                                                                   | MUST      |
-| RF-CAR-004 | Un producto o combo puede tener grupos de opciones («Elige tu gaseosa») con mínimo, máximo y precio extra por opción. (P3)         | SHOULD    |
+| RF-CAR-003 | Un combo es una combinación fija de platos (un mixto) con precio propio. Sus platos se muestran en cocina. (D9)                       | MUST      |
+| RF-CAR-004 | Un producto puede tener grupos de opciones a elegir con mínimo, máximo y precio extra. El piloto no lo necesita: sus combos son fijos. | COULD     |
 | RF-CAR-005 | Cada ítem de un pedido admite una nota libre («sin cebolla»).                                                                       | MUST      |
 | RF-CAR-006 | Cada producto se habilita o deshabilita por local.                                                                                  | MUST      |
 | RF-CAR-007 | La cajera marca un producto como agotado en su local desde el celular, y lo vuelve a habilitar.                                      | SHOULD    |
-| RF-CAR-008 | El precio, nombre y opciones de cada ítem se copian al pedido al crearlo; cambios posteriores en la carta no lo alteran.             | MUST      |
+| RF-CAR-008 | El precio, nombre y platos de cada ítem se copian al pedido al crearlo; cambios posteriores en la carta no lo alteran.             | MUST      |
 | RF-CAR-009 | Un producto puede tener un precio distinto en un local.                                                                             | COULD     |
 | RF-CAR-010 | La carta se puede importar desde una hoja de cálculo.                                                                               | COULD     |
 
@@ -144,7 +148,7 @@ dispositivos vinculados, no usuarios (ver `07_SEGURIDAD_AUTH.md` §4).
 
 | ID         | Requerimiento                                                                                                                                       | Prioridad |
 | ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------- | --------- |
-| RF-PED-001 | La cajera crea un pedido desde el celular con tipo (para comer aquí o para llevar), ítems, opciones, notas, mesa opcional y nombre del cliente.     | MUST      |
+| RF-PED-001 | La cajera crea un pedido desde el celular con tipo (para comer aquí o para llevar), ítems, notas, mesa opcional y nombre del cliente.     | MUST      |
 | RF-PED-002 | Crear un pedido requiere que la cajera tenga un turno de caja abierto en ese local.                                                                  | MUST      |
 | RF-PED-003 | Cada pedido recibe un número correlativo diario por local (#0001), sin duplicados aunque dos cajas creen pedidos al mismo tiempo.                   | MUST      |
 | RF-PED-004 | Reenviar la misma solicitud de creación (por mala señal o doble toque) no crea un segundo pedido.                                                    | MUST      |
@@ -154,9 +158,12 @@ dispositivos vinculados, no usuarios (ver `07_SEGURIDAD_AUTH.md` §4).
 | RF-PED-008 | Mientras está `POR_PAGAR`, la cajera puede editar ítems, tipo, mesa y nombre.                                                                        | MUST      |
 | RF-PED-009 | La cajera cancela un pedido `POR_PAGAR` sin pagos confirmados.                                                                                       | MUST      |
 | RF-PED-010 | OWNER o ADMIN cancela un pedido pagado indicando motivo y cómo se devolvió el dinero (efectivo, Yape devuelto, no se devolvió).                     | MUST      |
-| RF-PED-011 | La cajera marca como `ENTREGADO` un pedido `LISTO`. (P2)                                                                                             | MUST      |
+| RF-PED-011 | La cajera marca `ENTREGADO` los pedidos para llevar y la mesera los pedidos para comer en el local (D8). OWNER, ADMIN y la cajera pueden marcar cualquiera. | MUST      |
 | RF-PED-012 | La caja lista los pedidos del día del local por estado: por pagar, en cocina, listos y entregados.                                                   | MUST      |
 | RF-PED-013 | Cada cambio de estado guarda quién lo hizo y cuándo.                                                                                                 | MUST      |
+| RF-PED-014 | Al cubrirse el pago, la caja muestra número, detalle, total y tiempo estimado de espera, para comunicárselos al cliente. Imprimirlos en una boleta simple depende de P5. | MUST      |
+| RF-PED-015 | El sistema sugiere el tiempo estimado de espera según los tiempos recientes de cocina del local; la cajera puede cambiarlo antes de cobrar. | SHOULD    |
+| RF-PED-016 | La cajera encuentra un pedido por su número cuando el cliente vuelve con su boleta.                                                                  | MUST      |
 
 ---
 
@@ -224,7 +231,7 @@ dispositivos vinculados, no usuarios (ver `07_SEGURIDAD_AUTH.md` §4).
 | ID         | Requerimiento                                                                                                                  | Prioridad |
 | ---------- | ------------------------------------------------------------------------------------------------------------------------------ | --------- |
 | RF-COC-001 | La pantalla muestra los pedidos `EN_ESPERA` y `EN_PREPARACION` del local, del más antiguo al más nuevo según la hora de pago.  | MUST      |
-| RF-COC-002 | Cada tarjeta muestra número, tipo (aquí o llevar) con color propio, mesa, ítems con opciones y notas, y el tiempo desde el pago. | MUST      |
+| RF-COC-002 | Cada tarjeta muestra número, tipo (aquí o llevar) con color propio, mesa, ítems con los platos de cada combo y notas, y el tiempo desde el pago. | MUST      |
 | RF-COC-003 | La pantalla tiene los botones «Preparar» (`EN_ESPERA` → `EN_PREPARACION`) y «Listo» (`EN_PREPARACION` → `LISTO`).             | MUST      |
 | RF-COC-004 | Un toque equivocado se puede deshacer durante 10 segundos.                                                                      | SHOULD    |
 | RF-COC-005 | Suena un aviso cuando entra un pedido nuevo.                                                                                    | MUST      |
@@ -249,7 +256,19 @@ dispositivos vinculados, no usuarios (ver `07_SEGURIDAD_AUTH.md` §4).
 
 ---
 
-## 13. CAJ — Turnos y cierre de caja
+## 13. SAL — Salón (meseras)
+
+| ID         | Requerimiento                                                                                                                        | Prioridad |
+| ---------- | ------------------------------------------------------------------------------------------------------------------------------------ | --------- |
+| RF-SAL-001 | La mesera ingresa desde su celular y ve los pedidos para comer en el local que están en cocina o listos, con número, mesa, nombre y platos. | MUST      |
+| RF-SAL-002 | Cuando un pedido para comer en el local pasa a `LISTO`, el celular de la mesera vibra y el pedido aparece primero.                   | MUST      |
+| RF-SAL-003 | La mesera marca el pedido como `ENTREGADO` al dejarlo en la mesa.                                                                     | MUST      |
+| RF-SAL-004 | La mesera puede indicar o corregir la mesa del pedido. (P11)                                                                          | SHOULD    |
+| RF-SAL-005 | La mesera no ve montos ni pagos.                                                                                                      | MUST      |
+
+---
+
+## 14. CAJ — Turnos y cierre de caja
 
 | ID         | Requerimiento                                                                                                                          | Prioridad |
 | ---------- | -------------------------------------------------------------------------------------------------------------------------------------- | --------- |
@@ -263,7 +282,7 @@ dispositivos vinculados, no usuarios (ver `07_SEGURIDAD_AUTH.md` §4).
 
 ---
 
-## 14. REP — Reportes
+## 15. REP — Reportes
 
 | ID         | Requerimiento                                                                                    | Prioridad |
 | ---------- | ------------------------------------------------------------------------------------------------ | --------- |
@@ -277,7 +296,7 @@ dispositivos vinculados, no usuarios (ver `07_SEGURIDAD_AUTH.md` §4).
 
 ---
 
-## 15. AUD — Auditoría
+## 16. AUD — Auditoría
 
 | ID         | Requerimiento                                                                                                                                                       | Prioridad |
 | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------- |
@@ -287,7 +306,7 @@ dispositivos vinculados, no usuarios (ver `07_SEGURIDAD_AUTH.md` §4).
 
 ---
 
-## 16. PLT — Administración de plataforma
+## 17. PLT — Administración de plataforma
 
 | ID         | Requerimiento                                                                                         | Prioridad |
 | ---------- | ----------------------------------------------------------------------------------------------------- | --------- |
@@ -299,15 +318,15 @@ dispositivos vinculados, no usuarios (ver `07_SEGURIDAD_AUTH.md` §4).
 
 ---
 
-## 17. Trazabilidad: requerimientos por sprint
+## 18. Trazabilidad: requerimientos por sprint
 
 | Sprint | Módulos y requerimientos principales                                                     |
 | ------ | ---------------------------------------------------------------------------------------- |
 | 1      | AUTH-001…007, TEN-001…004, USR-001…004, PLT-001, AUD-001 (base)                          |
 | 2      | CAR-001…008, MES-001…003, TEN-005                                                        |
-| 3      | PED-001…006, PED-008, PED-009, PED-012, PED-013, PAG-001, CAJ-001, CAJ-002, COB-008      |
+| 3      | PED-001…006, PED-008, PED-009, PED-012…015, PAG-001, CAJ-001, CAJ-002, COB-008         |
 | 4      | YLG-001…007, YLG-010, PAG-002…010                                                        |
-| 5      | PAN-001…005, COC-001…008, PUB-001…006, PED-007, PED-011                                  |
+| 5      | PAN-001…005, COC-001…008, PUB-001…006, SAL-001…005, PED-007, PED-011, PED-016            |
 | 6      | COB-001…007, PAG-013…017                                                                 |
 | 7      | CAJ-003…007, PED-010, PAG-011, PAG-012, REP-001…007, AUD-001…003, YLG-008, YLG-009       |
 | 8      | PLT-002…004, TEN-006, endurecimiento y piloto                                            |
