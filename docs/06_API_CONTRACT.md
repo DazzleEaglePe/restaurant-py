@@ -270,6 +270,8 @@ La caja guarda la carta en caché y la invalida con el evento `carta.actualizada
 | `POST` | `/v1/turnos/{id}/movimientos`     | CAJERO     | Registra ingreso o egreso                        |
 | `POST` | `/v1/turnos/{id}/cerrar`          | CAJERO     | Cierra con efectivo contado                      |
 | `GET`  | `/v1/turnos?local_id=&desde=&hasta=` | ADMIN   | Historial de turnos                              |
+| `POST` | `/v1/turnos/{id}/validar`          | ADMIN      | Valida u observa un turno cerrado, con comentario |
+| `GET`  | `/v1/cierres?local_id=&fecha=`     | ADMIN      | Cierre del día: turnos, diferencias, constancias, cancelaciones e incidencias |
 
 ### `POST /v1/turnos/{id}/cerrar`
 
@@ -312,7 +314,7 @@ La caja guarda la carta en caché y la invalida con el evento `carta.actualizada
 | `PATCH` | `/v1/pedidos/{id}/mesa`           | MESERO     | Indica o corrige la mesa                             |
 | `GET`   | `/v1/salon/pedidos`               | MESERO     | Pedidos para comer en el local en cocina y listos, sin montos |
 
-\* Un CAJERO solo cancela pedidos `POR_PAGAR` sin pagos confirmados.
+\* Un CAJERO cancela pedidos pagados solo si el negocio lo permite (P14); la cancelación queda para la validación del cierre.
 
 ### `POST /v1/pedidos`
 
@@ -320,6 +322,7 @@ La caja guarda la carta en caché y la invalida con el evento `carta.actualizada
 // Cabeceras: Idempotency-Key: 6f1c…  ·  X-Local-Id: …
 {
   "tipo": "LLEVAR",
+  "zona_id": null,
   "mesa_id": null,
   "nombre_cliente": "Carlos",
   "items": [
@@ -337,6 +340,7 @@ La caja guarda la carta en caché y la invalida con el evento `carta.actualizada
   "fecha_operacion": "2026-10-11",
   "estado": "POR_PAGAR",
   "tipo": "LLEVAR",
+  "zona": null,
   "mesa": null,
   "nombre_cliente": "Carlos",
   "total": "97.00",
@@ -426,7 +430,8 @@ Tres variantes según `tipo`:
   "hora": "2026-10-11T18:30:00Z",
   "nombre_pagador": "Victor Capitan",
   "operacion": "18273645",
-  "codigo_seguridad": "315"
+  "codigo_seguridad": "315",
+  "observacion": "No hay servicio de notificaciones"
 }
 ```
 
@@ -472,10 +477,11 @@ Respuestas:
 
 | Método | Ruta                                   | Descripción                                        |
 | ------ | -------------------------------------- | -------------------------------------------------- |
-| `GET`  | `/v1/cocina/pedidos`                   | Pedidos `EN_ESPERA` y `EN_PREPARACION` del local   |
+| `GET`  | `/v1/cocina/pedidos`                   | Pedidos `EN_ESPERA` y `EN_PREPARACION`, y los de mesa en `LISTO` |
 | `POST` | `/v1/cocina/pedidos/{id}/preparar`     | `EN_ESPERA` → `EN_PREPARACION`                     |
 | `POST` | `/v1/cocina/pedidos/{id}/listo`        | `EN_PREPARACION` → `LISTO`                         |
 | `POST` | `/v1/cocina/pedidos/{id}/deshacer`     | Revierte el último cambio si ocurrió hace ≤ 10 s   |
+| `POST` | `/v1/cocina/pedidos/{id}/entregado`    | Pedido para mesa: `LISTO` → `ENTREGADO` cuando la mesera recoge los platos |
 
 Proyección de cocina (sin montos ni datos del pagador):
 
@@ -484,7 +490,8 @@ Proyección de cocina (sin montos ni datos del pagador):
   "id": "…",
   "numero": 42,
   "tipo": "AQUI",
-  "mesa": "5",
+  "zona": "Patio de comida",
+  "mesa": null,
   "nombre_cliente": "Carlos",
   "estado": "EN_ESPERA",
   "pagado_at": "2026-10-11T18:31:59Z",

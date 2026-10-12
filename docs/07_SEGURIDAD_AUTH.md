@@ -80,7 +80,7 @@ expira en menos de 15 minutos.
 
 | Tipo     | Puede                                                              | No puede                          |
 | -------- | ------------------------------------------------------------------ | --------------------------------- |
-| COCINA   | Leer la proyección de cocina de su local; pasar a preparación, listo y deshacer | Ver montos, pagos, otros locales |
+| COCINA   | Leer la proyección de cocina de su local; pasar a preparación, listo y deshacer; marcar entregado un pedido para mesa | Ver montos, pagos, otros locales |
 | PUBLICA  | Leer la proyección pública de su local                             | Cualquier escritura              |
 
 Una pantalla revocada recibe `401` en su próxima solicitud y su socket se
@@ -159,9 +159,9 @@ escribe con la nueva.
 | -------------------------------------------------------- | --------------------------------------------------------------------------------------- |
 | Constancia falsa                                         | Solo con el celular de cobros caído; conciliación automática; «Sin respaldo» avisa al dueño |
 | Validar con constancia teniendo el celular activo        | El servidor lo rechaza (`422 CONSTANCIA_NO_PERMITIDA`)                                   |
-| Montos altos por constancia                              | Monto máximo por local; PIN de administrador opcional (v0.2)                             |
+| Montos altos por constancia                              | Sin tope por decisión del negocio (D11): queda registrada con el estado del celular, se concilia y se revisa al validar el cierre. El tope y el PIN se pueden activar después |
 | Usar el Yape de un cliente para otro pedido              | Un cobro, un pago activo (índice único) y registro de quién confirmó                    |
-| Cancelar un pedido pagado y quedarse el dinero           | Solo OWNER o ADMIN; motivo y forma de devolución obligatorios; queda en auditoría       |
+| Cancelar un pedido pagado y quedarse el dinero           | Motivo y forma de devolución obligatorios; auditoría; revisión del administrador al validar el cierre (P14) |
 | Diferencias de caja recurrentes                          | Reporte de turnos con diferencia por cajera                                             |
 
 ---

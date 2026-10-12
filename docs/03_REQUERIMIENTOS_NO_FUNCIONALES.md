@@ -120,7 +120,7 @@ Detalle en `07_SEGURIDAD_AUTH.md`.
 | Caja              | Android 10+ con Chrome 110+; iPhone con iOS 16.4+ y Safari, instalada como app web. Ancho mínimo 360 px.     |
 | Cocina            | Tablet de 10" o monitor táctil, en horizontal, con Chrome 110+.                                              |
 | Pantalla pública  | TV o monitor de 1080p con navegador basado en Chromium (Android TV, Google TV o mini PC). Sin interacción.   |
-| Administración    | Últimas dos versiones de Chrome, Edge, Firefox y Safari en escritorio. Uso básico en celular.                 |
+| Administración    | Últimas dos versiones de Chrome, Edge, Firefox y Safari en escritorio. El cierre del día se revisa completo desde el celular del administrador. |
 
 ---
 

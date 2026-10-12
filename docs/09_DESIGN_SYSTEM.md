@@ -124,7 +124,7 @@ Los tamaños mínimos son requisitos; la escala completa se ajusta con la famili
 | Monto principal              | 40 px           | —                   | —                        |
 | Código de seguridad          | 36 px, espaciado | —                  | —                        |
 | Nombre de ítem               | 16 px           | 24 px               | —                        |
-| Nombre del cliente           | 14 px           | 20 px               | 56 px                    |
+| Nombre del cliente           | 14 px           | 20 px; 32 px en «Para mesa» | 56 px              |
 | Título de columna            | —               | —                   | 48 px                    |
 | Texto de apoyo               | 14 px           | 18 px               | —                        |
 | Botón principal              | 16 px           | 22 px               | —                        |
@@ -184,6 +184,7 @@ igual que Yallegó.
 | `EstadoPedidoBadge`    | Todas           | Color y texto del estado                                        |
 | `TipoPedidoBadge`      | Caja, cocina    | AQUÍ · Mesa / LLEVAR                                            |
 | `TarjetaCocina`        | Cocina          | Pedido con ítems, tiempo, botón de avance y deshacer            |
+| `TarjetaParaMesa`      | Cocina          | Pedido listo para mesa: número, nombre y zona en grande, «Entregado» |
 | `SalonPedidoCard`      | Salón           | Pedido para mesa: número, mesa, nombre, platos y «Entregado»    |
 | `ColumnaPublica`       | Pantalla pública | Lista de números y nombres; animación de entrada               |
 | `Monto`                | Todas           | Formato `S/ 0.00` con cifras tabulares                          |

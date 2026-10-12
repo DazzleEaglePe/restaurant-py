@@ -73,19 +73,21 @@
 | Gestionar admins, cajeros y meseros              | ✅    | ✅    | —      | —      | —                  | —                |
 | Gestionar locales, carta, mesas y pantallas      | ✅    | ✅    | —      | —      | —                  | —                |
 | Ver reportes y auditoría                         | ✅    | ✅    | —      | —      | —                  | —                |
+| Validar el cierre del día                        | ✅    | ✅    | —      | —      | —                  | —                |
 | Abrir y cerrar su turno de caja                  | ✅    | ✅    | ✅     | —      | —                  | —                |
 | Tomar pedidos y cobrar                           | ✅    | ✅    | ✅     | —      | —                  | —                |
 | Validar un pago con constancia                   | ✅    | ✅    | ✅ *   | —      | —                  | —                |
 | Cancelar un pedido por pagar                     | ✅    | ✅    | ✅     | —      | —                  | —                |
-| Cancelar un pedido ya pagado                     | ✅    | ✅    | —      | —      | —                  | —                |
+| Cancelar un pedido ya pagado                     | ✅    | ✅    | ✅ **  | —      | —                  | —                |
 | Marcar entregado un pedido para llevar           | ✅    | ✅    | ✅     | —      | —                  | —                |
-| Marcar entregado un pedido para comer en el local | ✅   | ✅    | ✅     | ✅     | —                  | —                |
+| Marcar entregado un pedido para comer en el local | ✅   | ✅    | ✅     | ✅     | ✅                 | —                |
 | Indicar o corregir la mesa de un pedido          | ✅    | ✅    | ✅     | ✅     | —                  | —                |
 | Marcar agotado un producto                       | ✅    | ✅    | ✅     | —      | —                  | —                |
 | Pasar un pedido a preparación o listo            | —     | —     | —      | —      | ✅                 | —                |
 | Ver pedidos en curso (sin montos)                | —     | —     | —      | ✅     | ✅                 | ✅               |
 
 \* Solo mientras el celular de cobros del local no esté activo (RF-PAG-013).
+\*\* Con motivo y devolución obligatorios; lo revisa el administrador al validar el cierre (P14).
 
 Correspondencia con el tablero: `admin` → OWNER y ADMIN, `cajita` → CAJERO,
 `cocina` → pantalla de cocina, `vpublic` → pantalla pública. La mesera del flujo
@@ -137,9 +139,9 @@ actual (D8) → MESERO. Las pantallas son dispositivos vinculados, no usuarios (
 
 | ID         | Requerimiento                                                                                         | Prioridad |
 | ---------- | ----------------------------------------------------------------------------------------------------- | --------- |
-| RF-MES-001 | OWNER o ADMIN crea, edita y desactiva zonas de un local (salón, terraza).                              | MUST      |
+| RF-MES-001 | OWNER o ADMIN crea, edita y desactiva zonas de un local con su piso (patio de comida, primer piso; terraza, segundo piso). | MUST      |
 | RF-MES-002 | OWNER o ADMIN crea, edita y desactiva mesas dentro de una zona, con número y capacidad.               | MUST      |
-| RF-MES-003 | En un pedido para comer en el local, la cajera puede indicar la mesa. El local define si es obligatorio. | MUST      |
+| RF-MES-003 | En un pedido para comer en el local, la cajera indica la zona donde se sentará el cliente y su nombre, ambos obligatorios. La mesa es opcional (P13). | MUST      |
 | RF-MES-004 | La caja muestra qué mesas tienen pedidos en curso.                                                     | COULD     |
 
 ---
@@ -148,7 +150,7 @@ actual (D8) → MESERO. Las pantallas son dispositivos vinculados, no usuarios (
 
 | ID         | Requerimiento                                                                                                                                       | Prioridad |
 | ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------- | --------- |
-| RF-PED-001 | La cajera crea un pedido desde el celular con tipo (para comer aquí o para llevar), ítems, notas, mesa opcional y nombre del cliente.     | MUST      |
+| RF-PED-001 | La cajera crea un pedido desde el celular con tipo (para comer aquí o para llevar), ítems, notas y nombre del cliente; para comer aquí, además zona y mesa opcional. | MUST      |
 | RF-PED-002 | Crear un pedido requiere que la cajera tenga un turno de caja abierto en ese local.                                                                  | MUST      |
 | RF-PED-003 | Cada pedido recibe un número correlativo diario por local (#0001), sin duplicados aunque dos cajas creen pedidos al mismo tiempo.                   | MUST      |
 | RF-PED-004 | Reenviar la misma solicitud de creación (por mala señal o doble toque) no crea un segundo pedido.                                                    | MUST      |
@@ -157,7 +159,7 @@ actual (D8) → MESERO. Las pantallas son dispositivos vinculados, no usuarios (
 | RF-PED-007 | Un pedido sin ítems que requieran cocina pasa directo a `LISTO` al pagarse.                                                                          | SHOULD    |
 | RF-PED-008 | Mientras está `POR_PAGAR`, la cajera puede editar ítems, tipo, mesa y nombre.                                                                        | MUST      |
 | RF-PED-009 | La cajera cancela un pedido `POR_PAGAR` sin pagos confirmados.                                                                                       | MUST      |
-| RF-PED-010 | OWNER o ADMIN cancela un pedido pagado indicando motivo y cómo se devolvió el dinero (efectivo, Yape devuelto, no se devolvió).                     | MUST      |
+| RF-PED-010 | La cajera, OWNER o ADMIN cancela un pedido pagado indicando motivo y cómo se devolvió el dinero (efectivo, Yape devuelto, no se devolvió). La cancelación aparece en la validación del cierre. (P14) | MUST      |
 | RF-PED-011 | La cajera marca `ENTREGADO` los pedidos para llevar y la mesera los pedidos para comer en el local (D8). OWNER, ADMIN y la cajera pueden marcar cualquiera. | MUST      |
 | RF-PED-012 | La caja lista los pedidos del día del local por estado: por pagar, en cocina, listos y entregados.                                                   | MUST      |
 | RF-PED-013 | Cada cambio de estado guarda quién lo hizo y cuándo.                                                                                                 | MUST      |
@@ -184,11 +186,11 @@ actual (D8) → MESERO. Las pantallas son dispositivos vinculados, no usuarios (
 | RF-PAG-011 | Un pedido acepta varios pagos, de uno o más métodos (dos personas que yapean, o parte en efectivo y parte con Yape).                                                   | SHOULD    |
 | RF-PAG-012 | Si el pago no coincide con el saldo, se muestra la diferencia. Si falta, el pedido queda con saldo pendiente; si sobra, se registra el excedente.                    | SHOULD    |
 | RF-PAG-013 | La validación con constancia solo está disponible mientras el celular de cobros del local no esté activo o Yallegó no responda, y si el local la permite.             | MUST      |
-| RF-PAG-014 | En la validación con constancia, la cajera registra monto, hora, nombre del pagador y número de operación o código de seguridad.                                      | MUST      |
+| RF-PAG-014 | En la validación con constancia, la cajera registra monto, hora, nombre del pagador y número de operación o código de seguridad, y opcionalmente una observación («no hay servicio de notificaciones»). El sistema guarda además el estado del celular de cobros. (D11) | MUST      |
 | RF-PAG-015 | Cuando el celular de cobros vuelve y llegan los pagos atrasados, el sistema concilia solo los pagos manuales con un cobro del mismo monto y hora cercana.            | MUST      |
 | RF-PAG-016 | Un pago manual sin cobro que lo respalde tras 12 horas queda «Sin respaldo» y se avisa al dueño.                                                                      | MUST      |
-| RF-PAG-017 | El local puede fijar un monto máximo por validación con constancia. (P10)                                                                                             | SHOULD    |
-| RF-PAG-018 | La validación con constancia puede exigir el PIN de un administrador. (P10)                                                                                           | COULD     |
+| RF-PAG-017 | El local puede fijar un monto máximo por validación con constancia. Desactivado por decisión del negocio (D11).                           | COULD     |
+| RF-PAG-018 | La validación con constancia puede exigir el PIN de un administrador. Desactivado por decisión del negocio (D11).                          | COULD     |
 | RF-PAG-019 | La cajera puede adjuntar una foto de la constancia.                                                                                                                    | COULD     |
 
 ---
@@ -239,6 +241,8 @@ actual (D8) → MESERO. Las pantallas son dispositivos vinculados, no usuarios (
 | RF-COC-007 | Un pedido cancelado sale de la pantalla con un aviso visible de «Cancelado».                                                    | MUST      |
 | RF-COC-008 | Los ítems que no requieren cocina (una gaseosa) no se muestran en la tarjeta.                                                   | SHOULD    |
 | RF-COC-009 | Estaciones (bebidas, parrilla) que solo reciben sus productos.                                                                  | COULD     |
+| RF-COC-010 | Los pedidos para comer en el local que pasan a `LISTO` quedan en una columna «Para mesa», agrupados por zona, con número, nombre y zona en grande. | MUST      |
+| RF-COC-011 | La mesera toca «Entregado» en la pantalla de cocina cuando recoge los platos de un pedido para mesa.                            | MUST      |
 
 ---
 
@@ -258,13 +262,16 @@ actual (D8) → MESERO. Las pantallas son dispositivos vinculados, no usuarios (
 
 ## 13. SAL — Salón (meseras)
 
+Solo si la mesera tiene celular (P12). Sin celular, usa la pantalla de cocina
+(RF-COC-010 y RF-COC-011).
+
 | ID         | Requerimiento                                                                                                                        | Prioridad |
 | ---------- | ------------------------------------------------------------------------------------------------------------------------------------ | --------- |
-| RF-SAL-001 | La mesera ingresa desde su celular y ve los pedidos para comer en el local que están en cocina o listos, con número, mesa, nombre y platos. | MUST      |
-| RF-SAL-002 | Cuando un pedido para comer en el local pasa a `LISTO`, el celular de la mesera vibra y el pedido aparece primero.                   | MUST      |
-| RF-SAL-003 | La mesera marca el pedido como `ENTREGADO` al dejarlo en la mesa.                                                                     | MUST      |
-| RF-SAL-004 | La mesera puede indicar o corregir la mesa del pedido. (P11)                                                                          | SHOULD    |
-| RF-SAL-005 | La mesera no ve montos ni pagos.                                                                                                      | MUST      |
+| RF-SAL-001 | La mesera ingresa desde su celular y ve los pedidos para comer en el local que están en cocina o listos, con número, mesa, nombre y platos. | SHOULD    |
+| RF-SAL-002 | Cuando un pedido para comer en el local pasa a `LISTO`, el celular de la mesera vibra y el pedido aparece primero.                   | SHOULD    |
+| RF-SAL-003 | La mesera marca el pedido como `ENTREGADO` al dejarlo en la mesa.                                                                     | SHOULD    |
+| RF-SAL-004 | La mesera puede indicar o corregir la mesa del pedido. (P13)                                                                          | SHOULD    |
+| RF-SAL-005 | La mesera no ve montos ni pagos.                                                                                                      | SHOULD    |
 
 ---
 
@@ -279,6 +286,8 @@ actual (D8) → MESERO. Las pantallas son dispositivos vinculados, no usuarios (
 | RF-CAJ-005 | No se puede cerrar un turno con pedidos por pagar o con pagos «Confirmando…».                                                          | MUST      |
 | RF-CAJ-006 | OWNER y ADMIN ven los turnos de cada local con su detalle y diferencias.                                                                | MUST      |
 | RF-CAJ-007 | OWNER y ADMIN pueden cerrar el turno de otro usuario (la cajera se fue sin cerrar).                                                     | SHOULD    |
+| RF-CAJ-008 | Al final del día, OWNER o ADMIN valida el cierre de cada turno: diferencia de efectivo, pagos con constancia y su conciliación, y cancelaciones de pedidos pagados. Puede marcarlo validado u observado con un comentario. (D14) | MUST      |
+| RF-CAJ-009 | La validación del cierre del día se puede hacer completa desde el celular del administrador.                                            | MUST      |
 
 ---
 
@@ -326,7 +335,7 @@ actual (D8) → MESERO. Las pantallas son dispositivos vinculados, no usuarios (
 | 2      | CAR-001…008, MES-001…003, TEN-005                                                        |
 | 3      | PED-001…006, PED-008, PED-009, PED-012…015, PAG-001, CAJ-001, CAJ-002, COB-008         |
 | 4      | YLG-001…007, YLG-010, PAG-002…010                                                        |
-| 5      | PAN-001…005, COC-001…008, PUB-001…006, SAL-001…005, PED-007, PED-011, PED-016            |
+| 5      | PAN-001…005, COC-001…011, PUB-001…006, SAL-001…005, PED-007, PED-011, PED-016            |
 | 6      | COB-001…007, PAG-013…017                                                                 |
-| 7      | CAJ-003…007, PED-010, PAG-011, PAG-012, REP-001…007, AUD-001…003, YLG-008, YLG-009       |
+| 7      | CAJ-003…009, PED-010, PAG-011, PAG-012, REP-001…007, AUD-001…003, YLG-008, YLG-009       |
 | 8      | PLT-002…004, TEN-006, endurecimiento y piloto                                            |

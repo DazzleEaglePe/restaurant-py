@@ -52,7 +52,7 @@ Una sola pantalla: «En preparación» y «Listos». Sin interacción.
 
 ```
 Inicio (hoy por local) ─┬─ Pedidos
-                        ├─ Turnos de caja
+                        ├─ Cierre del día (validar turnos)
                         ├─ Carta: categorías · productos · combos
                         ├─ Locales: datos · configuración · zonas y mesas · pantallas
                         ├─ Equipo
@@ -62,7 +62,7 @@ Inicio (hoy por local) ─┬─ Pedidos
                         └─ Configuración: negocio · Yallegó · suscripción
 ```
 
-### 2.5. Salón (mesera)
+### 2.5. Salón (mesera, si tiene celular: P12)
 
 Una sola lista, **Para mesas**, con dos segmentos: **Listos** (primero) y **En
 cocina**. Cada pedido muestra número, mesa, nombre y platos, sin montos. El menú ☰
@@ -134,10 +134,11 @@ avance hasta completarlos.
 
 **Pedido en armado (resumen)**
 
-1. Tipo: **Para comer aquí** (con mesa, opcional u obligatoria según el local) o
-   **Para llevar**.
-2. Nombre del cliente (sugerido para llevar; se muestra abreviado en la pantalla
-   pública).
+1. Tipo: **Para comer aquí** o **Para llevar**.
+2. Para comer aquí: **zona** donde se sentará (patio de comida, primer piso; o
+   terraza, segundo piso) y **nombre** del cliente, ambos obligatorios, porque la
+   mesera lo llamará por su nombre. Mesa opcional (P13).
+   Para llevar: nombre sugerido. En la pantalla pública se muestra abreviado.
 3. Ítems editables: cantidad, nota, quitar.
 4. Botones: **Cancelar** y **Cobrar S/ 97.00**.
 
@@ -284,7 +285,9 @@ Conexión inválida, y si el local lo permite.
    celular del cliente. Esta validación se revisará cuando vuelva el celular de cobros.»
 2. Campos: billetera, monto (prellenado con el saldo), hora del pago (prellenada
    con la hora actual), nombre del pagador, y **número de operación o código de
-   seguridad** (al menos uno).
+   seguridad** (al menos uno). Opcional: una **observación**, por ejemplo «no hay
+   servicio de notificaciones». El sistema guarda además el estado del celular de
+   cobros en ese momento.
 3. **Confirmar** → el pedido pasa a cocina. El pago queda marcado «Con constancia»
    en la lista de pedidos.
 
@@ -325,6 +328,22 @@ Conexión inválida, y si el local lo permite.
 - Muchos pedidos: las tarjetas se desplazan en horizontal; un contador arriba
   indica cuántos hay fuera de vista.
 
+**Columna «Para mesa»**, a la derecha: los pedidos para comer en el local que ya
+están listos, agrupados por zona, con número, nombre y zona en grande.
+
+```
+┌──────── PARA MESA ────────┐
+│ PATIO DE COMIDA · 1er piso│
+│ #0040  CARLOS             │
+│ [       ENTREGADO       ] │
+│ TERRAZA · 2do piso        │
+│ #0043  BELINDA            │
+│ [       ENTREGADO       ] │
+└───────────────────────────┘
+```
+
+La mesera recoge los platos, toca **Entregado** y va a la zona a llamar al cliente.
+
 ---
 
 ## 11. Flujo: pantalla pública
@@ -362,14 +381,17 @@ Conexión inválida, y si el local lo permite.
 
 ### 12.2. Para comer en el local (mesera)
 
-1. El celular de la mesera vibra: «#0040 · Mesa 5 está listo».
-2. La mesera alista los platos y los lleva a la mesa.
-3. En **Para mesas → Listos** toca **Entregado**. El pedido sale de la pantalla
-   pública.
+1. Cocina marca el pedido como listo y aparece en la columna **Para mesa** de la
+   pantalla de cocina, con número, nombre y zona.
+2. La mesera alista los platos, toca **Entregado** y va a la zona: el patio de
+   comida (primer piso) o la terraza (segundo piso).
+3. Llama al cliente por su nombre y número («¿Carlos, pedido 40?»). El cliente
+   levanta la mano y recibe sus platos.
+4. El pedido sale de la pantalla pública.
 
-Si el pedido no tiene mesa, la mesera lo ubica por número y nombre, y puede anotar
-la mesa al entregarlo (decisión pendiente P11). Si no hay mesera en el turno, la
-cajera lo marca desde **Pedidos → Listos**.
+Si la mesera tiene celular (decisión pendiente P12), puede hacer lo mismo desde la
+vista **Para mesas** (§2.5) y recibir una vibración cuando un pedido está listo. Si
+no hay mesera en el turno, la cajera lo marca desde **Pedidos → Listos**.
 
 ---
 
@@ -378,7 +400,7 @@ cajera lo marca desde **Pedidos → Listos**.
 | Situación                         | Quién            | Pasos                                                                              |
 | --------------------------------- | ---------------- | ---------------------------------------------------------------------------------- |
 | Por pagar, sin pagos              | Cajera           | Pedido → **Cancelar pedido** → motivo opcional                                    |
-| Pagado, en cocina o en espera     | Admin o dueño    | Pedido → **Cancelar pedido** → motivo y devolución (efectivo, Yape devuelto, no se devolvió) |
+| Pagado, en cocina o en espera     | Cajera (P14), admin o dueño | Pedido → **Cancelar pedido** → motivo y devolución obligatorios (efectivo, Yape devuelto, no se devolvió). Aparece en la validación del cierre |
 
 Si la devolución es en efectivo, se registra como egreso del turno abierto de quien
 cancela.
@@ -393,7 +415,21 @@ cancela.
    que resolverlos primero.
 3. La cajera cuenta e ingresa el efectivo.
 4. El sistema muestra esperado, contado y diferencia, con un color según el monto.
-5. Confirma. El turno queda en el historial de la administración.
+5. Confirma. El turno queda «Cerrado, por validar».
+
+### 14.1. Validación del cierre (administrador)
+
+El administrador no está todo el día. Al final, desde su celular o su computadora,
+entra a **Cierre del día** y revisa:
+
+1. Los turnos del día con esperado, contado y diferencia.
+2. Los pagos con constancia: conciliados, pendientes y sin respaldo, con su
+   observación.
+3. Los pedidos pagados que se cancelaron, con motivo y devolución.
+4. Las incidencias del celular de cobros.
+
+Por cada turno toca **Validar** u **Observar** con un comentario. Un turno observado
+queda marcado en los reportes hasta que se resuelva.
 
 ---
 

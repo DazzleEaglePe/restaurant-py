@@ -72,7 +72,7 @@ CREATE TYPE verificacion_pago   AS ENUM ('YALLEGO', 'CONSTANCIA');
 CREATE TYPE estado_pago         AS ENUM ('RESERVADO', 'CONFIRMADO', 'RECHAZADO', 'ANULADO');
 CREATE TYPE estado_conciliacion AS ENUM ('PENDIENTE', 'CONCILIADO', 'REVISION', 'SIN_RESPALDO');
 CREATE TYPE devolucion_pedido   AS ENUM ('EFECTIVO', 'BILLETERA', 'NO_DEVUELTO');
-CREATE TYPE estado_turno        AS ENUM ('ABIERTO', 'CERRADO');
+CREATE TYPE estado_turno        AS ENUM ('ABIERTO', 'CERRADO', 'VALIDADO', 'OBSERVADO');
 CREATE TYPE tipo_movimiento     AS ENUM ('INGRESO', 'EGRESO', 'DEVOLUCION');
 CREATE TYPE estado_conexion     AS ENUM ('PENDIENTE', 'CONECTADA', 'ERROR', 'DESCONECTADA');
 CREATE TYPE estado_cobro_ylg    AS ENUM ('CAPTURED', 'CONFIRMED', 'DISPUTED', 'VOIDED');
@@ -277,6 +277,7 @@ CREATE TABLE zonas (
   tenant_id  uuid NOT NULL REFERENCES negocios(id) ON DELETE CASCADE,
   local_id   uuid NOT NULL REFERENCES locales(id) ON DELETE CASCADE,
   nombre     varchar(40) NOT NULL,
+  piso       varchar(20),                  -- «1er piso», «2do piso»
   orden      smallint NOT NULL DEFAULT 0,
   activa     boolean NOT NULL DEFAULT true,
   UNIQUE (local_id, nombre)
@@ -310,7 +311,11 @@ CREATE TABLE turnos_caja (
   efectivo_esperado  numeric(10,2),
   efectivo_contado   numeric(10,2),
   diferencia         numeric(10,2),
-  nota_cierre        varchar(300)
+  nota_cierre        varchar(300),
+  -- Validación del administrador al final del día (RF-CAJ-008)
+  validado_por       uuid REFERENCES usuarios(id),
+  validado_at        timestamptz,
+  comentario_validacion varchar(300)
 );
 
 -- Un usuario tiene como máximo un turno abierto (RF-CAJ-002)
@@ -350,6 +355,7 @@ CREATE TABLE pedidos (
   numero             integer NOT NULL,
   tipo               tipo_pedido NOT NULL,
   mesa_id            uuid REFERENCES mesas(id),
+  zona_id            uuid REFERENCES zonas(id),       -- obligatoria para AQUI si el local tiene zonas
   nombre_cliente     varchar(40),
   estado             estado_pedido NOT NULL DEFAULT 'POR_PAGAR',
   total              numeric(10,2) NOT NULL CHECK (total >= 0),
@@ -370,7 +376,8 @@ CREATE TABLE pedidos (
   devolucion         devolucion_pedido,
   UNIQUE (local_id, fecha_operacion, numero),
   UNIQUE (tenant_id, idempotency_key),
-  CHECK (tipo = 'AQUI' OR mesa_id IS NULL)
+  CHECK (tipo = 'AQUI' OR (mesa_id IS NULL AND zona_id IS NULL)),
+  CHECK (tipo <> 'AQUI' OR nombre_cliente IS NOT NULL)   -- la mesera lo llama por su nombre (D12)
 );
 
 CREATE INDEX pedidos_local_activos
@@ -429,6 +436,8 @@ CREATE TABLE pagos (
   constancia_nombre   bytea,                      -- cifrado
   constancia_operacion varchar(32),
   constancia_codigo   varchar(8),
+  constancia_observacion varchar(200),            -- opcional (D11)
+  estado_cobros_al_validar estado_cobros_local,   -- estado del celular en ese momento
   conciliacion       estado_conciliacion,         -- solo constancia
   conciliado_at      timestamptz,
   idempotency_key    uuid NOT NULL,
@@ -661,7 +670,7 @@ Usan `withoutTenantScope` y están enumeradas en el código:
 | Categorías | Ceviches, Combinados, Platos de fondo, Bebidas, Adicionales                               |
 | Productos  | Ceviche de pescado (S/ 25.00), Chicharrón de pescado (S/ 28.00), Chicharrón de pota (S/ 22.00), Jalea mixta (S/ 38.00), Arroz con mariscos (S/ 30.00), Coca-Cola personal (S/ 4.00, sin cocina), Inca Kola personal (S/ 4.00, sin cocina), Chicha morada 1 L (S/ 10.00, sin cocina), Canchita adicional (S/ 3.00) |
 | Combos     | «Mixto» (S/ 32.00): ceviche de pescado + chicharrón de pota. «Trío marino» (S/ 42.00): ceviche + chicharrón de pescado + arroz con mariscos |
-| Mesas      | Salón: 1 a 8; Terraza: T1 a T4                                                            |
+| Zonas      | Patio de comida (1er piso) y Terraza (2do piso); mesas opcionales: A a H en el patio, T1 a T4 en la terraza |
 | Yallegó    | Conexión contra el simulador con dos celulares: «Yape Centro» y «Yape Norte»              |
 
 Las contraseñas de los usuarios de demostración se definen en `.env.example`

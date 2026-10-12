@@ -137,6 +137,8 @@ del sistema trabaja con `CobroExterno`, `CelularExterno` y `ResultadoConfirmacio
 ```
 
 - La máquina vive en `packages/dominio`, sin dependencias, y la usan la API y la web.
+- Un pedido para comer en el local pasa de `LISTO` a `ENTREGADO` desde la pantalla
+  de cocina, cuando la mesera recoge los platos (o desde su celular, P12).
 - Toda transición se hace con `UPDATE … WHERE id = $1 AND estado = $esperado`; si no
   afecta filas, responde `409 ESTADO_CAMBIADO` y el cliente recarga.
 - Cada transición guarda su marca de tiempo (`pagado_at`, `preparacion_at`,
@@ -323,7 +325,8 @@ del local es `ACTIVO`, o si el local no la permite, o si el monto supera el máx
 
 **Registro:** el pago se crea `CONFIRMADO` con `verificacion = CONSTANCIA`,
 `conciliacion = PENDIENTE` y los datos que dictó la constancia: monto, hora, nombre
-y número de operación o código de seguridad.
+y número de operación o código de seguridad, más una observación opcional y el
+estado del celular de cobros en ese momento (D11).
 
 **Conciliación:** cuando llega un cobro (webhook o consulta), el worker busca pagos
 con constancia pendientes del mismo local:
