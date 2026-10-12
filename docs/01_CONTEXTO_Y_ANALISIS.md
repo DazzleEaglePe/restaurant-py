@@ -214,6 +214,7 @@ de Yallegó.
 | D23 | La cocina tendrá, además del celular, un **TV o monitor no táctil** que muestra la cola de lejos, en solo lectura (recomendado) |
 | D24 | **Descuentos, promociones y cortesías** los configura cada comercio                              |
 | D25 | **La cajera no decide descuentos ni cortesías.** Todo lo configura el administrador: descuentos automáticos, descuentos «a elección» y cortesías definidas (por ejemplo, «canchita de cortesía para comer aquí»). No hay descuentos libres |
+| D26 | Línea gráfica **Marino** (2026-10-12): Marino clásico (claro) en caja, salón y administración; Marino noche (oscuro) en cocina y pantalla pública. Mascota: campana con «ding». Cada restaurante pone su nombre y un color de acento, con el sello «con resto» (`09_DESIGN_SYSTEM.md`) |
 
 ### 7.2. Restricciones heredadas de Yallegó
 
@@ -354,7 +355,7 @@ Sobre el volumen (P20): el piloto es muy concurrido, pero no hay cifras. Se dise
 para 120 pedidos por hora en punta (RNF-ESC-001) y el volumen real se mide en las
 primeras semanas del piloto.
 
-**En espera**, se retoman más adelante: P5 (boleta impresa), referencias visuales,
+**En espera**, se retoman más adelante: P5 (boleta impresa),
 carta completa del piloto, su cuenta de Yallegó, el parlante de la pantalla pública
 y el soporte de la pantalla de cocina.
 

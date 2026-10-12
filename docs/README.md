@@ -28,7 +28,7 @@ Una pantalla frente a los clientes muestra qué está en preparación y qué est
 | 06  | [Contrato de API](./06_API_CONTRACT.md)                                | Endpoints, errores, idempotencia, webhooks entrantes, WebSocket, llamadas a Yallegó        |
 | 07  | [Seguridad y Autenticación](./07_SEGURIDAD_AUTH.md)                    | Audiencias, pantallas vinculadas, credenciales de Yallegó, controles contra el fraude      |
 | 08  | [Flujos de Experiencia](./08_UX_FLUJOS.md)                             | Caja, cobro con Yape y efectivo, celular de cobros caído, cocina, pantalla pública         |
-| 09  | [Sistema de Diseño](./09_DESIGN_SYSTEM.md)                             | Reglas funcionales y componentes; **línea gráfica pendiente de referencias**               |
+| 09  | [Sistema de Diseño](./09_DESIGN_SYSTEM.md)                             | Línea gráfica Marino (claro y noche), mascota, color, tipografía, componentes y «con resto» |
 | 10  | [Plan de Desarrollo](./10_PLAN_DESARROLLO.md)                          | 8 sprints con tareas y criterios de aceptación; dependencias de Yallegó                    |
 | 11  | [Estructura del Proyecto](./11_ESTRUCTURA_PROYECTO.md)                 | Monorepo, módulos, simulador de Yallegó, entorno local, convenciones, variables            |
 
@@ -75,7 +75,7 @@ Una pantalla frente a los clientes muestra qué está en preparación y qué est
 | Fase                        | Estado                                   |
 | --------------------------- | ---------------------------------------- |
 | Definición de producto      | ✅ Completa (con decisiones pendientes)  |
-| Documentación técnica       | ✅ Completa, salvo la línea gráfica      |
+| Documentación técnica       | ✅ Completa                              |
 | Desarrollo                  | ⏳ Pendiente de inicio (Sprint 1)        |
 | Demo para el restaurante    | ⏳ Al cierre del Sprint 5                |
 | Piloto en producción        | ⏳ Sprint 8                              |
@@ -83,7 +83,7 @@ Una pantalla frente a los clientes muestra qué está en preparación y qué est
 ## Decisiones pendientes
 
 Ver [`01_CONTEXTO_Y_ANALISIS.md` §11](./01_CONTEXTO_Y_ANALISIS.md#11-decisiones-pendientes)
-y las referencias visuales en [`09_DESIGN_SYSTEM.md` §13](./09_DESIGN_SYSTEM.md#13-referencias-que-se-necesitan-).
+y la línea gráfica en [`09_DESIGN_SYSTEM.md`](./09_DESIGN_SYSTEM.md) (manual en `design/marca/resto_Manual_Marino.ai`).
 
 ---
 

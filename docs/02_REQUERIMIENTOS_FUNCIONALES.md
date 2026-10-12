@@ -56,7 +56,7 @@
 | RF-TEN-002 | Un negocio tiene uno o más locales, cada uno con nombre, dirección y estado (activo o inactivo).                                                        | MUST      |
 | RF-TEN-003 | Cada local tiene su configuración: ventana de pagos recientes (15 min), validación manual permitida, monto máximo manual, umbrales de demora en cocina y minutos para ocultar pedidos listos. | MUST      |
 | RF-TEN-004 | Los datos de un negocio son invisibles para cualquier otro, a nivel de aplicación y de base de datos.                                                   | MUST      |
-| RF-TEN-005 | El negocio puede subir su logo y elegir un color de acento para la pantalla pública.                                                                    | SHOULD    |
+| RF-TEN-005 | El negocio sube su logo (o usa su nombre en la tipografía del sistema) y elige un color de acento de una lista de seis; se usa en la pantalla pública, el ticket y el encabezado de la caja, junto al sello «con resto». (D26) | SHOULD    |
 | RF-TEN-006 | La plataforma puede suspender un negocio: se bloquean nuevas operaciones y se conservan los datos.                                                       | SHOULD    |
 | RF-TEN-007 | Un dueño puede registrar su negocio por su cuenta, sin alta asistida.                                                                                   | COULD     |
 | RF-TEN-008 | El dueño puede exportar todos los datos del negocio.                                                                                                   | COULD     |
@@ -266,7 +266,7 @@ actual (D8) → MESERO. Las pantallas son dispositivos vinculados, no usuarios (
 | RF-PUB-003 | Cuando un pedido pasa a «Listos», se resalta unos segundos y suena un aviso.                                           | MUST      |
 | RF-PUB-004 | Un pedido entregado sale de la pantalla. Un pedido listo sale solo tras los minutos configurados en el local.         | MUST      |
 | RF-PUB-005 | La pantalla funciona sin teclado ni ratón, a pantalla completa y sin que el equipo se suspenda.                       | MUST      |
-| RF-PUB-006 | La pantalla muestra el logo y el color de acento del negocio.                                                          | SHOULD    |
+| RF-PUB-006 | La pantalla muestra el logo o el nombre del negocio con su color de acento, y el sello «con resto» en una esquina. (D26) | SHOULD    |
 | RF-PUB-007 | La pantalla anuncia por voz «Pedido 42, listo».                                                                         | COULD     |
 
 ---
