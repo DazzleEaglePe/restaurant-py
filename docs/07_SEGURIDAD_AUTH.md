@@ -162,7 +162,7 @@ escribe con la nueva.
 | Montos altos por constancia                              | Sin tope por decisión del negocio (D11): queda registrada con el estado del celular, se concilia y se revisa al validar el cierre. El tope y el PIN se pueden activar después |
 | Usar el Yape de un cliente para otro pedido              | Un cobro, un pago activo (índice único) y registro de quién confirmó                    |
 | Cancelar un pedido pagado y quedarse el dinero           | Solo al resolver una observación registrada (quién reclamó y por qué); motivo y devolución obligatorios; auditoría; revisión al validar el cierre (D16) |
-| Descuentos o cortesías indebidos                          | Solo descuentos configurados (salvo P24); cortesía con motivo; revisión al cierre y reporte por cajera |
+| Descuentos o cortesías indebidos                          | La cajera no crea ni cambia descuentos ni cortesías; solo aplica los que configuró el administrador (D25); revisión al cierre y reporte por cajera |
 | Diferencias de caja recurrentes                          | Reporte de turnos con diferencia por cajera                                             |
 
 ---

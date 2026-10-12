@@ -30,7 +30,7 @@ Tareas sin código, en paralelo al Sprint 1:
 - [ ] Elegir nombre comercial y dominio (P1).
 - [ ] Fijar la fecha de la reunión para mostrar el sistema al restaurante (P8).
 - [ ] Confirmar con el restaurante los equipos de `01_CONTEXTO_Y_ANALISIS.md` §7.4.
-- [ ] Responder las preguntas abiertas de `01_CONTEXTO_Y_ANALISIS.md` §11 (P8, P19 y P24).
+- [ ] Responder las preguntas abiertas de `01_CONTEXTO_Y_ANALISIS.md` §11 (P8 y P19).
 - [ ] Presentar al comercio el TV o monitor de cocina (D23) y la propuesta de pantalla táctil (D17).
 - [ ] *En espera:* referencias visuales, carta completa con precios y fotos, cuenta de Yallegó del restaurante y boleta impresa (P5).
 

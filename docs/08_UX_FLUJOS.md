@@ -144,8 +144,9 @@ avance hasta completarlos.
 3. Ítems editables: cantidad, nota, quitar.
 4. Para llevar, el sistema suma solo la línea «Táper ×3 · S/ 3.00» según los platos;
    la cajera puede ajustar la cantidad. Para comer aquí no se cobra táper.
-5. Descuentos: los automáticos se aplican solos; la cajera puede elegir uno de la
-   lista o marcar un ítem como cortesía, con motivo.
+5. Descuentos y cortesías: solo los que configuró el administrador. Los automáticos
+   se aplican solos y los «a elección» la cajera los elige de la lista. No puede
+   crear ni cambiar montos.
 6. Botones: **Cancelar** y **Cobrar S/ 97.00**.
 
 Al tocar **Cobrar**, el pedido se crea (`POR_PAGAR`, número asignado) y pasa a la

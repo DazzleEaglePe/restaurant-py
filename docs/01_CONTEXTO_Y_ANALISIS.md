@@ -213,6 +213,7 @@ de Yallegó.
 | D22 | En una corrección, si el pedido correcto cuesta más, el cliente **paga la diferencia**; si cuesta menos, **se le devuelve**, normalmente en efectivo |
 | D23 | La cocina tendrá, además del celular, un **TV o monitor no táctil** que muestra la cola de lejos, en solo lectura (recomendado) |
 | D24 | **Descuentos, promociones y cortesías** los configura cada comercio                              |
+| D25 | **La cajera no decide descuentos ni cortesías.** Todo lo configura el administrador: descuentos automáticos, descuentos «a elección» y cortesías definidas (por ejemplo, «canchita de cortesía para comer aquí»). No hay descuentos libres |
 
 ### 7.2. Restricciones heredadas de Yallegó
 
@@ -347,7 +348,7 @@ reportes consolidados de cadena, integraciones con delivery.
 
 Resueltas el 2026-10-11: P2 (D8), P3 (D9), P9 (D13), P10 (D11), P11 y P13 (D12),
 P12 (D15), P14 (D16), P15 (D20), P16 (D18), P17 (D24), P18 (D19), P21 (D22), P22
-(D23) y P23 (D21). El nombre de trabajo `resto` quedó aprobado para el código (D10).
+(D23), P23 (D21) y P24 (D25). El nombre de trabajo `resto` quedó aprobado para el código (D10).
 
 Sobre el volumen (P20): el piloto es muy concurrido, pero no hay cifras. Se diseña
 para 120 pedidos por hora en punta (RNF-ESC-001) y el volumen real se mide en las
@@ -366,4 +367,3 @@ y el soporte de la pantalla de cocina.
 | P7  | Precios de los planes                                                                                                            | Por definir                                              |
 | P8  | ¿En qué fecha será la reunión para mostrarle el sistema al restaurante?                                                          | Demo con simulador al cierre del Sprint 5                |
 | P19 | Pedidos por WhatsApp, teléfono o delivery: el negocio explicará el flujo si decide implementarlo                                 | Solo pedidos presenciales en caja                        |
-| P24 | ¿La cajera puede hacer descuentos libres (un monto o porcentaje que ella decide), o solo aplicar los que configuró el administrador? | Solo los configurados; las cortesías, con motivo         |

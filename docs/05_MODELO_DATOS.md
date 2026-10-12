@@ -118,8 +118,6 @@ CREATE TABLE locales (
   ocultar_listos_min     smallint NOT NULL DEFAULT 10,
   tiempo_base_min        smallint NOT NULL DEFAULT 20,     -- espera sugerida sin historial (04 §5.10)
   costo_taper_defecto    numeric(10,2) NOT NULL DEFAULT 1.00,  -- prellenado al crear productos (D21)
-  permite_cortesias      boolean NOT NULL DEFAULT true,
-  permite_descuento_libre boolean NOT NULL DEFAULT false,      -- P24
   -- Estado de cobros calculado (04 §5.5)
   estado_cobros          estado_cobros_local NOT NULL DEFAULT 'SIN_CELULAR',
   estado_cobros_desde    timestamptz NOT NULL DEFAULT now(),
@@ -415,8 +413,7 @@ CREATE TABLE pedido_items (
   anulado_at       timestamptz,                   -- reemplazado en una corrección
   observacion_id   uuid,                          -- observación que lo anuló
   precio_lista     numeric(10,2) NOT NULL,        -- antes de descuentos y cortesías
-  cortesia         boolean NOT NULL DEFAULT false,
-  motivo_cortesia  varchar(140),
+  cortesia         boolean NOT NULL DEFAULT false,  -- por un descuento del 100 % configurado (D25)
   orden            smallint NOT NULL
 );
 

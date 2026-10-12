@@ -380,8 +380,9 @@ mixtos y 1 ceviche; las bebidas no) y su total sería S/ 100.00. La cajera puede
 ajustar la cantidad enviando `taperes` en el `PATCH`.
 
 Los descuentos automáticos vigentes se aplican solos; `descuento_ids` agrega los que
-elige la cajera. Una cortesía se marca por ítem con
-`{ "cortesia": { "motivo": "Cliente frecuente" } }`.
+elige la cajera entre los descuentos «a elección» que configuró el administrador.
+Las cortesías son descuentos del 100 % configurados. La cajera no puede crear ni
+cambiar montos (D25).
 
 ### `POST /v1/pedidos/{id}/cancelar`
 

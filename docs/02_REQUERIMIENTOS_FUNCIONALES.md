@@ -79,7 +79,7 @@
 | Validar el cierre del día                        | ✅    | ✅    | —      | —      | —                  | —                |
 | Abrir y cerrar su turno de caja                  | ✅    | ✅    | ✅     | —      | —                  | —                |
 | Tomar pedidos y cobrar                           | ✅    | ✅    | ✅     | —      | —                  | —                |
-| Aplicar un descuento configurado o una cortesía  | ✅    | ✅    | ✅     | —      | —                  | —                |
+| Aplicar un descuento o cortesía ya configurados  | ✅    | ✅    | ✅     | —      | —                  | —                |
 | Validar un pago con constancia                   | ✅    | ✅    | ✅ *   | —      | —                  | —                |
 | Cancelar un pedido por pagar                     | ✅    | ✅    | ✅     | —      | —                  | —                |
 | Cancelar un pedido ya pagado                     | ✅    | ✅    | ✅ **  | —      | —                  | —                |
@@ -303,10 +303,10 @@ actual (D8) → MESERO. Las pantallas son dispositivos vinculados, no usuarios (
 | ID         | Requerimiento                                                                                                                                       | Prioridad |
 | ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------- | --------- |
 | RF-DSC-001 | OWNER o ADMIN configura descuentos: nombre, porcentaje o monto fijo, a todo el pedido o a productos o categorías, locales, días y horario de vigencia. (D24) | MUST      |
-| RF-DSC-002 | La cajera aplica a un pedido un descuento configurado y vigente, eligiéndolo de una lista.                                                          | MUST      |
+| RF-DSC-002 | Si el administrador configura un descuento «a elección» (por ejemplo, con cupón), la cajera lo aplica eligiéndolo de la lista; no puede crear ni cambiar montos. | SHOULD    |
 | RF-DSC-003 | Un descuento puede ser automático: se aplica solo cuando el pedido cumple sus condiciones («martes de ceviche −20 %»).                              | SHOULD    |
-| RF-DSC-004 | La cajera marca un ítem como cortesía (S/ 0.00) con motivo, si el local lo permite; se conserva su precio de lista para los reportes.                | MUST      |
-| RF-DSC-005 | La cajera hace un descuento libre (monto o porcentaje que ella decide), solo si el administrador lo habilita. (P24)                                 | COULD     |
+| RF-DSC-004 | Las cortesías las define el administrador como un descuento del 100 % sobre un producto, automático o «a elección»; la cajera no regala ítems por su cuenta. Se conserva el precio de lista para los reportes. (D25) | MUST      |
+| RF-DSC-005 | No hay descuentos libres: la cajera no puede crear ni modificar descuentos ni cortesías. (D25)                                       | MUST      |
 | RF-DSC-006 | El total con descuentos y táper es el monto que se empareja con el Yape o se cobra en efectivo.                                                     | MUST      |
 | RF-DSC-007 | Descuentos y cortesías aparecen en la validación del cierre y en un reporte por cajera y por tipo.                                                  | MUST      |
 | RF-DSC-008 | En una corrección, el crédito de un ítem reemplazado es lo que realmente se pagó por él, con su descuento.                                          | MUST      |
