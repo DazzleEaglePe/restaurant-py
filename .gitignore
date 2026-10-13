@@ -24,3 +24,6 @@ coverage/
 design/video/Guardado automático/
 *.aep Logs/
 *.aep registros/
+
+# Los originales de Illustrator viven en Creative Cloud
+design/**/*.ai
