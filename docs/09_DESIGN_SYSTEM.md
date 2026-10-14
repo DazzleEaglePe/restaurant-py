@@ -2,9 +2,10 @@
 
 > **Estado:** línea gráfica definida el 2026-10-12: dirección **Marino**, con modo
 > claro (Marino clásico) y modo oscuro (Marino noche).
-> **Fuente en vectores:** `design/marca/resto_Manual_Marino.ai` (10 mesas de trabajo).
-> Las exploraciones previas están en `design/marca/resto_LineaGrafica.ai` y
-> `design/marca/resto_Paletas_B.ai`.
+> **Fuente en vectores:** `resto_Manual_Marino` en Creative Cloud (10 mesas de trabajo).
+> Las exploraciones previas son `resto_LineaGrafica` y `resto_Paletas_B`, también en
+> Creative Cloud. Hay copia de los archivos de diseño en el Drive compartido de Tab Group,
+> carpeta «resto - Video demo».
 
 ---
 
@@ -449,9 +450,10 @@ pantalla pública.
 
 | Archivo o fuente                               | Contenido                                                    |
 | ---------------------------------------------- | ------------------------------------------------------------ |
-| `design/marca/resto_Manual_Marino.ai`          | Manual definitivo en vectores                                |
-| `design/marca/resto_Paletas_B.ai`              | Cinco paletas de la mascota (Chicha, Brasa, Marino, Cacao, Lúcuma) |
-| `design/marca/resto_LineaGrafica.ai`           | Primeras tres direcciones (Fresco, Huerta, Bosque)           |
+| `resto_Manual_Marino` (Creative Cloud)         | Manual definitivo en vectores                                |
+| `resto_Paletas_B` (Creative Cloud)             | Cinco paletas de la mascota (Chicha, Brasa, Marino, Cacao, Lúcuma) |
+| `resto_LineaGrafica` (Creative Cloud)          | Primeras tres direcciones (Fresco, Huerta, Bosque)           |
+| Drive compartido, carpeta «resto - Video demo» | Video demo (After Effects y MP4), presentación en PDF y recursos de marca |
 | Chat «Diseñar tablero de marca» en ChatGPT     | Exploraciones con su generador de imágenes: paletas, manual, adaptación por restaurante y variantes de Marino |
 
 ---

@@ -83,7 +83,7 @@ Una pantalla frente a los clientes muestra qué está en preparación y qué est
 ## Decisiones pendientes
 
 Ver [`01_CONTEXTO_Y_ANALISIS.md` §11](./01_CONTEXTO_Y_ANALISIS.md#11-decisiones-pendientes)
-y la línea gráfica en [`09_DESIGN_SYSTEM.md`](./09_DESIGN_SYSTEM.md) (manual en `design/marca/resto_Manual_Marino.ai`).
+y la línea gráfica en [`09_DESIGN_SYSTEM.md`](./09_DESIGN_SYSTEM.md) (manual `resto_Manual_Marino` en Creative Cloud).
 
 ---
 

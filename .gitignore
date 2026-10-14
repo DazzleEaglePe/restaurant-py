@@ -20,10 +20,8 @@ coverage/
 # Registros
 *.log
 
-# Copias automáticas de After Effects
-design/video/Guardado automático/
+# El diseño vive fuera del repo: Illustrator en Creative Cloud,
+# After Effects y recursos en el Drive compartido de Tab Group
+design/
 *.aep Logs/
 *.aep registros/
-
-# Los originales de Illustrator viven en Creative Cloud
-design/**/*.ai
