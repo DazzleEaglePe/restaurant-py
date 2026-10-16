@@ -13,8 +13,13 @@
     "lint": "turbo run lint",
     "typecheck": "turbo run typecheck",
     "test": "turbo run test",
+    "test:aislamiento": "pnpm --filter @resto/api test:aislamiento",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
+    "db:generate": "pnpm --filter @resto/api db:generate",
+    "db:migrate": "pnpm --filter @resto/api db:migrate",
+    "db:deploy": "pnpm --filter @resto/api db:deploy",
+    "db:seed": "pnpm --filter @resto/api db:seed",
     "docker:up": "docker compose -f tools/docker/docker-compose.yml up -d",
     "docker:down": "docker compose -f tools/docker/docker-compose.yml down",
     "docker:logs": "docker compose -f tools/docker/docker-compose.yml logs -f"

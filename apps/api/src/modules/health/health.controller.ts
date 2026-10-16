@@ -1,15 +1,20 @@
-import { Controller, Get, Inject } from '@nestjs/common';
+import { Controller, Get, HttpCode, HttpStatus, Inject, Res } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import type { HealthResponse } from '@resto/contracts';
+import type { HealthResponse, ReadinessResponse } from '@resto/contracts';
+import type { Response } from 'express';
 
 import type { Environment } from '../../config/env.schema';
+import { PrismaService } from '../../infrastructure/database/prisma.service';
 
 @Controller('health')
 export class HealthController {
-  constructor(@Inject(ConfigService) private readonly config: ConfigService<Environment, true>) {}
+  constructor(
+    @Inject(ConfigService) private readonly config: ConfigService<Environment, true>,
+    @Inject(PrismaService) private readonly prisma: PrismaService,
+  ) {}
 
-  /** Liveness: el proceso responde. La disponibilidad de la base y Redis va en
-   * `/health/ready`, que llega con el esquema inicial. */
+  /** Liveness: el proceso responde. No toca la base a propósito, para que una
+   * caída de PostgreSQL no reinicie el contenedor en cadena. */
   @Get()
   getHealth(): HealthResponse {
     return {
@@ -18,5 +23,17 @@ export class HealthController {
       release: this.config.get('APP_RELEASE', { infer: true }),
       timestamp: new Date().toISOString(),
     };
+  }
+
+  /** Readiness: la API puede atender porque llega a PostgreSQL. */
+  @Get('ready')
+  @HttpCode(HttpStatus.OK)
+  async getReadiness(@Res({ passthrough: true }) res: Response): Promise<ReadinessResponse> {
+    const database = await this.prisma.$queryRaw`SELECT 1`.then(
+      () => 'up' as const,
+      () => 'down' as const,
+    );
+    if (database === 'down') res.status(HttpStatus.SERVICE_UNAVAILABLE);
+    return { status: database === 'up' ? 'ok' : 'error', checks: { database } };
   }
 }

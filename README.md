@@ -23,14 +23,19 @@ pnpm install
 cp .env.example .env
 ./tools/scripts/generate-keys.sh >> .env
 pnpm docker:up
+pnpm db:migrate
+pnpm db:seed
 pnpm dev:stack
 ```
 
 - Web: http://localhost:4000
 - API: http://localhost:4001/v1/health
 - Correos de desarrollo (Mailpit): http://localhost:8026
+- Usuarios de la «Cevichería Demo»: `dueno@demo.test`, `admin@demo.test`, `caja1@demo.test`,
+  `caja2@demo.test` y `mesera1@demo.test`, con la contraseña `SEED_PASSWORD` de tu `.env`.
 
 Antes de abrir un PR: `pnpm format:check && pnpm lint && pnpm typecheck && pnpm test && pnpm build`.
+Con Docker levantado, `pnpm test:aislamiento` corre la suite de aislamiento entre negocios.
 
 ## Convenciones
 

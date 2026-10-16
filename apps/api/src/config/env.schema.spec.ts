@@ -8,6 +8,7 @@ describe('validateEnvironment', () => {
       NODE_ENV: 'development',
       PORT: 4001,
       WEB_URL: 'http://localhost:4000',
+      DATABASE_URL: 'postgresql://resto_app:resto_app_dev@localhost:5433/resto',
       APP_RELEASE: 'dev',
     });
   });
