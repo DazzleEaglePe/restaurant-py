@@ -19,7 +19,7 @@ consume Yallegó como un integrador externo a través de una capa anticorrupció
 
 - **El restaurante es el primer cliente real de la API pública de Yallegó.** Cada
   hueco que aparezca aquí es una mejora para todos los integradores (ver brechas
-  Y1–Y8 en `01_CONTEXTO_Y_ANALISIS.md` §4.3).
+  Y1–Y13 en `01_CONTEXTO_Y_ANALISIS.md` §4.3).
 - **El dominio es transaccional y pequeño.** Pedidos, pagos y turnos comparten
   transacciones de base de datos; separarlos en servicios obligaría a sagas
   distribuidas sin necesidad.
@@ -260,7 +260,7 @@ caja recibe el aviso.
 | `transaction.created`   | Inserta o actualiza el cobro en `yallego_cobros`, deduce el local por el celular y emite `cobro.recibido` a la sala de caja del local. Si hay pagos con constancia pendientes, lanza la conciliación (§5.6) |
 | `transaction.confirmed` | Actualiza el estado. Si nadie de este sistema lo confirmó, el cobro deja de ofrecerse                  |
 | `transaction.disputed`  | Actualiza el estado y, si estaba ligado a un pago, avisa al OWNER                                      |
-| `device.offline`        | Recalcula el estado de cobros del local (§5.5). Hoy Yallegó no lo emite (brecha Y2)                    |
+| `device.offline`        | Recalcula el estado de cobros del local (§5.5). Llega al cruzar 15 min sin reporte (Y2)                |
 | `device.online`         | Igual que el anterior                                                                                  |
 
 La firma, el control de antigüedad y la idempotencia siguen la guía de Yallegó
@@ -282,7 +282,10 @@ los cobros.
   reintenta hasta 12 horas.
 
 Uso de la cuota de Yallegó por negocio: 6 consultas de cobros y 2 de celulares por
-minuto, de 60 permitidas en el plan Negocio.
+minuto, de 60 permitidas en el plan Negocio. Además, Yallegó limita cada ruta a 60
+solicitudes por minuto por IP (180 en la lista de cobros), y todos los negocios
+salen de nuestra IP: con 2 consultas de celulares por minuto por negocio, el techo
+llega hacia los 30 negocios (brecha Y10).
 
 ### 5.5. Estado del celular de cobros
 
@@ -291,7 +294,7 @@ minuto, de 60 permitidas en el plan Negocio.
 | Fuente                                   | Frecuencia                    |
 | ---------------------------------------- | ----------------------------- |
 | `GET /v1/devices`                        | Cada 30 s mientras haya turnos abiertos |
-| Webhooks `device.offline` y `device.online` | Cuando Yallegó los emita (Y2) |
+| Webhooks `device.offline` y `device.online` | Al cruzar 15 min sin reporte (Y2) |
 | Errores al llamar a Yallegó              | En cada llamada               |
 
 **Estado por local** (el peor de sus celulares asignados):

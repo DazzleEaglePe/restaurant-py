@@ -216,7 +216,7 @@ Tareas sin código, en paralelo al Sprint 1:
 
 - [ ] Consulta de celulares cada 30 s y cálculo del estado por local con histéresis.
 - [ ] Incidencias y correo al OWNER tras 5 min.
-- [ ] Manejo de `device.offline` y `device.online` (activo cuando Yallegó los emita, Y2).
+- [ ] Manejo de `device.offline` y `device.online` (Yallegó los emite desde `v0.1.0`, Y2).
 - [ ] Estados `SIN_SERVICIO` y `CONEXION_INVALIDA` a partir de errores de Yallegó.
 - [ ] Pago con constancia habilitado solo según el estado de cobros; observación opcional y estado del celular guardado.
 - [ ] Conciliación al llegar cobros; revisión manual; `SIN_RESPALDO` a las 12 h con aviso.
@@ -288,20 +288,28 @@ Tareas sin código, en paralelo al Sprint 1:
 ## 11. Dependencias de Yallegó
 
 Trabajo en el repositorio de Yallegó que mejora o habilita este proyecto (brechas
-de `01_CONTEXTO_Y_ANALISIS.md` §4.3):
+de `01_CONTEXTO_Y_ANALISIS.md` §4.3). Las tareas INT son del plan de Yallegó
+(`docs/17_PLATAFORMA_DESARROLLADORES.md`): fase 1 en su Sprint 19 y fase 2 en su
+Sprint 20.
 
-| #   | Cambio en Yallegó                                                                  | Necesario para | Si no llega a tiempo                               |
-| --- | ---------------------------------------------------------------------------------- | -------------- | -------------------------------------------------- |
-| Y1  | `confirm` y `dispute` atómicos                                                     | Sprint 4       | La restricción única local cubre el caso           |
-| Y2  | Emitir `device.offline` y `device.online`                                          | Sprint 6       | Consulta cada 30 s                                 |
-| Y3  | Exponer permisos, ahorro de batería y cola del celular en `GET /v1/devices`         | Sprint 6       | Aviso con causas posibles                          |
-| Y4  | Heartbeat más frecuente (30–60 s) o conexión persistente para detectar caídas rápido | Sprint 8      | Detección en 3 a 4 min                             |
-| Y5  | Modo de pruebas (`yk_test_`) y simulación de cobros                                 | Sprint 4       | Simulador propio                                   |
-| Y6  | Consulta de alcances de una clave                                                   | Sprint 4       | `transactions:write` se comprueba al primer cobro  |
-| Y7  | Cobros esperados (`payment-intents`)                                                | v1.0           | Emparejamiento local                               |
-| Y8  | Plin y BIM                                                                          | v0.2 de Yallegó | Solo Yape y efectivo                              |
+| #   | Cambio en Yallegó                                                            | Estado                        | Tarea en Yallegó | Necesario para      | Si no llega a tiempo                              |
+| --- | ---------------------------------------------------------------------------- | ----------------------------- | ---------------- | ------------------- | ------------------------------------------------- |
+| Y1  | `confirm` y `dispute` atómicos                                               | En producción (`v0.1.0`)      | —                | Sprint 4            | La restricción única local cubre el caso          |
+| Y2  | Emitir `device.offline` y `device.online`                                    | En producción (`v0.1.0`)      | —                | Sprint 6            | Consulta cada 30 s                                |
+| Y3  | Exponer permisos, ahorro de batería y cola del celular en `GET /v1/devices`  | Pendiente                     | INT-017 (v0.2)   | Sprint 6            | Aviso con causas posibles                         |
+| Y4  | Heartbeat más frecuente (30–60 s) para detectar caídas rápido                | Pendiente                     | INT-017 (v0.2)   | Sprint 8            | Detección en 3 a 4 min                            |
+| Y5  | Modo de pruebas (`yk_test_`) y simulación de cobros                          | Propuesta                     | INT-010, INT-011 | Sprint 4            | Simulador propio                                  |
+| Y6  | Consulta de alcances de una clave (`GET /v1/me`)                             | Propuesta                     | INT-003          | Sprint 4            | `transactions:write` se comprueba al primer cobro |
+| Y7  | Webhooks a desarrollo local y evento de prueba por tipo                      | Propuesta                     | INT-013, INT-014 | Sprint 4            | Túnel o simulador                                 |
+| Y8  | Plin y BIM verificados con notificaciones reales                             | Parcial                       | INT-020 (v0.2)   | v0.2 de Yallegó     | Solo Yape y efectivo                              |
+| Y9  | Cobros esperados (`payment-intents`)                                         | Diferida                      | INT-022 (v1.0)   | v1.0                | Emparejamiento local                              |
+| Y10 | Límite por credencial en vez de por IP                                       | Propuesta                     | INT-001          | Más de ~30 negocios | Sin efecto en el piloto                           |
+| Y11 | Claves de prueba en cualquier plan y cupo de claves separado del de webhooks | Propuesta, decisión comercial | INT-006          | Sprint 4            | El restaurante contrata Negocio                   |
+| Y12 | `Idempotency-Key` y `409` con el estado del cobro                            | Propuesta                     | INT-004          | Sprint 4            | Consulta del cobro tras un `409`                  |
+| Y13 | Comercio (`tenant_id`) en el sobre del webhook                               | Propuesta                     | INT-002          | —                   | URL con token por conexión                        |
 
-Y1 y Y2 ya tienen una tarea propuesta en el repositorio de Yallegó.
+Y1 e Y2 están en producción desde Yallegó `v0.1.0` (2026-10-13). Ninguna de las
+demás bloquea el MVP: todas tienen una mitigación propia.
 
 ---
 

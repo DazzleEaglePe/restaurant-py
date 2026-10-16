@@ -123,26 +123,33 @@ cajera recuerda haber vendido.
 
 ### 4.3. Brechas encontradas en Yallegó
 
-Revisadas en el código de Yallegó el 2026-10-11. Se registran como dependencias
-en `10_PLAN_DESARROLLO.md` §11.
+Revisadas en el código de Yallegó el 2026-10-11 y actualizadas el 2026-10-16 contra
+su `main`, que corre en producción como `v0.1.0`. Se registran como dependencias en
+`10_PLAN_DESARROLLO.md` §11. El plan de Yallegó para cerrarlas está en su
+`docs/17_PLATAFORMA_DESARROLLADORES.md` (tareas INT).
 
-| #   | Brecha                                                                                     | Impacto en el restaurante                                     | Mitigación aquí                                    |
-| --- | ------------------------------------------------------------------------------------------ | ------------------------------------------------------------- | -------------------------------------------------- |
-| Y1  | `confirm` no es atómico: dos confirmaciones simultáneas del mismo cobro pueden pasar las dos | Un Yape podría aplicarse a dos pedidos                        | Restricción única local sobre el cobro             |
-| Y2  | `device.offline` y `device.online` están documentados pero no se emiten                     | No hay aviso inmediato cuando cae el celular de cobros        | Consulta de `GET /v1/devices` cada 30 s            |
-| Y3  | El celular reporta permisos y cola, pero la API no los expone                               | No se puede decir «perdió el permiso de notificaciones»       | Mensaje con la lista de causas posibles            |
-| Y4  | Heartbeat cada 2 min; «degradado» a los 3 min y «desconectado» a los 15                     | Una caída se detecta en 3 a 4 minutos, no en segundos         | Ninguna; se pide a Yallegó un modo más rápido      |
-| Y5  | No hay modo de pruebas ni forma de simular un cobro                                         | No se puede desarrollar sin yapear de verdad                  | Simulador local de Yallegó (`tools/yallego-simulador`) |
-| Y6  | No hay forma de consultar los alcances de una clave                                         | `transactions:write` solo se comprueba al primer cobro         | Aviso al dueño si el primer `confirm` da `403`     |
-| Y7  | El webhook no acepta `localhost` ni redes privadas                                          | En desarrollo no llegan webhooks reales                       | Túnel o simulador                                  |
-| Y8  | El MVP de Yallegó solo soporta Yape; Plin y BIM llegan en su v0.2                           | El restaurante cobra solo Yape y efectivo en el lanzamiento    | Las billeteras se muestran según lo que Yallegó soporte |
+| #   | Brecha                                                                                                                   | Estado                                                                                             | Impacto en el restaurante                                                               | Mitigación aquí                                                                                  |
+| --- | ------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| Y1  | `confirm` no era atómico: dos confirmaciones simultáneas del mismo cobro podían pasar las dos                            | **Resuelta** en `v0.1.0` (bloqueo de fila)                                                         | Un Yape podría aplicarse a dos pedidos                                                  | Se mantiene la restricción única local como segunda barrera                                      |
+| Y2  | `device.offline` y `device.online` no se emitían                                                                         | **Resuelta** en `v0.1.0`; llegan al cruzar los 15 min sin reporte y no hay evento para «degradado» | No había aviso cuando cae el celular de cobros                                          | Consulta de `GET /v1/devices` cada 30 s para detectar «degradado» antes                          |
+| Y3  | El celular reporta permisos y cola, pero la API no los expone                                                            | Pendiente                                                                                          | No se puede decir «perdió el permiso de notificaciones»                                 | Mensaje con la lista de causas posibles                                                          |
+| Y4  | Heartbeat cada 2 min; «degradado» a los 3 min y «desconectado» a los 15                                                  | Pendiente                                                                                          | Una caída se detecta en 3 a 4 minutos, no en segundos                                   | Ninguna; se pide a Yallegó un modo más rápido                                                    |
+| Y5  | No hay modo de pruebas ni forma de simular un cobro                                                                      | Propuesta                                                                                          | No se puede desarrollar sin yapear de verdad                                            | Simulador local de Yallegó (`tools/yallego-simulador`)                                           |
+| Y6  | No hay forma de consultar los alcances de una clave                                                                      | Propuesta                                                                                          | `transactions:write` solo se comprueba al primer cobro                                  | Aviso al dueño si el primer `confirm` da `403`                                                   |
+| Y7  | El webhook no acepta `localhost` ni redes privadas, y el evento de prueba es siempre el mismo                            | Propuesta                                                                                          | En desarrollo no llegan webhooks reales                                                 | Túnel o simulador                                                                                |
+| Y8  | Solo Yape está verificado; los parsers de Plin y BIM existen pero no se probaron con notificaciones reales               | Parcial                                                                                            | El restaurante cobra solo Yape y efectivo en el lanzamiento                             | Las billeteras se muestran según lo que Yallegó soporte                                          |
+| Y9  | No hay cobros esperados (`payment-intents`)                                                                              | Diferida a v1.0                                                                                    | El emparejamiento pago ↔ pedido es nuestro                                              | Emparejamiento local (§4.4)                                                                      |
+| Y10 | Límite global de 60 solicitudes por minuto por ruta e IP (180 en cobros), además del límite del plan                     | Propuesta                                                                                          | Todos los negocios salen de nuestra IP: el techo llega hacia los 30 negocios            | Ninguna necesaria para el piloto                                                                 |
+| Y11 | La prueba gratuita y el plan Free no pueden crear claves; Negocio permite 1 clave y comparte ese cupo con el del webhook | Propuesta y decisión comercial de Yallegó                                                          | El restaurante necesita plan Negocio o superior, y nuestra conexión ocupa su único cupo | Se avisa en la guía de conexión (§7.2)                                                           |
+| Y12 | Sin `Idempotency-Key`; el `409` de `confirm` no dice cómo quedó el cobro                                                 | Propuesta                                                                                          | Un reintento no distingue «lo confirmé yo» de «lo confirmó otro»                        | Consulta del cobro y comparación de la nota `ref:{pago_id}` (`04_ARQUITECTURA_SOFTWARE.md` §5.2) |
+| Y13 | El sobre del webhook no dice de qué comercio es                                                                          | Propuesta                                                                                          | Hay que saber a qué negocio pertenece cada evento                                       | Una URL con token por conexión (`06_API_CONTRACT.md` §14)                                        |
 
 ### 4.4. Lo que Yallegó podría agregar
 
 **Cobros esperados** (`POST /v1/payment-intents`): el restaurante registra «espero
 S/ 25.00 para el pedido 42» y Yallegó le avisa cuando llega ese pago. Es la caja
 «servicio expuesto · validar pagos» del tablero y le serviría a cualquier sistema
-de caja. Queda para después del MVP.
+de caja. Queda para después del MVP (Y9).
 
 ---
 
@@ -225,6 +232,7 @@ de Yallegó.
 | La app de Yallegó debe estar abierta y con permisos     | Se avisa en caja cuando deja de reportar                            |
 | Yallegó no recupera cobros ocurridos con la app detenida | Un pago manual puede quedar sin respaldo aunque sea real            |
 | La clave de API no puede salir del servidor             | Este sistema necesita backend propio                                |
+| Las claves de API exigen plan Negocio o superior        | El restaurante necesita ese plan para conectar este sistema; la prueba gratuita de Yallegó no basta (Y11) |
 
 ### 7.3. Componentes del sistema (MVP)
 
