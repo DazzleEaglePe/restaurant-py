@@ -13,6 +13,25 @@ jobs:
     name: Calidad
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: resto
+          POSTGRES_PASSWORD: resto_dev
+          POSTGRES_DB: resto
+        ports:
+          - 5433:5432
+        options: >-
+          --health-cmd "pg_isready -U resto -d resto"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+    env:
+      # La aplicación y la suite de aislamiento usan resto_app (sujeto a RLS);
+      # las migraciones, el propietario.
+      DATABASE_URL: postgresql://resto_app:resto_app_dev@localhost:5433/resto
+      DIRECT_DATABASE_URL: postgresql://resto:resto_dev@localhost:5433/resto
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -33,6 +52,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Generate Prisma client
+        run: pnpm db:generate
+
       - name: Check commit messages
         if: github.event_name == 'pull_request'
         run: >-
@@ -51,6 +73,14 @@ jobs:
 
       - name: Run tests
         run: pnpm test
+
+      - name: Prepare database roles and migrations
+        run: |
+          psql "$DIRECT_DATABASE_URL" -v ON_ERROR_STOP=1 -f tools/docker/initdb/01-roles.sql
+          pnpm db:deploy
+
+      - name: Tenant isolation suite
+        run: pnpm test:aislamiento
 
       - name: Build
         run: pnpm build
