@@ -1,0 +1,7 @@
+.next
+coverage
+dist
+node_modules
+pnpm-lock.yaml
+# La documentación tiene tablas alineadas a mano; se formatea aparte.
+docs

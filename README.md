@@ -8,9 +8,29 @@ cocina y pantalla de pedidos listos para los clientes.
 
 ## Estado
 
-Fase de análisis y planificación. La documentación funcional y técnica está en
-[docs/README.md](./docs/README.md); el desarrollo arranca con el Sprint 1 de
-[docs/10_PLAN_DESARROLLO.md](./docs/10_PLAN_DESARROLLO.md).
+Sprint 1 en curso (16 – 30 oct. 2026). La documentación funcional y técnica está en
+[docs/README.md](./docs/README.md) y el plan en
+[docs/10_PLAN_DESARROLLO.md](./docs/10_PLAN_DESARROLLO.md). Cada sprint es un hito de
+GitHub con sus issues.
+
+## Puesta en marcha
+
+Requiere Node.js 22, Corepack y Docker.
+
+```bash
+corepack enable
+pnpm install
+cp .env.example .env
+./tools/scripts/generate-keys.sh >> .env
+pnpm docker:up
+pnpm dev:stack
+```
+
+- Web: http://localhost:4000
+- API: http://localhost:4001/v1/health
+- Correos de desarrollo (Mailpit): http://localhost:8026
+
+Antes de abrir un PR: `pnpm format:check && pnpm lint && pnpm typecheck && pnpm test && pnpm build`.
 
 ## Convenciones
 

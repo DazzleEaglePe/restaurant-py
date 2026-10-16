@@ -1,0 +1,29 @@
+{
+  "name": "resto",
+  "version": "0.0.0",
+  "private": true,
+  "packageManager": "pnpm@11.28.0",
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "dev:stack": "turbo run dev --filter=@resto/api --filter=@resto/web",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "docker:up": "docker compose -f tools/docker/docker-compose.yml up -d",
+    "docker:down": "docker compose -f tools/docker/docker-compose.yml down",
+    "docker:logs": "docker compose -f tools/docker/docker-compose.yml logs -f"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "20.2.0",
+    "@commitlint/config-conventional": "20.2.0",
+    "prettier": "3.9.6",
+    "turbo": "2.10.12",
+    "typescript": "5.9.3"
+  }
+}

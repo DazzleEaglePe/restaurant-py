@@ -11,6 +11,9 @@ coverage/
 .env.*
 !.env.example
 
+# Next.js
+next-env.d.ts
+
 # Sistema y editores
 .DS_Store
 .idea/
