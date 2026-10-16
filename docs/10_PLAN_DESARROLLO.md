@@ -3,8 +3,10 @@
 > **Duración del sprint:** 2 semanas
 > **Sprints hasta MVP:** 8 (16 semanas)
 > **Metodología:** iterativa, con entregable funcional al cierre de cada sprint
-> **Hito comercial:** demo completa con el simulador de Yallegó al cierre del
-> Sprint 5, lista para presentar al restaurante (P8).
+> **Inicio:** 16 oct. 2026. Seguimiento en GitHub: un hito por sprint y un issue por entregable.
+> **Hito comercial:** demo completa con el simulador de Yallegó en la primera semana
+> de enero (Sprint 6), para no presentarla en Navidad. Mientras tanto, el video y la
+> presentación sirven para la primera reunión con el restaurante (P8).
 
 ---
 
@@ -20,6 +22,19 @@
 | **6**  | Celular de cobros: avisos, constancia y conciliación  | Con el celular apagado la caja avisa, se valida con constancia y luego se concilia  |
 | **7**  | Cierre de caja, correcciones, descuentos, reportes y auditoría   | El turno se cierra con arqueo y el dueño ve ventas, constancias y diferencias       |
 | **8**  | Endurecimiento, observabilidad, despliegue y piloto   | El restaurante opera en producción con monitoreo activo                             |
+
+### 1.1. Calendario
+
+| Sprint | Fechas                | Notas                                         |
+| ------ | --------------------- | --------------------------------------------- |
+| 1      | 16 oct. – 30 oct.     | Empieza dos días antes por decisión del equipo |
+| 2      | 2 nov. – 13 nov.      |                                               |
+| 3      | 16 nov. – 27 nov.     |                                               |
+| 4      | 30 nov. – 11 dic.     | Feriados 8 y 9 dic.                           |
+| 5      | 14 dic. – 23 dic.     | Cierra antes de Navidad                       |
+| 6      | 28 dic. – 8 ene.      | Año Nuevo; demo funcional al restaurante      |
+| 7      | 11 ene. – 22 ene.     |                                               |
+| 8      | 25 ene. – 5 feb.      | Piloto                                        |
 
 ---
 
@@ -193,7 +208,6 @@ Tareas sin código, en paralelo al Sprint 1:
 - [ ] `/vincular`: la pantalla muestra código y QR, los renueva al vencer y entra sola al aprobarse.
 - [ ] `/admin/pantallas/vincular?codigo=`: aprobación desde el celular del administrador.
 - [ ] Cocina en celular: lista vertical, colores por tipo y demora, sonido, deshacer, cancelados.
-- [ ] Cocina en pantalla táctil (propuesta): columnas y «Para mesa» para la mesera.
 - [ ] Monitor de cocina en solo lectura: columnas que se leen de lejos.
 - [ ] Pantalla pública: columnas, animación y sonido de listo, marca del negocio, Wake Lock, reconexión.
 - [ ] «Toca para activar el sonido» en cocina, TV y pantalla pública.
@@ -206,7 +220,7 @@ Tareas sin código, en paralelo al Sprint 1:
 - [ ] Un pedido para comer en el local pasa a listo, el celular de la mesera vibra con nombre y zona, y al marcarlo entregado sale de la pantalla pública.
 - [ ] Desenchufar y volver a enchufar la TV la deja en su pantalla sin intervención.
 - [ ] La pantalla pública no recibe montos ni nombres de pagadores (verificado en el tráfico de red).
-- [ ] **Demo de punta a punta con el simulador lista para presentar al restaurante.**
+- [ ] **Demo de punta a punta con el simulador lista** (se presenta al restaurante en el Sprint 6).
 
 ---
 
@@ -224,6 +238,7 @@ Tareas sin código, en paralelo al Sprint 1:
 ### Web
 
 - [ ] Caja: chip, avisos fijos con causas, sonido y vibración, pestaña Constancia.
+- [ ] Cocina en pantalla táctil (propuesta, movida desde el Sprint 5 por los feriados): columnas y «Para mesa» para la mesera.
 - [ ] Administración: estado de cobros por local, incidencias, constancias por conciliar.
 
 ### Criterios de aceptación

@@ -338,7 +338,7 @@ Igual que el de Yallegó, con las variables propias en `env`
 | BullMQ                 | 6.x      |
 | Socket.io              | 4.8.x    |
 | zod                    | 4.4.3    |
-| Next.js                | 15.5.24  |
+| Next.js                | 15.5.27  |
 | React                  | 19.1.0   |
 | TanStack Query         | 5.x      |
 | Tailwind CSS           | 3.4.19   |
@@ -365,8 +365,10 @@ Distintos a los de Yallegó, para correr ambos proyectos a la vez:
 
 ### 9.2. `tools/docker/docker-compose.yml`
 
-PostgreSQL 16, Redis 7, Mailpit y MinIO, con los puertos de §9.1 y volúmenes
-persistentes. El simulador corre con `pnpm dev:stack`, no en Docker, para
+PostgreSQL 16, Redis 7 y Mailpit, con los puertos de §9.1 y volúmenes
+persistentes. MinIO dejó de publicar sus imágenes gratuitas en Docker Hub: el
+almacenamiento compatible con S3 para las fotos de la carta se elige en el Sprint 2,
+que es cuando se necesita. El simulador corre con `pnpm dev:stack`, no en Docker, para
 recargarlo al editarlo.
 
 ### 9.3. Puesta en marcha
