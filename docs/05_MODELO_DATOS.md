@@ -743,6 +743,17 @@ Usan `withoutTenantScope` y están enumeradas en el código:
 | Jobs del worker que recorren negocios  | Listan conexiones activas y luego trabajan con `withTenant` |
 | Consola de plataforma                  | Rol de base de datos con `BYPASSRLS`, solo `/platform/v1` |
 
+### 4.5. Refuerzos de la migración inicial
+
+| Refuerzo | Motivo |
+| --- | --- |
+| `negocios` también tiene RLS, con `id = app_current_tenant()` | Un negocio no ve los datos de otro ni siquiera en su propia fila |
+| `membresia_locales` referencia `(membresia_id, tenant_id)` y `(local_id, tenant_id)` | Una clave foránea no respeta RLS: sin esto, una membresía de un negocio podría apuntar a un local de otro |
+| `auditoria` solo tiene políticas de lectura e inserción | La aplicación no puede modificarla ni borrarla (`07_SEGURIDAD_AUTH.md` §10); la purga por retención usa un rol con `BYPASSRLS` |
+
+La suite `apps/api/test/aislamiento` comprueba todo esto con el rol de la aplicación,
+incluido que cada tabla con `tenant_id` tenga RLS activado y forzado.
+
 ---
 
 ## 5. Datos semilla
