@@ -3,6 +3,8 @@ import type { Metadata, Viewport } from 'next';
 import { Nunito, Nunito_Sans } from 'next/font/google';
 import type { ReactNode } from 'react';
 
+import { SesionProvider } from '@/lib/sesion';
+
 import './globals.css';
 
 const titulo = Nunito({ subsets: ['latin'], weight: ['800'], variable: '--font-titulo' });
@@ -30,7 +32,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         {/* Variables de los temas claro y noche (docs/09_DESIGN_SYSTEM.md §12). */}
         <style>{hojaDeEstilos()}</style>
       </head>
-      <body className="min-h-dvh font-sans antialiased">{children}</body>
+      <body className="min-h-dvh font-sans antialiased">
+        <SesionProvider>{children}</SesionProvider>
+      </body>
     </html>
   );
 }

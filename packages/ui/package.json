@@ -18,6 +18,10 @@
     "./tailwind-preset": {
       "types": "./dist/tailwind-preset.d.ts",
       "default": "./dist/tailwind-preset.js"
+    },
+    "./componentes": {
+      "types": "./dist/componentes/index.d.ts",
+      "default": "./dist/componentes/index.js"
     }
   },
   "dependencies": {
@@ -28,9 +32,14 @@
   "devDependencies": {
     "@resto/config-eslint": "workspace:*",
     "@resto/config-typescript": "workspace:*",
+    "@types/react": "19.1.12",
     "eslint": "9.39.5",
+    "react": "19.1.0",
     "tailwindcss": "3.4.19",
     "typescript": "5.9.3",
     "vitest": "3.2.7"
+  },
+  "peerDependencies": {
+    "react": ">=19"
   }
 }

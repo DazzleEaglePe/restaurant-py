@@ -3,7 +3,8 @@ import type { Config } from 'tailwindcss';
 
 const config = {
   presets: [restoPreset],
-  content: ['./src/**/*.{ts,tsx}'],
+  // Los componentes de @resto/ui también usan clases de Tailwind.
+  content: ['./src/**/*.{ts,tsx}', '../../packages/ui/src/**/*.{ts,tsx}'],
   theme: {
     extend: {
       fontFamily: {

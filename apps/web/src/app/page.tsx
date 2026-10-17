@@ -1,12 +1,25 @@
+'use client';
+
+import { PantallaEstado } from '@resto/ui/componentes';
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
+
+import { destinoInicial } from '@/lib/destinos';
+import { leerLocal } from '@/lib/local';
+import { useSesion } from '@/lib/sesion';
+
+/** Reparte a cada persona a su superficie según su rol. */
 export default function Inicio() {
-  return (
-    <main className="mx-auto flex min-h-dvh max-w-md flex-col justify-center gap-3 px-6">
-      <p className="font-titulo text-4xl text-brand">resto</p>
-      <h1 className="text-xl font-bold">Caja, cocina y pedidos listos en un solo sistema.</h1>
-      <p className="text-muted">
-        El ingreso y la administración llegan en el Sprint 1. Mientras tanto, esta página confirma
-        que la web está en línea.
-      </p>
-    </main>
-  );
+  const { estado } = useSesion();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (estado.tipo === 'anonima') router.replace('/ingresar');
+    if (estado.tipo === 'vencida') router.replace('/sesion-vencida');
+    if (estado.tipo === 'activa') {
+      router.replace(destinoInicial(estado.sesion, leerLocal(estado.sesion.user.id)));
+    }
+  }, [estado, router]);
+
+  return <PantallaEstado mascota="cargando" titulo="resto" mensaje="Preparando todo…" />;
 }

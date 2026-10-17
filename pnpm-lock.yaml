@@ -135,6 +135,12 @@ importers:
 
   apps/web:
     dependencies:
+      '@resto/api-client':
+        specifier: workspace:*
+        version: link:../../packages/api-client
+      '@resto/contracts':
+        specifier: workspace:*
+        version: link:../../packages/contracts
       '@resto/design-tokens':
         specifier: workspace:*
         version: link:../../packages/design-tokens
@@ -187,6 +193,28 @@ importers:
       vitest:
         specifier: 3.2.7
         version: 3.2.7(@types/node@22.20.1)(jiti@1.21.7)(supports-color@7.2.0)(tsx@4.20.5)
+
+  packages/api-client:
+    dependencies:
+      '@resto/contracts':
+        specifier: workspace:*
+        version: link:../contracts
+    devDependencies:
+      '@resto/config-eslint':
+        specifier: workspace:*
+        version: link:../config-eslint
+      '@resto/config-typescript':
+        specifier: workspace:*
+        version: link:../config-typescript
+      eslint:
+        specifier: 9.39.5
+        version: 9.39.5(jiti@2.6.1)(supports-color@7.2.0)
+      typescript:
+        specifier: 5.9.3
+        version: 5.9.3
+      vitest:
+        specifier: 3.2.7
+        version: 3.2.7(@types/node@22.20.1)(jiti@2.6.1)(supports-color@7.2.0)(tsx@4.20.5)
 
   packages/config-eslint:
     dependencies:
@@ -284,9 +312,15 @@ importers:
       '@resto/config-typescript':
         specifier: workspace:*
         version: link:../config-typescript
+      '@types/react':
+        specifier: 19.1.12
+        version: 19.1.12
       eslint:
         specifier: 9.39.5
         version: 9.39.5(jiti@2.6.1)(supports-color@7.2.0)
+      react:
+        specifier: 19.1.0
+        version: 19.1.0
       tailwindcss:
         specifier: 3.4.19
         version: 3.4.19(tsx@4.20.5)

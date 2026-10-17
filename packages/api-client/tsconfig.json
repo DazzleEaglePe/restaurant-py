@@ -1,0 +1,11 @@
+{
+  "extends": "@resto/config-typescript/library.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": "src",
+    // Corre en el navegador: fetch, Response y RequestInit.
+    "lib": ["ES2022", "DOM"]
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["dist", "node_modules", "**/*.test.ts"]
+}

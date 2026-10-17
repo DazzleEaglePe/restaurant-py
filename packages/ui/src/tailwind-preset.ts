@@ -18,6 +18,33 @@ export const restoPreset = {
       transitionTimingFunction: Object.fromEntries(
         Object.keys(curvas).map((nombre) => [nombre, `var(--ease-${nombre})`]),
       ),
+      // docs/09_DESIGN_SYSTEM.md §9.3 y §9.4. Se usan con `motion-safe:` para
+      // respetar «reducir movimiento».
+      keyframes: {
+        entrada: {
+          from: { opacity: '0', transform: 'translateY(8px)' },
+          to: { opacity: '1', transform: 'translateY(0)' },
+        },
+        sacudida: {
+          '0%, 100%': { transform: 'translateX(0)' },
+          '25%': { transform: 'translateX(-6px)' },
+          '75%': { transform: 'translateX(6px)' },
+        },
+        flotar: {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(-6px)' },
+        },
+        latido: {
+          '0%, 100%': { opacity: '1' },
+          '50%': { opacity: '0.35' },
+        },
+      },
+      animation: {
+        entrada: 'entrada var(--motion-base) var(--ease-enter) both',
+        sacudida: 'sacudida 300ms var(--ease-standard)',
+        flotar: 'flotar 1.6s var(--ease-standard) infinite',
+        latido: 'latido 1.2s var(--ease-standard) infinite',
+      },
     },
   },
 } satisfies Config;
