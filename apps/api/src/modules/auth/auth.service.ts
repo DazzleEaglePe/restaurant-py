@@ -1,15 +1,21 @@
 import { randomUUID } from 'node:crypto';
 
 import { HttpStatus, Inject, Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import type { MeResponse, SesionResponse } from '@resto/contracts';
 
+import type { Environment } from '../../config/env.schema';
+import { CorreoService } from '../../infrastructure/correo/correo.service';
 import { hashearContrasena, verificarContrasena } from '../../infrastructure/crypto/contrasenas';
 import { generarTokenOpaco, hashearTokenOpaco } from '../../infrastructure/crypto/tokens-opacos';
 import { PrismaService, type ScopedClient } from '../../infrastructure/database/prisma.service';
 import { operaEnTodosLosLocales } from '../../shared/decorators/roles.decorator';
 import type { Sesion } from '../../shared/decorators/sesion.decorator';
 import { ApiError, noAutenticado } from '../../shared/errors/api-error';
+import { correoRecuperacion } from '../correos/plantillas';
+import { validarContrasenaNueva } from './politica-contrasenas';
 import { TokensAccesoService, VIGENCIA_ACCESS_TOKEN_S } from './tokens-acceso.service';
+import { canjearTokenUnUso, crearTokenUnUso } from './tokens-un-uso';
 
 /** docs/07_SEGURIDAD_AUTH.md §2.2 y §2.3. */
 export const VIGENCIA_REFRESH_MS = 30 * 24 * 60 * 60 * 1000;
@@ -26,6 +32,13 @@ const verificarSenuelo = async (password: string) => {
 };
 
 const credencialesInvalidas = () => noAutenticado('Correo o contraseña incorrectos.');
+
+const enlaceInvalido = () =>
+  new ApiError(
+    HttpStatus.BAD_REQUEST,
+    'ENLACE_INVALIDO',
+    'El enlace venció o ya se usó. Pide uno nuevo.',
+  );
 
 export type ResultadoSesion = { respuesta: SesionResponse; refreshToken: string };
 
@@ -47,6 +60,8 @@ export class AuthService {
   constructor(
     @Inject(PrismaService) private readonly prisma: PrismaService,
     @Inject(TokensAccesoService) private readonly tokens: TokensAccesoService,
+    @Inject(CorreoService) private readonly correo: CorreoService,
+    @Inject(ConfigService) private readonly config: ConfigService<Environment, true>,
   ) {}
 
   /** RF-AUTH-001 y RF-AUTH-005. */
@@ -79,32 +94,64 @@ export class AuthService {
       throw credencialesInvalidas();
     }
 
+    return this.prisma.withoutTenantScope((tx) => this.abrirSesion(tx, usuario.id));
+  }
+
+  /**
+   * RF-AUTH-006: el invitado define su contraseña y entra. Si algo falla, la
+   * transacción se deshace y el enlace sigue sirviendo.
+   */
+  async aceptarInvitacion(token: string, password: string): Promise<ResultadoSesion> {
+    validarContrasenaNueva(password);
+    const passwordHash = await hashearContrasena(password);
     return this.prisma.withoutTenantScope(async (tx) => {
+      const usuarioId = await canjearTokenUnUso(tx, token, 'INVITACION');
+      if (!usuarioId) throw enlaceInvalido();
+      const usuario = await tx.usuario.findUniqueOrThrow({ where: { id: usuarioId } });
+      validarContrasenaNueva(password, usuario.email);
+      await tx.usuario.update({ where: { id: usuarioId }, data: { passwordHash } });
+      return this.abrirSesion(tx, usuarioId);
+    });
+  }
+
+  /**
+   * RF-AUTH-004: si la cuenta existe y está activa, envía un enlace de 60 min. La
+   * respuesta es la misma exista o no, para no revelar qué correos están registrados.
+   */
+  async olvideContrasena(email: string): Promise<void> {
+    const pedido = await this.prisma.withoutTenantScope(async (tx) => {
+      const usuario = await tx.usuario.findUnique({ where: { email } });
+      if (!usuario?.passwordHash) return null;
+      return { usuario, token: await crearTokenUnUso(tx, usuario.id, 'RECUPERACION') };
+    });
+    if (!pedido) return;
+    this.correo.enviarSinEsperar(
+      correoRecuperacion({
+        para: pedido.usuario.email,
+        nombre: pedido.usuario.nombre,
+        enlace: `${this.config.get('WEB_URL', { infer: true })}/recuperar?token=${pedido.token}`,
+      }),
+    );
+  }
+
+  /** Define la contraseña nueva, levanta el bloqueo y cierra todas las sesiones. */
+  async restablecerContrasena(token: string, password: string): Promise<void> {
+    validarContrasenaNueva(password);
+    const passwordHash = await hashearContrasena(password);
+    await this.prisma.withoutTenantScope(async (tx) => {
+      const usuarioId = await canjearTokenUnUso(tx, token, 'RECUPERACION');
+      if (!usuarioId) throw enlaceInvalido();
+      const usuario = await tx.usuario.findUniqueOrThrow({ where: { id: usuarioId } });
+      validarContrasenaNueva(password, usuario.email);
       await tx.usuario.update({
-        where: { id: usuario.id },
-        data: { intentosFallidos: 0, bloqueadoHasta: null },
+        where: { id: usuarioId },
+        data: { passwordHash, intentosFallidos: 0, bloqueadoHasta: null },
       });
-      // Con varios negocios entra al más antiguo; `switch-tenant` (#8) cambia de negocio.
-      const primera = await tx.membresia.findFirst({
-        where: { usuarioId: usuario.id, activa: true, negocio: { estado: 'ACTIVO' } },
-        orderBy: { createdAt: 'asc' },
-        select: { tenantId: true },
+      // Si alguien más conocía la contraseña anterior, sus sesiones se cierran.
+      await tx.refreshToken.updateMany({
+        where: { usuarioId, revocadoAt: null },
+        data: { revocadoAt: new Date() },
       });
-      const membresia = primera && (await buscarMembresia(tx, usuario.id, primera.tenantId));
-      if (!membresia) {
-        throw new ApiError(
-          HttpStatus.FORBIDDEN,
-          'FORBIDDEN',
-          'Tu usuario no tiene acceso a ningún negocio activo.',
-        );
-      }
-      const refreshToken = await this.crearRefreshToken(
-        tx,
-        usuario.id,
-        membresia.tenantId,
-        randomUUID(),
-      );
-      return { respuesta: await this.sesionConToken(tx, membresia), refreshToken };
     });
   }
 
@@ -202,6 +249,34 @@ export class AuthService {
       if (!membresia?.activa || membresia.negocio.estado !== 'ACTIVO') throw noAutenticado();
       return this.describirSesion(tx, membresia);
     });
+  }
+
+  /** Abre una sesión en el negocio más antiguo del usuario; `switch-tenant` cambia a otro. */
+  private async abrirSesion(tx: ScopedClient, usuarioId: string): Promise<ResultadoSesion> {
+    await tx.usuario.update({
+      where: { id: usuarioId },
+      data: { intentosFallidos: 0, bloqueadoHasta: null },
+    });
+    const primera = await tx.membresia.findFirst({
+      where: { usuarioId, activa: true, negocio: { estado: 'ACTIVO' } },
+      orderBy: { createdAt: 'asc' },
+      select: { tenantId: true },
+    });
+    const membresia = primera && (await buscarMembresia(tx, usuarioId, primera.tenantId));
+    if (!membresia) {
+      throw new ApiError(
+        HttpStatus.FORBIDDEN,
+        'FORBIDDEN',
+        'Tu usuario no tiene acceso a ningún negocio activo.',
+      );
+    }
+    const refreshToken = await this.crearRefreshToken(
+      tx,
+      usuarioId,
+      membresia.tenantId,
+      randomUUID(),
+    );
+    return { respuesta: await this.sesionConToken(tx, membresia), refreshToken };
   }
 
   private async registrarIntentoFallido(usuarioId: string, ahora: Date): Promise<void> {

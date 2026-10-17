@@ -13,10 +13,16 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { Throttle, ThrottlerGuard } from '@nestjs/throttler';
 import {
+  aceptarInvitacionSchema,
   cambiarNegocioSchema,
   loginRequestSchema,
+  olvideContrasenaSchema,
+  restablecerContrasenaSchema,
+  type AceptarInvitacion,
   type CambiarNegocio,
   type LoginRequest,
+  type OlvideContrasena,
+  type RestablecerContrasena,
   type MeResponse,
   type SesionResponse,
 } from '@resto/contracts';
@@ -74,6 +80,47 @@ export class AuthController {
       this.borrarCookie(res);
       throw error;
     }
+  }
+
+  /** RF-AUTH-006: activa la cuenta invitada y deja la sesión abierta. */
+  @Publico()
+  @Post('auth/invitations/accept')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(ThrottlerGuard)
+  @Throttle({ default: { limit: 10, ttl: 60_000 } })
+  async aceptarInvitacion(
+    @Body(new ZodValidationPipe(aceptarInvitacionSchema)) cuerpo: AceptarInvitacion,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<SesionResponse> {
+    const { respuesta, refreshToken } = await this.auth.aceptarInvitacion(
+      cuerpo.token,
+      cuerpo.password,
+    );
+    this.ponerCookie(res, refreshToken);
+    return respuesta;
+  }
+
+  /** RF-AUTH-004. Responde 202 exista o no la cuenta. */
+  @Publico()
+  @Post('auth/password/forgot')
+  @HttpCode(HttpStatus.ACCEPTED)
+  @UseGuards(ThrottlerGuard)
+  @Throttle({ default: { limit: 5, ttl: 60_000 } })
+  async olvideContrasena(
+    @Body(new ZodValidationPipe(olvideContrasenaSchema)) cuerpo: OlvideContrasena,
+  ): Promise<void> {
+    await this.auth.olvideContrasena(cuerpo.email);
+  }
+
+  @Publico()
+  @Post('auth/password/reset')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @UseGuards(ThrottlerGuard)
+  @Throttle({ default: { limit: 10, ttl: 60_000 } })
+  async restablecerContrasena(
+    @Body(new ZodValidationPipe(restablecerContrasenaSchema)) cuerpo: RestablecerContrasena,
+  ): Promise<void> {
+    await this.auth.restablecerContrasena(cuerpo.token, cuerpo.password);
   }
 
   @Publico()

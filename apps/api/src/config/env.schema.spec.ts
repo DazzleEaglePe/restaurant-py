@@ -9,6 +9,8 @@ describe('validateEnvironment', () => {
       PORT: 4001,
       WEB_URL: 'http://localhost:4000',
       DATABASE_URL: 'postgresql://resto_app:resto_app_dev@localhost:5433/resto',
+      SMTP_URL: 'smtp://localhost:1026',
+      MAIL_FROM: 'resto <no-responder@resto.test>',
       APP_RELEASE: 'dev',
     });
   });
