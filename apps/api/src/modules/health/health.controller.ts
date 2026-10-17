@@ -5,7 +5,9 @@ import type { Response } from 'express';
 
 import type { Environment } from '../../config/env.schema';
 import { PrismaService } from '../../infrastructure/database/prisma.service';
+import { Publico } from '../../shared/decorators/publico.decorator';
 
+@Publico()
 @Controller('health')
 export class HealthController {
   constructor(
