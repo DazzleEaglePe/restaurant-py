@@ -820,6 +820,16 @@ El servidor une la conexión a sus salas según el token (ver
 | `POST`  | `/platform/v1/negocios/{id}/reactivar`     | Reactiva                                     |
 | `POST`  | `/platform/v1/negocios/{id}/suscripciones` | Registra un período pagado                   |
 
+Implementado en el Sprint 1: ingreso, lista, alta, suspender y reactivar. Las
+suscripciones y el estado de Yallegó por negocio llegan en el Sprint 8.
+
+- `POST /platform/v1/auth/login`: `{ email, password, totp }` → `{ access_token, expires_in: 1800, admin }`.
+  No hay renovación: a los 30 minutos se vuelve a ingresar. Límite: 5 por minuto por IP.
+- `POST /platform/v1/negocios`: `{ nombre_comercial, local_inicial, owner: { email, nombre } }`.
+  Crea el negocio, su primer local y la invitación al OWNER en una transacción; `201`.
+- `suspender` y `reactivar` responden `204`. Suspender cierra todas las sesiones del negocio.
+- Toda acción queda en la auditoría del negocio con `actor_tipo = 'PLATAFORMA'`.
+
 ---
 
 ## 20. Llamadas salientes a Yallegó
