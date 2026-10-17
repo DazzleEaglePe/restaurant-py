@@ -11,6 +11,8 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@resto/api-client": "workspace:*",
+    "@resto/contracts": "workspace:*",
     "@resto/design-tokens": "workspace:*",
     "@resto/ui": "workspace:*",
     "next": "15.5.27",
