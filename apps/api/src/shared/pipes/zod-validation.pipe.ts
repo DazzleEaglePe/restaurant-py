@@ -11,7 +11,7 @@ export class ZodValidationPipe<T> implements PipeTransform<unknown, T> {
     const resultado = this.schema.safeParse(value);
     if (resultado.success) return resultado.data;
 
-    throw new ApiError(HttpStatus.BAD_REQUEST, 'VALIDATION_ERROR', 'La solicitud no es válida.', {
+    throw new ApiError(HttpStatus.BAD_REQUEST, 'VALIDATION_ERROR', 'Revisa los datos marcados.', {
       campos: resultado.error.issues.map((issue) => ({
         campo: issue.path.join('.'),
         mensaje: issue.message,

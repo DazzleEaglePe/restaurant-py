@@ -38,12 +38,17 @@ export const restoPreset = {
           '0%, 100%': { opacity: '1' },
           '50%': { opacity: '0.35' },
         },
+        dialogo: {
+          from: { opacity: '0', transform: 'scale(0.96)' },
+          to: { opacity: '1', transform: 'scale(1)' },
+        },
       },
       animation: {
         entrada: 'entrada var(--motion-base) var(--ease-enter) both',
         sacudida: 'sacudida 300ms var(--ease-standard)',
         flotar: 'flotar 1.6s var(--ease-standard) infinite',
         latido: 'latido 1.2s var(--ease-standard) infinite',
+        dialogo: 'dialogo var(--motion-slow) var(--ease-enter) both',
       },
     },
   },

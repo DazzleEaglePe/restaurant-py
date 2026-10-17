@@ -1,6 +1,10 @@
 export { Aviso } from './aviso.js';
 export { Boton } from './boton.js';
 export { Campo } from './campo.js';
+export { Casilla } from './casilla.js';
+export { Dialogo } from './dialogo.js';
+export { Insignia } from './insignia.js';
 export { type EstadoMascota, Mascota } from './mascota.js';
 export { PantallaEstado } from './pantalla-estado.js';
+export { Selector } from './selector.js';
 export { Tarjeta } from './tarjeta.js';

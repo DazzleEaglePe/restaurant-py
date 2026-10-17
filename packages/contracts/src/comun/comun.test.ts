@@ -27,6 +27,14 @@ describe('healthResponseSchema', () => {
   });
 });
 
+describe('mensajes de validación', () => {
+  it('están en español', async () => {
+    await import('../index.js');
+    const resultado = montoSchema.safeParse(25);
+    expect(resultado.error?.issues[0]?.message).toMatch(/^Entrada inválida/);
+  });
+});
+
 describe('montoSchema', () => {
   it.each(['0.00', '25.00', '12345678.99'])('acepta %s', (monto) => {
     expect(montoSchema.safeParse(monto).success).toBe(true);
