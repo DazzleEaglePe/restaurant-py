@@ -1,15 +1,24 @@
 import { HttpStatus, Inject, Injectable } from '@nestjs/common';
-import type { EditarMiembro, Miembro, RolUsuario } from '@resto/contracts';
+import { ConfigService } from '@nestjs/config';
+import { Prisma } from '@prisma/client';
+import type { EditarMiembro, InvitarMiembro, Miembro, RolUsuario } from '@resto/contracts';
 
+import type { Environment } from '../../config/env.schema';
+import { CorreoService, type Correo } from '../../infrastructure/correo/correo.service';
 import { PrismaService, type ScopedClient } from '../../infrastructure/database/prisma.service';
 import { operaEnTodosLosLocales } from '../../shared/decorators/roles.decorator';
 import type { Sesion } from '../../shared/decorators/sesion.decorator';
 import { ApiError } from '../../shared/errors/api-error';
 import { AuditoriaService } from '../auditoria/auditoria.service';
+import { crearTokenUnUso } from '../auth/tokens-un-uso';
+import { correoAgregado, correoInvitacion } from '../correos/plantillas';
 
 const ORDEN_ROLES: Record<RolUsuario, number> = { OWNER: 0, ADMIN: 1, CAJERO: 2, MESERO: 3 };
 
 const prohibido = (message: string) => new ApiError(HttpStatus.FORBIDDEN, 'FORBIDDEN', message);
+
+const yaEsMiembro = () =>
+  new ApiError(HttpStatus.CONFLICT, 'YA_ES_MIEMBRO', 'Esa persona ya es parte del equipo.');
 
 function buscarMiembro(tx: ScopedClient, usuarioId: string) {
   return tx.membresia.findFirst({
@@ -40,7 +49,130 @@ export class UsuariosService {
   constructor(
     @Inject(PrismaService) private readonly prisma: PrismaService,
     @Inject(AuditoriaService) private readonly auditoria: AuditoriaService,
+    @Inject(CorreoService) private readonly correo: CorreoService,
+    @Inject(ConfigService) private readonly config: ConfigService<Environment, true>,
   ) {}
+
+  /**
+   * `POST /v1/usuarios/invitaciones`. Una cuenta nueva recibe un enlace de 72 h
+   * para crear su contraseña; una cuenta que ya existe en otro negocio queda
+   * agregada y recibe un aviso. El correo sale después de confirmar la transacción.
+   */
+  async invitar(sesion: Sesion, datos: InvitarMiembro): Promise<Miembro> {
+    if (datos.rol === 'OWNER' && sesion.rol !== 'OWNER') {
+      throw prohibido('Solo un dueño puede nombrar a otro dueño.');
+    }
+    const localIds = operaEnTodosLosLocales(datos.rol) ? [] : [...new Set(datos.local_ids)];
+    const webUrl = this.config.get('WEB_URL', { infer: true });
+
+    const { miembro, correo } = await this.prisma
+      .withTenant(sesion.tenantId, async (tx) => {
+        await this.validarLocales(tx, datos.rol, localIds);
+        const negocio = await tx.negocio.findUniqueOrThrow({ where: { id: sesion.tenantId } });
+
+        // `usuarios` no tiene tenant_id: una persona puede estar en varios negocios.
+        const existente = await tx.usuario.findUnique({ where: { email: datos.email } });
+        if (existente) {
+          const yaEsta = await tx.membresia.count({ where: { usuarioId: existente.id } });
+          if (yaEsta) throw yaEsMiembro();
+        }
+        const usuario =
+          existente ??
+          (await tx.usuario.create({ data: { email: datos.email, nombre: datos.nombre } }));
+
+        const membresia = await tx.membresia.create({
+          data: { tenantId: sesion.tenantId, usuarioId: usuario.id, rol: datos.rol },
+        });
+        await tx.membresiaLocal.createMany({
+          data: localIds.map((localId) => ({
+            membresiaId: membresia.id,
+            localId,
+            tenantId: sesion.tenantId,
+          })),
+        });
+
+        let correo: Correo;
+        if (usuario.passwordHash) {
+          correo = correoAgregado({
+            para: usuario.email,
+            nombre: usuario.nombre,
+            negocio: negocio.nombreComercial,
+            enlace: `${webUrl}/ingresar`,
+          });
+        } else {
+          const token = await crearTokenUnUso(tx, usuario.id, 'INVITACION');
+          correo = correoInvitacion({
+            para: usuario.email,
+            nombre: usuario.nombre,
+            negocio: negocio.nombreComercial,
+            enlace: `${webUrl}/activar?token=${token}`,
+          });
+        }
+
+        await this.auditoria.registrar(tx, {
+          tenantId: sesion.tenantId,
+          accion: 'usuarios.invitado',
+          actorTipo: 'USUARIO',
+          actorId: sesion.usuarioId,
+          recursoTipo: 'usuario',
+          recursoId: usuario.id,
+          datos: { rol: datos.rol, locales: localIds, cuenta_existente: Boolean(existente) },
+        });
+        return { miembro: aMiembro((await buscarMiembro(tx, usuario.id))!), correo };
+      })
+      .catch((error: unknown) => {
+        // Dos invitaciones simultáneas al mismo correo: la segunda choca con el único.
+        if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+          throw yaEsMiembro();
+        }
+        throw error;
+      });
+
+    this.correo.enviarSinEsperar(correo);
+    return miembro;
+  }
+
+  /** `POST /v1/usuarios/{id}/invitacion`: un enlace nuevo; el anterior deja de servir. */
+  async reenviarInvitacion(sesion: Sesion, usuarioId: string): Promise<void> {
+    const webUrl = this.config.get('WEB_URL', { infer: true });
+    const correo = await this.prisma.withTenant(sesion.tenantId, async (tx) => {
+      const membresia = await buscarMiembro(tx, usuarioId);
+      if (!membresia) {
+        throw new ApiError(
+          HttpStatus.NOT_FOUND,
+          'NOT_FOUND',
+          'Esa persona no es parte del equipo.',
+        );
+      }
+      if (membresia.rol === 'OWNER' && sesion.rol !== 'OWNER') {
+        throw prohibido('Solo un dueño puede invitar a otro dueño.');
+      }
+      if (membresia.usuario.passwordHash) {
+        throw new ApiError(
+          HttpStatus.CONFLICT,
+          'INVITACION_YA_ACEPTADA',
+          'Esa persona ya activó su cuenta.',
+        );
+      }
+      const negocio = await tx.negocio.findUniqueOrThrow({ where: { id: sesion.tenantId } });
+      const token = await crearTokenUnUso(tx, usuarioId, 'INVITACION');
+      await this.auditoria.registrar(tx, {
+        tenantId: sesion.tenantId,
+        accion: 'usuarios.invitacion_reenviada',
+        actorTipo: 'USUARIO',
+        actorId: sesion.usuarioId,
+        recursoTipo: 'usuario',
+        recursoId: usuarioId,
+      });
+      return correoInvitacion({
+        para: membresia.usuario.email,
+        nombre: membresia.usuario.nombre,
+        negocio: negocio.nombreComercial,
+        enlace: `${webUrl}/activar?token=${token}`,
+      });
+    });
+    this.correo.enviarSinEsperar(correo);
+  }
 
   listar(sesion: Sesion): Promise<Miembro[]> {
     return this.prisma.withTenant(sesion.tenantId, async (tx) => {

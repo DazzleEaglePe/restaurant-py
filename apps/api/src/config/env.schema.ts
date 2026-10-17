@@ -16,6 +16,9 @@ export const envSchema = z
     // Rol resto_app, sujeto a RLS. Las migraciones usan DIRECT_DATABASE_URL
     // (prisma.config.ts).
     DATABASE_URL: z.string().default('postgresql://resto_app:resto_app_dev@localhost:5433/resto'),
+    // Correo: Mailpit en local (buzón en http://localhost:8026).
+    SMTP_URL: z.string().default('smtp://localhost:1026'),
+    MAIL_FROM: z.string().default('resto <no-responder@resto.test>'),
     // Par RSA de los access tokens (RS256), en PEM; `generate-keys.sh` los crea.
     JWT_PRIVATE_KEY: textoOpcional,
     JWT_PUBLIC_KEY: textoOpcional,

@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 
 import { validateEnvironment } from './config/env.schema';
+import { CorreoModule } from './infrastructure/correo/correo.module';
 import { DatabaseModule } from './infrastructure/database/database.module';
 import { AuditoriaModule } from './modules/auditoria/auditoria.module';
 import { AuthModule } from './modules/auth/auth.module';
@@ -18,6 +19,7 @@ import { UsuariosModule } from './modules/usuarios/usuarios.module';
       validate: validateEnvironment,
     }),
     DatabaseModule,
+    CorreoModule,
     AuditoriaModule,
     AuthModule,
     HealthModule,
