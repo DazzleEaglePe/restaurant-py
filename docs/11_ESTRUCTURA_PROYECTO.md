@@ -162,6 +162,9 @@ apps/web/
     │   ├── (salon)/salon/        # Mesera: pedidos para mesa
     │   ├── (cocina)/cocina/      # Pantalla completa horizontal
     │   ├── (pantalla)/pantalla/  # Pantalla pública
+    │   ├── elegir-local/         # Quien opera en varios locales elige el de hoy
+    │   ├── sin-local/            # Cajera o mesera todavía sin local asignado
+    │   ├── sesion-vencida/       # «Tu sesión terminó» (09 §15)
     │   ├── vincular/             # La pantalla muestra su código y QR y espera la aprobación
     │   └── (admin)/admin/        # Escritorio
     ├── features/
@@ -241,6 +244,10 @@ Candidato a convertirse en el SDK oficial de Node de Yallegó.
 
 Cliente HTTP con renovación automática del access token, `Idempotency-Key` y
 cliente de Socket.io con reconexión y resincronización.
+
+El access token vive solo en memoria. Ante un `401`, el cliente renueva una única vez
+aunque haya varias solicitudes en vuelo: dos renovaciones con la misma cookie
+revocarían la sesión por reutilización (RF-AUTH-002).
 
 ### 6.5. `packages/design-tokens` y `packages/ui`
 
