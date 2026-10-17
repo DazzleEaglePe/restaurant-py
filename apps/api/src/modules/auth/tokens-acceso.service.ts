@@ -10,6 +10,12 @@ import type { Sesion } from '../../shared/decorators/sesion.decorator';
 
 /** docs/07_SEGURIDAD_AUTH.md §2.2: 15 minutos. */
 export const VIGENCIA_ACCESS_TOKEN_S = 15 * 60;
+/** Sesión de la consola de plataforma: sin renovación, se vuelve a ingresar. */
+export const VIGENCIA_TOKEN_PLATAFORMA_S = 30 * 60;
+
+/** Audiencias distintas: un token de negocio no abre la consola, ni al revés. */
+const AUDIENCIA_NEGOCIO = 'resto';
+const AUDIENCIA_PLATAFORMA = 'resto-plataforma';
 
 /** Los archivos .env guardan el PEM en una línea, con `\n` escritos. */
 const pem = (valor: string) => valor.replace(/\\n/g, '\n');
@@ -44,8 +50,29 @@ export class TokensAccesoService {
     return jwt.sign(
       { sub: sesion.usuarioId, tid: sesion.tenantId, rol: sesion.rol, loc: sesion.locales },
       this.clavePrivada,
-      { algorithm: 'RS256', expiresIn: VIGENCIA_ACCESS_TOKEN_S },
+      { algorithm: 'RS256', expiresIn: VIGENCIA_ACCESS_TOKEN_S, audience: AUDIENCIA_NEGOCIO },
     );
+  }
+
+  firmarPlataforma(adminId: string): string {
+    return jwt.sign({ sub: adminId }, this.clavePrivada, {
+      algorithm: 'RS256',
+      expiresIn: VIGENCIA_TOKEN_PLATAFORMA_S,
+      audience: AUDIENCIA_PLATAFORMA,
+    });
+  }
+
+  /** Devuelve el id del administrador de plataforma, o `null`. */
+  verificarPlataforma(token: string): string | null {
+    try {
+      const claims = jwt.verify(token, this.clavePublica, {
+        algorithms: ['RS256'],
+        audience: AUDIENCIA_PLATAFORMA,
+      });
+      return typeof claims === 'object' && typeof claims.sub === 'string' ? claims.sub : null;
+    } catch {
+      return null;
+    }
   }
 
   /** Devuelve la sesión del token, o `null` si es inválido, vencido o mal formado. */
@@ -53,7 +80,10 @@ export class TokensAccesoService {
     let claims: AccessTokenClaims;
     try {
       claims = accessTokenClaimsSchema.parse(
-        jwt.verify(token, this.clavePublica, { algorithms: ['RS256'] }),
+        jwt.verify(token, this.clavePublica, {
+          algorithms: ['RS256'],
+          audience: AUDIENCIA_NEGOCIO,
+        }),
       );
     } catch {
       return null;

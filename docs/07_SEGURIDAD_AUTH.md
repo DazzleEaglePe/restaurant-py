@@ -246,8 +246,16 @@ La tabla no tiene `UPDATE` ni `DELETE` permitidos para el rol de la aplicación.
 
 ## 11. Administración de plataforma
 
-- Usuarios aparte (`administradores_plataforma`), con TOTP obligatorio.
-- Acceso solo desde las IPs permitidas de la VPN del equipo.
+- Usuarios aparte (`administradores_plataforma`), con TOTP obligatorio (RFC 6238:
+  SHA-1, 30 s, 6 dígitos, ±1 paso). El secreto se guarda cifrado con AES-256-GCM.
+  La tabla tiene RLS sin políticas: la aplicación no la ve.
+- Se crean con `pnpm --filter @resto/api plataforma:crear-admin`; la contraseña va
+  en `PLATAFORMA_PASSWORD` y el secreto TOTP se muestra una sola vez.
+- Acceso solo desde las IPs permitidas de la VPN del equipo (`PLATAFORMA_IPS`, IPs o
+  subredes CIDR). Sin lista, en desarrollo se permite todo y en producción, nada.
+  Detrás de un proxy, `TRUST_PROXY` indica de quién aceptar `X-Forwarded-For`.
+- El token de plataforma tiene otra audiencia (`resto-plataforma`): no sirve en la
+  API de los negocios, ni el de un negocio en la consola.
 - Rol de base de datos con `BYPASSRLS` usado exclusivamente en `/platform/v1`.
 - Toda acción de plataforma queda en auditoría del negocio afectado con
   `actor_tipo = 'PLATAFORMA'`.

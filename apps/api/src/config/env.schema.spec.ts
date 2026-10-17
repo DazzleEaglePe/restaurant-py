@@ -9,6 +9,9 @@ describe('validateEnvironment', () => {
       PORT: 4001,
       WEB_URL: 'http://localhost:4000',
       DATABASE_URL: 'postgresql://resto_app:resto_app_dev@localhost:5433/resto',
+      DATABASE_PLATFORM_URL:
+        'postgresql://resto_plataforma:resto_plataforma_dev@localhost:5433/resto',
+      PLATAFORMA_IPS: [],
       SMTP_URL: 'smtp://localhost:1026',
       MAIL_FROM: 'resto <no-responder@resto.test>',
       APP_RELEASE: 'dev',
@@ -25,8 +28,19 @@ describe('validateEnvironment', () => {
   it('en producción exige las claves JWT', () => {
     expect(() => validateEnvironment({ NODE_ENV: 'production' })).toThrow(/JWT_PRIVATE_KEY/);
     expect(() =>
-      validateEnvironment({ NODE_ENV: 'production', JWT_PRIVATE_KEY: 'a', JWT_PUBLIC_KEY: 'b' }),
+      validateEnvironment({
+        NODE_ENV: 'production',
+        JWT_PRIVATE_KEY: 'a',
+        JWT_PUBLIC_KEY: 'b',
+        ENCRYPTION_KEY: 'c',
+      }),
     ).not.toThrow();
+  });
+
+  it('lee PLATAFORMA_IPS separadas por coma', () => {
+    expect(
+      validateEnvironment({ PLATAFORMA_IPS: '10.8.0.0/24, 190.12.3.4' }).PLATAFORMA_IPS,
+    ).toEqual(['10.8.0.0/24', '190.12.3.4']);
   });
 
   it('explica qué variable es inválida', () => {

@@ -56,6 +56,16 @@ describe('TokensAccesoService', () => {
     expect(servicio.verificar(`${cabecera}.${otroNegocio}.${firma}`)).toBeNull();
   });
 
+  it('un token de plataforma no sirve como token de negocio, ni al revés', () => {
+    const servicio = new TokensAccesoService(sinClaves);
+    const deNegocio = servicio.firmar(sesion);
+    const dePlataforma = servicio.firmarPlataforma(sesion.usuarioId);
+
+    expect(servicio.verificarPlataforma(dePlataforma)).toBe(sesion.usuarioId);
+    expect(servicio.verificar(dePlataforma)).toBeNull();
+    expect(servicio.verificarPlataforma(deNegocio)).toBeNull();
+  });
+
   it('rechaza un token firmado con otra clave', () => {
     const token = new TokensAccesoService(sinClaves).firmar(sesion);
 
