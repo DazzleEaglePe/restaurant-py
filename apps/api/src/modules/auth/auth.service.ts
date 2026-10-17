@@ -1,11 +1,12 @@
 import { randomUUID } from 'node:crypto';
 
 import { HttpStatus, Inject, Injectable } from '@nestjs/common';
-import type { MeResponse, RolUsuario, SesionResponse } from '@resto/contracts';
+import type { MeResponse, SesionResponse } from '@resto/contracts';
 
 import { hashearContrasena, verificarContrasena } from '../../infrastructure/crypto/contrasenas';
 import { generarTokenOpaco, hashearTokenOpaco } from '../../infrastructure/crypto/tokens-opacos';
 import { PrismaService, type ScopedClient } from '../../infrastructure/database/prisma.service';
+import { operaEnTodosLosLocales } from '../../shared/decorators/roles.decorator';
 import type { Sesion } from '../../shared/decorators/sesion.decorator';
 import { ApiError, noAutenticado } from '../../shared/errors/api-error';
 import { TokensAccesoService, VIGENCIA_ACCESS_TOKEN_S } from './tokens-acceso.service';
@@ -14,8 +15,6 @@ import { TokensAccesoService, VIGENCIA_ACCESS_TOKEN_S } from './tokens-acceso.se
 export const VIGENCIA_REFRESH_MS = 30 * 24 * 60 * 60 * 1000;
 export const INTENTOS_MAXIMOS = 5;
 export const BLOQUEO_MS = 15 * 60 * 1000;
-
-const ROLES_TODOS_LOS_LOCALES: ReadonlySet<RolUsuario> = new Set(['OWNER', 'ADMIN']);
 
 /** Hash señuelo: si el correo no existe se verifica contra él, para que el tiempo
  * de respuesta no revele qué correos están registrados. */
@@ -169,6 +168,33 @@ export class AuthService {
     });
   }
 
+  /**
+   * `POST /v1/auth/switch-tenant`: cierra la sesión actual y abre una en el otro
+   * negocio, que debe estar activo y tener al usuario como miembro activo.
+   */
+  async cambiarNegocio(
+    sesion: Sesion,
+    refreshToken: string,
+    tenantId: string,
+  ): Promise<ResultadoSesion> {
+    // Recorre dos negocios a la vez: excepción de docs/05_MODELO_DATOS.md §4.4.
+    return this.prisma.withoutTenantScope(async (tx) => {
+      const actual = await tx.refreshToken.findUnique({
+        where: { tokenHash: hashearTokenOpaco(refreshToken) },
+      });
+      if (!actual || actual.usuarioId !== sesion.usuarioId || actual.revocadoAt || actual.usadoAt) {
+        throw noAutenticado('Tu sesión venció. Ingresa de nuevo.');
+      }
+      const membresia = await buscarMembresia(tx, sesion.usuarioId, tenantId);
+      if (!membresia?.activa || membresia.negocio.estado !== 'ACTIVO') {
+        throw new ApiError(HttpStatus.FORBIDDEN, 'FORBIDDEN', 'No tienes acceso a ese negocio.');
+      }
+      await this.revocarFamilia(tx, actual.familiaId, new Date());
+      const nuevo = await this.crearRefreshToken(tx, sesion.usuarioId, tenantId, randomUUID());
+      return { respuesta: await this.sesionConToken(tx, membresia), refreshToken: nuevo };
+    });
+  }
+
   /** `GET /v1/me`: el negocio sale del token y RLS limita la consulta a él. */
   async yo(sesion: Sesion): Promise<MeResponse> {
     return this.prisma.withTenant(sesion.tenantId, async (tx) => {
@@ -224,7 +250,7 @@ export class AuthService {
     tx: ScopedClient,
     membresia: MembresiaConDatos,
   ): Promise<MeResponse> {
-    const locales = ROLES_TODOS_LOS_LOCALES.has(membresia.rol)
+    const locales = operaEnTodosLosLocales(membresia.rol)
       ? await tx.local.findMany({
           // El filtro por negocio es explícito: en el ingreso no hay contexto de RLS.
           where: { tenantId: membresia.tenantId, activo: true },
@@ -257,7 +283,7 @@ export class AuthService {
       tenantId: datos.tenant.id,
       rol: datos.rol,
       // docs/07 §2.1: vacío significa «todos los locales».
-      locales: ROLES_TODOS_LOS_LOCALES.has(datos.rol) ? [] : datos.locales.map((l) => l.id),
+      locales: operaEnTodosLosLocales(datos.rol) ? [] : datos.locales.map((l) => l.id),
     });
     return { ...datos, access_token: accessToken, expires_in: VIGENCIA_ACCESS_TOKEN_S };
   }

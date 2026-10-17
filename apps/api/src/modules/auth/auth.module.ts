@@ -3,6 +3,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { ThrottlerModule } from '@nestjs/throttler';
 
 import { AutenticacionGuard } from '../../shared/guards/autenticacion.guard';
+import { RolesGuard } from '../../shared/guards/roles.guard';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { TokensAccesoService } from './tokens-acceso.service';
@@ -16,8 +17,10 @@ import { TokensAccesoService } from './tokens-acceso.service';
   providers: [
     AuthService,
     TokensAccesoService,
-    // Toda ruta exige sesión salvo las marcadas con @Publico().
+    // Toda ruta exige sesión salvo las marcadas con @Publico(); después se
+    // aplican los roles de @Roles(). El orden de registro es el de ejecución.
     { provide: APP_GUARD, useClass: AutenticacionGuard },
+    { provide: APP_GUARD, useClass: RolesGuard },
   ],
   exports: [TokensAccesoService],
 })

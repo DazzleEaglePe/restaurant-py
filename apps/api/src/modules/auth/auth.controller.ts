@@ -13,7 +13,9 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { Throttle, ThrottlerGuard } from '@nestjs/throttler';
 import {
+  cambiarNegocioSchema,
   loginRequestSchema,
+  type CambiarNegocio,
   type LoginRequest,
   type MeResponse,
   type SesionResponse,
@@ -81,6 +83,25 @@ export class AuthController {
     const token = this.leerCookie(req);
     if (token) await this.auth.cerrarSesion(token);
     this.borrarCookie(res);
+  }
+
+  @Post('auth/switch-tenant')
+  @HttpCode(HttpStatus.OK)
+  async cambiarNegocio(
+    @SesionActual() sesion: Sesion,
+    @Body(new ZodValidationPipe(cambiarNegocioSchema)) cuerpo: CambiarNegocio,
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<SesionResponse> {
+    const token = this.leerCookie(req);
+    if (!token) throw noAutenticado();
+    const { respuesta, refreshToken } = await this.auth.cambiarNegocio(
+      sesion,
+      token,
+      cuerpo.tenant_id,
+    );
+    this.ponerCookie(res, refreshToken);
+    return respuesta;
   }
 
   @Get('me')
