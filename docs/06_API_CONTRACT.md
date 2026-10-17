@@ -59,6 +59,8 @@
 | 422  | `IDEMPOTENCY_KEY_REUSED`     | Misma clave con otro cuerpo                                                |
 | 422  | `YALLEGO_NO_CONECTADO`       | El negocio no tiene Yallegó conectado o el local no tiene celular          |
 | 429  | `RATE_LIMIT_EXCEEDED`        | Demasiadas solicitudes; ver `Retry-After`                                  |
+| 429  | `CUENTA_BLOQUEADA`           | 5 ingresos fallidos seguidos: 15 minutos de espera; ver `Retry-After`      |
+| 500  | `INTERNAL_ERROR`             | Error inesperado; el `request_id` sirve para buscarlo en los registros     |
 | 502  | `PROVEEDOR_SIN_PERMISO`      | Yallegó rechazó la clave (`401` o `403`)                                   |
 | 503  | `PROVEEDOR_NO_DISPONIBLE`    | Yallegó no responde y la operación no se puede encolar                     |
 
@@ -109,7 +111,26 @@ Mismo esquema que Yallegó.
 }
 ```
 
-El refresh token viaja en una cookie `HttpOnly; Secure; SameSite=Strict`.
+El refresh token viaja en la cookie `resto_refresh` (`HttpOnly; Secure; SameSite=Strict;
+Path=/v1/auth`). Con varios negocios, el usuario entra al más antiguo y cambia con
+`switch-tenant`.
+
+| Error                 | Cuándo                                                        |
+| --------------------- | ------------------------------------------------------------- |
+| `401 UNAUTHENTICATED` | Correo o contraseña incorrectos, o invitación sin aceptar. El mensaje es el mismo en todos los casos |
+| `403 FORBIDDEN`       | El usuario no pertenece a ningún negocio activo               |
+| `429 CUENTA_BLOQUEADA` | 5 intentos fallidos seguidos                                 |
+| `429 RATE_LIMIT_EXCEEDED` | Más de 10 intentos por minuto desde la misma IP (RNF-SEG-007) |
+
+### `POST /v1/auth/refresh`
+
+Sin cuerpo: lee la cookie. Responde `200` con el mismo cuerpo que `login` y una cookie
+nueva; la anterior queda usada. Si llega una cookie ya usada, se revoca toda la sesión
+y responde `401` (RF-AUTH-002). Límite: 30 por minuto por IP.
+
+### `POST /v1/auth/logout`
+
+Revoca la sesión de la cookie, la borra y responde `204`. Repetirlo no tiene efecto.
 
 ---
 

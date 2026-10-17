@@ -35,7 +35,8 @@ pnpm dev:stack
   `caja2@demo.test` y `mesera1@demo.test`, con la contraseña `SEED_PASSWORD` de tu `.env`.
 
 Antes de abrir un PR: `pnpm format:check && pnpm lint && pnpm typecheck && pnpm test && pnpm build`.
-Con Docker levantado, `pnpm test:aislamiento` corre la suite de aislamiento entre negocios.
+Con Docker levantado, `pnpm test:db` corre la suite de aislamiento entre negocios y los flujos
+e2e contra la base.
 
 ## Convenciones
 
