@@ -48,6 +48,7 @@
 | 403  | `LOCAL_NO_ASIGNADO`          | El cajero no opera en ese local                                            |
 | 404  | `NOT_FOUND`                  | No existe o es de otro negocio                                             |
 | 409  | `ESTADO_CAMBIADO`            | El pedido cambió de estado mientras tanto                                  |
+| 409  | `LOCAL_DUPLICADO`            | Ya hay un local con ese nombre en el negocio                               |
 | 409  | `PAGO_YA_USADO`              | El cobro ya está ligado a otro pago activo, aquí o en Yallegó              |
 | 409  | `PAGO_NO_DISPONIBLE`         | El cobro no existe en Yallegó o fue anulado                                |
 | 409  | `SOLICITUD_EN_CURSO`         | Llegó la misma `Idempotency-Key` mientras la primera se procesa            |
@@ -128,6 +129,12 @@ Sin cuerpo: lee la cookie. Responde `200` con el mismo cuerpo que `login` y una 
 nueva; la anterior queda usada. Si llega una cookie ya usada, se revoca toda la sesión
 y responde `401` (RF-AUTH-002). Límite: 30 por minuto por IP.
 
+### `POST /v1/auth/switch-tenant`
+
+`{ "tenant_id": "…" }` con access token y cookie. Cierra la sesión actual y abre una
+en el otro negocio; responde como `login`. `403 FORBIDDEN` si el usuario no es miembro
+activo de ese negocio o el negocio está suspendido.
+
 ### `POST /v1/auth/logout`
 
 Revoca la sesión de la cookie, la borra y responde `204`. Repetirlo no tiene efecto.
@@ -140,9 +147,12 @@ Revoca la sesión de la cookie, la borra y responde `204`. Repetirlo no tiene ef
 | ------- | --------------------- | ---------- | ----------------------------------------- |
 | `GET`   | `/v1/negocio`         | ADMIN      | Datos del negocio                         |
 | `PATCH` | `/v1/negocio`         | OWNER      | Edita nombre, RUC, logo y color de acento |
-| `GET`   | `/v1/locales`         | CAJERO     | Locales visibles para el usuario          |
+| `GET`   | `/v1/locales`         | MESERO     | OWNER y ADMIN ven todos; el resto, sus locales activos |
+| `GET`   | `/v1/locales/actual`  | MESERO     | Local de `X-Local-Id` con su configuración; la caja lo lee al abrir |
 | `POST`  | `/v1/locales`         | ADMIN      | Crea un local                             |
 | `PATCH` | `/v1/locales/{id}`    | ADMIN      | Edita datos y configuración               |
+
+Un nombre repetido dentro del negocio responde `409 LOCAL_DUPLICADO`.
 
 ### `PATCH /v1/locales/{id}`
 
@@ -173,7 +183,19 @@ Revoca la sesión de la cookie, la borra y responde `204`. Repetirlo no tiene ef
 { "email": "rosa@correo.pe", "nombre": "Rosa", "rol": "CAJERO", "local_ids": ["…"] }
 ```
 
-Solo un OWNER puede invitar o modificar a otro OWNER (`403 FORBIDDEN`).
+```json
+// PATCH /v1/usuarios/{id}: cualquier combinación
+{ "rol": "CAJERO", "local_ids": ["…"], "activa": true }
+```
+
+Reglas (`403 FORBIDDEN` si no se cumplen):
+
+- Solo un OWNER puede invitar, modificar o nombrar a otro OWNER.
+- Nadie cambia su propio rol ni se desactiva. Como un OWNER solo puede degradar a
+  otro OWNER, el negocio nunca se queda sin dueño.
+- Un CAJERO o MESERO necesita al menos un local del negocio (`400 VALIDATION_ERROR`).
+- Todo cambio revoca las sesiones de esa persona en el negocio y queda en la
+  auditoría como `usuarios.editado`.
 
 ---
 
