@@ -20,6 +20,13 @@ describe('validateEnvironment', () => {
     expect(entorno.APP_RELEASE).toBe('dev');
   });
 
+  it('en producción exige las claves JWT', () => {
+    expect(() => validateEnvironment({ NODE_ENV: 'production' })).toThrow(/JWT_PRIVATE_KEY/);
+    expect(() =>
+      validateEnvironment({ NODE_ENV: 'production', JWT_PRIVATE_KEY: 'a', JWT_PUBLIC_KEY: 'b' }),
+    ).not.toThrow();
+  });
+
   it('explica qué variable es inválida', () => {
     expect(() => validateEnvironment({ WEB_URL: 'no-es-url' })).toThrow(/WEB_URL/);
   });

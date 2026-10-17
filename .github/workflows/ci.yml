@@ -79,8 +79,8 @@ jobs:
           psql "$DIRECT_DATABASE_URL" -v ON_ERROR_STOP=1 -f tools/docker/initdb/01-roles.sql
           pnpm db:deploy
 
-      - name: Tenant isolation suite
-        run: pnpm test:aislamiento
+      - name: Database tests (isolation and e2e)
+        run: pnpm test:db
 
       - name: Build
         run: pnpm build

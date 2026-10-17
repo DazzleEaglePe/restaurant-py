@@ -57,6 +57,7 @@ model Negocio {
   membresias       Membresia[]
   membresiaLocales MembresiaLocal[]
   auditoria        Auditoria[]
+  refreshTokens    RefreshToken[]
 
   @@map("negocios")
 }
@@ -143,9 +144,12 @@ model MembresiaLocal {
   @@map("membresia_locales")
 }
 
+/// Una sesión: la familia agrupa los tokens que se rotan desde un mismo ingreso.
+/// `tenant_id` es el negocio activo de la sesión, que vuelve al renovar el access token.
 model RefreshToken {
   id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   usuarioId  String    @map("usuario_id") @db.Uuid
+  tenantId   String    @map("tenant_id") @db.Uuid
   familiaId  String    @map("familia_id") @db.Uuid
   tokenHash  String    @unique @map("token_hash") @db.Char(64)
   expiraAt   DateTime  @map("expira_at") @db.Timestamptz(6)
@@ -154,7 +158,9 @@ model RefreshToken {
   createdAt  DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
 
   usuario Usuario @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  negocio Negocio @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
+  @@index([familiaId])
   @@map("refresh_tokens")
 }
 

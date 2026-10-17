@@ -45,7 +45,7 @@ usuario para que el siguiente token refleje el cambio.
 | Vigencia del access token        | 15 minutos                                      |
 | Vigencia del refresh token       | 30 días, renovable; mínimo 12 h de sesión en caja (RF-AUTH-007) |
 | Rotación del refresh token       | En cada uso, con detección de reutilización     |
-| Almacenamiento del refresh token | Cookie `HttpOnly; Secure; SameSite=Strict`      |
+| Almacenamiento del refresh token | Cookie `HttpOnly; Secure; SameSite=Strict` con `Path=/v1/auth`; sin `Secure` solo en desarrollo local (`http://localhost`) |
 | Almacenamiento del access token  | Memoria de la app; nunca `localStorage`         |
 
 ### 2.3. Contraseñas

@@ -158,7 +158,8 @@ CREATE TABLE membresia_locales (
 CREATE TABLE refresh_tokens (
   id           uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   usuario_id   uuid NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
-  familia_id   uuid NOT NULL,
+  tenant_id    uuid NOT NULL REFERENCES negocios(id) ON DELETE CASCADE,  -- negocio activo de la sesión
+  familia_id   uuid NOT NULL,                -- las rotaciones de un mismo ingreso
   token_hash   char(64) NOT NULL UNIQUE,
   expira_at    timestamptz NOT NULL,
   usado_at     timestamptz,
@@ -750,6 +751,7 @@ Usan `withoutTenantScope` y están enumeradas en el código:
 | `negocios` también tiene RLS, con `id = app_current_tenant()` | Un negocio no ve los datos de otro ni siquiera en su propia fila |
 | `membresia_locales` referencia `(membresia_id, tenant_id)` y `(local_id, tenant_id)` | Una clave foránea no respeta RLS: sin esto, una membresía de un negocio podría apuntar a un local de otro |
 | `auditoria` solo tiene políticas de lectura e inserción | La aplicación no puede modificarla ni borrarla (`07_SEGURIDAD_AUTH.md` §10); la purga por retención usa un rol con `BYPASSRLS` |
+| `refresh_tokens` guarda el negocio activo de la sesión (`tenant_id`) y tiene RLS | Al renovar, el access token vuelve con el mismo negocio aunque el usuario pertenezca a varios |
 
 La suite `apps/api/test/aislamiento` comprueba todo esto con el rol de la aplicación,
 incluido que cada tabla con `tenant_id` tenga RLS activado y forzado.
