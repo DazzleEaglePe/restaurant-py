@@ -49,6 +49,10 @@
 | 404  | `NOT_FOUND`                  | No existe o es de otro negocio                                             |
 | 409  | `ESTADO_CAMBIADO`            | El pedido cambió de estado mientras tanto                                  |
 | 409  | `LOCAL_DUPLICADO`            | Ya hay un local con ese nombre en el negocio                               |
+| 409  | `YA_ES_MIEMBRO`              | Se invitó a alguien que ya es parte del equipo                             |
+| 409  | `INVITACION_YA_ACEPTADA`     | Se reenvió la invitación de alguien que ya activó su cuenta                |
+| 400  | `ENLACE_INVALIDO`            | Enlace de invitación o recuperación vencido, ya usado o inexistente        |
+| 400  | `CONTRASENA_DEBIL`           | Menos de 10 caracteres, entre las 10 000 más comunes o igual al correo     |
 | 409  | `PAGO_YA_USADO`              | El cobro ya está ligado a otro pago activo, aquí o en Yallegó              |
 | 409  | `PAGO_NO_DISPONIBLE`         | El cobro no existe en Yallegó o fue anulado                                |
 | 409  | `SOLICITUD_EN_CURSO`         | Llegó la misma `Idempotency-Key` mientras la primera se procesa            |
@@ -129,6 +133,19 @@ Sin cuerpo: lee la cookie. Responde `200` con el mismo cuerpo que `login` y una 
 nueva; la anterior queda usada. Si llega una cookie ya usada, se revoca toda la sesión
 y responde `401` (RF-AUTH-002). Límite: 30 por minuto por IP.
 
+### Invitación y recuperación
+
+| Ruta | Cuerpo | Respuesta |
+| --- | --- | --- |
+| `POST /v1/auth/invitations/accept` | `{ "token": "…", "password": "…" }` | `200` como `login`, con la sesión abierta |
+| `POST /v1/auth/password/forgot` | `{ "email": "…" }` | `202` siempre, exista o no la cuenta; el correo sale solo si existe |
+| `POST /v1/auth/password/reset` | `{ "token": "…", "password": "…" }` | `204`; cierra todas las sesiones de la cuenta |
+
+Los enlaces de los correos son `{WEB_URL}/activar?token=…` (72 h) y
+`{WEB_URL}/recuperar?token=…` (60 min). Sirven una vez, y pedir uno nuevo anula el
+anterior. Límites por IP: 10 por minuto para aceptar y restablecer, 5 para pedir el
+correo.
+
 ### `POST /v1/auth/switch-tenant`
 
 `{ "tenant_id": "…" }` con access token y cookie. Cierra la sesión actual y abre una
@@ -177,11 +194,16 @@ Un nombre repetido dentro del negocio responde `409 LOCAL_DUPLICADO`.
 | `GET`    | `/v1/usuarios`               | ADMIN      | Lista miembros del negocio                     |
 | `POST`   | `/v1/usuarios/invitaciones`  | ADMIN      | Invita con rol y locales                       |
 | `PATCH`  | `/v1/usuarios/{id}`          | ADMIN      | Cambia rol, locales o desactiva                |
+| `POST`   | `/v1/usuarios/{id}/invitacion` | ADMIN    | Reenvía la invitación; el enlace anterior deja de servir (`204`) |
 
 ```json
 // POST /v1/usuarios/invitaciones
 { "email": "rosa@correo.pe", "nombre": "Rosa", "rol": "CAJERO", "local_ids": ["…"] }
 ```
+
+Responde `201` con el miembro. Si el correo es nuevo, la persona recibe el enlace de
+activación (`invitacion_pendiente: true`). Si ya tiene cuenta en otro negocio, queda
+agregada con su contraseña de siempre y recibe un aviso.
 
 ```json
 // PATCH /v1/usuarios/{id}: cualquier combinación
