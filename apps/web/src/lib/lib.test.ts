@@ -55,6 +55,21 @@ describe('mensajeDeError', () => {
     ).toBe('Correo o contraseña incorrectos.');
   });
 
+  it('nombra el campo inválido con las palabras del formulario', () => {
+    const error = new ErrorApi(400, 'VALIDATION_ERROR', 'Revisa los datos marcados.', {
+      campos: [
+        {
+          campo: 'ventana_pagos_min',
+          mensaje: 'Demasiado grande: se esperaba que número fuera <=60',
+        },
+        { campo: 'ruc', mensaje: 'El RUC tiene 11 dígitos.' },
+      ],
+    });
+    expect(mensajeDeError(error)).toBe(
+      'Revisa los datos. Ventana de pagos: debe ser como máximo 60. RUC: El RUC tiene 11 dígitos.',
+    );
+  });
+
   it('sin respuesta de la API, pide revisar el internet', () => {
     expect(mensajeDeError(new TypeError('Failed to fetch'))).toMatch(/internet/);
   });
