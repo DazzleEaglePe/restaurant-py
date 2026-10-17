@@ -166,7 +166,8 @@ apps/web/
     │   ├── sin-local/            # Cajera o mesera todavía sin local asignado
     │   ├── sesion-vencida/       # «Tu sesión terminó» (09 §15)
     │   ├── vincular/             # La pantalla muestra su código y QR y espera la aprobación
-    │   └── (admin)/admin/        # Escritorio
+    │   └── (admin)/admin/        # Escritorio: inicio con la lista de arranque,
+    │                             #   locales/[id], equipo y negocio
     ├── features/
     │   ├── carta/
     │   ├── pedido-en-armado/
@@ -178,7 +179,7 @@ apps/web/
     │   ├── pantalla-publica/
     │   ├── turno/
     │   └── admin/…
-    ├── lib/                      # Sesión, socket, formato de montos, sonidos
+    ├── lib/                      # Sesión, carga de datos, mensajes de error, socket, sonidos
     └── sw.ts                     # Service worker (Serwist)
 ```
 
