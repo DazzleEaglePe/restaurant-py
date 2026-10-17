@@ -94,6 +94,14 @@ describe('rol de la aplicación', () => {
   });
 });
 
+describe('cuentas de plataforma', () => {
+  it('la aplicación no las ve, ni siquiera sin contexto de negocio', async () => {
+    await expect(
+      prisma.withoutTenantScope((tx) => tx.administradorPlataforma.count()),
+    ).resolves.toBe(0);
+  });
+});
+
 describe('sin contexto de negocio', () => {
   it('no se ve ninguna fila', async () => {
     await expect(prisma.negocio.count()).resolves.toBe(0);

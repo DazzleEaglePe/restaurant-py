@@ -8,6 +8,7 @@ import { AuditoriaModule } from './modules/auditoria/auditoria.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { HealthModule } from './modules/health/health.module';
 import { NegociosModule } from './modules/negocios/negocios.module';
+import { PlataformaModule } from './modules/plataforma/plataforma.module';
 import { UsuariosModule } from './modules/usuarios/usuarios.module';
 
 @Module({
@@ -24,6 +25,7 @@ import { UsuariosModule } from './modules/usuarios/usuarios.module';
     AuthModule,
     HealthModule,
     NegociosModule,
+    PlataformaModule,
     UsuariosModule,
   ],
 })

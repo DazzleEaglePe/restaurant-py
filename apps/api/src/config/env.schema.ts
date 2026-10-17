@@ -16,6 +16,27 @@ export const envSchema = z
     // Rol resto_app, sujeto a RLS. Las migraciones usan DIRECT_DATABASE_URL
     // (prisma.config.ts).
     DATABASE_URL: z.string().default('postgresql://resto_app:resto_app_dev@localhost:5433/resto'),
+    // Rol resto_plataforma, con BYPASSRLS: solo para /platform/v1 (docs/07 §11).
+    DATABASE_PLATFORM_URL: z
+      .string()
+      .default('postgresql://resto_plataforma:resto_plataforma_dev@localhost:5433/resto'),
+    // IPs o subredes (CIDR) desde las que se abre la consola de plataforma,
+    // separadas por coma. Vacío: en desarrollo se permite todo; en producción, nada.
+    PLATAFORMA_IPS: z.preprocess(
+      (valor) =>
+        typeof valor === 'string'
+          ? valor
+              .split(',')
+              .map((v) => v.trim())
+              .filter(Boolean)
+          : valor,
+      z.array(z.string()).default([]),
+    ),
+    // Proxies cuya cabecera X-Forwarded-For se acepta para conocer la IP real
+    // (valor de `trust proxy` de Express: "loopback", una IP o una subred).
+    TRUST_PROXY: textoOpcional,
+    // 32 bytes en base64 para AES-256-GCM; `generate-keys.sh` la crea.
+    ENCRYPTION_KEY: textoOpcional,
     // Correo: Mailpit en local (buzón en http://localhost:8026).
     SMTP_URL: z.string().default('smtp://localhost:1026'),
     MAIL_FROM: z.string().default('resto <no-responder@resto.test>'),
@@ -36,6 +57,13 @@ export const envSchema = z
         code: 'custom',
         path: ['JWT_PRIVATE_KEY'],
         message: 'JWT_PRIVATE_KEY y JWT_PUBLIC_KEY son obligatorias en producción.',
+      });
+    }
+    if (entorno.NODE_ENV === 'production' && !entorno.ENCRYPTION_KEY) {
+      contexto.addIssue({
+        code: 'custom',
+        path: ['ENCRYPTION_KEY'],
+        message: 'ENCRYPTION_KEY es obligatoria en producción.',
       });
     }
   });

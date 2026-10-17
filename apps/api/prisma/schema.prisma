@@ -197,3 +197,19 @@ model Auditoria {
   @@index([tenantId, createdAt(sort: Desc)], map: "auditoria_negocio_fecha")
   @@map("auditoria")
 }
+
+/// §3.11. Cuentas internas de Tab Group, aparte de los usuarios de los negocios.
+/// La aplicación no las ve: la tabla tiene RLS sin políticas y solo el rol de
+/// plataforma (BYPASSRLS) la lee (docs/07_SEGURIDAD_AUTH.md §11).
+model AdministradorPlataforma {
+  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email        String   @unique @db.Citext
+  nombre       String   @db.VarChar(80)
+  passwordHash String   @map("password_hash")
+  /// Secreto TOTP cifrado con AES-256-GCM (ENCRYPTION_KEY).
+  totpSecreto  Bytes    @map("totp_secreto")
+  activo       Boolean  @default(true)
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@map("administradores_plataforma")
+}
