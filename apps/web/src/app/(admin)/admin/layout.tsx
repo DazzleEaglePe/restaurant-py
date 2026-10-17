@@ -53,7 +53,7 @@ export default function LayoutAdmin({ children }: { children: ReactNode }) {
               </Boton>
             </header>
             <nav aria-label="Secciones" className="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
-              <ul className="flex gap-2">
+              <ul className="flex gap-1.5 sm:gap-2">
                 {SECCIONES.map((seccion) => {
                   const activa =
                     seccion.href === '/admin' ? ruta === '/admin' : ruta.startsWith(seccion.href);
@@ -63,7 +63,7 @@ export default function LayoutAdmin({ children }: { children: ReactNode }) {
                         href={seccion.href}
                         aria-current={activa ? 'page' : undefined}
                         className={cn(
-                          'inline-flex min-h-10 items-center rounded-full px-4 font-bold whitespace-nowrap transition-colors duration-fast',
+                          'inline-flex min-h-10 items-center rounded-full px-3 font-bold sm:px-4 whitespace-nowrap transition-colors duration-fast',
                           activa ? 'bg-brand text-white' : 'bg-surface text-ink hover:bg-soft',
                         )}
                       >
