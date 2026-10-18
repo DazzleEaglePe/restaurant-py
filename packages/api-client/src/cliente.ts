@@ -3,7 +3,6 @@ import type {
   EditarLocal,
   EditarMiembro,
   EditarNegocio,
-  ErrorResponse,
   InvitarMiembro,
   Local,
   MeResponse,
@@ -12,19 +11,7 @@ import type {
   SesionResponse,
 } from '@resto/contracts';
 
-/** Error de la API con su código del catálogo (docs/06_API_CONTRACT.md §1.4). */
-export class ErrorApi extends Error {
-  constructor(
-    readonly status: number,
-    readonly code: string,
-    message: string,
-    readonly details?: Record<string, unknown>,
-    readonly requestId?: string,
-  ) {
-    super(message);
-    this.name = 'ErrorApi';
-  }
-}
+import { errorDeRespuesta, interpretarRespuesta } from './respuestas.js';
 
 export type OpcionesCliente = {
   /** `NEXT_PUBLIC_API_URL`, sin `/v1`. */
@@ -166,11 +153,11 @@ export class ClienteApi {
       const sesion = await this.renovar();
       if (!sesion) {
         this.opciones.alExpirarSesion?.();
-        throw await this.error(respuesta);
+        throw await errorDeRespuesta(respuesta);
       }
-      return this.interpretar<T>(await this.enviar(metodo, ruta, opciones));
+      return interpretarRespuesta<T>(await this.enviar(metodo, ruta, opciones));
     }
-    return this.interpretar<T>(respuesta);
+    return interpretarRespuesta<T>(respuesta);
   }
 
   private enviar(metodo: string, ruta: string, { cuerpo, localId }: Solicitud): Promise<Response> {
@@ -185,30 +172,5 @@ export class ClienteApi {
       credentials: 'include',
       body: cuerpo === undefined ? undefined : JSON.stringify(cuerpo),
     });
-  }
-
-  private async interpretar<T>(respuesta: Response): Promise<T> {
-    if (!respuesta.ok) throw await this.error(respuesta);
-    if (respuesta.status === 204 || respuesta.status === 202) return undefined as T;
-    return (await respuesta.json()) as T;
-  }
-
-  private async error(respuesta: Response): Promise<ErrorApi> {
-    try {
-      const { error } = (await respuesta.clone().json()) as ErrorResponse;
-      return new ErrorApi(
-        respuesta.status,
-        error.code,
-        error.message,
-        error.details,
-        error.request_id,
-      );
-    } catch {
-      return new ErrorApi(
-        respuesta.status,
-        'HTTP_ERROR',
-        'No pudimos conectar con el servidor. Revisa tu internet.',
-      );
-    }
   }
 }

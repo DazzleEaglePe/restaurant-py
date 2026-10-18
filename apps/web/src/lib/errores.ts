@@ -1,4 +1,4 @@
-import { ErrorApi } from '@resto/api-client';
+import { ErrorApi, mensajeDeValidacion } from '@resto/api-client';
 
 /** Nombre de cada campo de la API como aparece en los formularios. */
 const ETIQUETAS: Record<string, string> = {
@@ -21,25 +21,6 @@ const ETIQUETAS: Record<string, string> = {
   costo_taper_defecto: 'Costo del táper',
 };
 
-/** Vuelve más naturales los mensajes de rango de zod en español. */
-const humanizar = (mensaje: string) =>
-  mensaje
-    .replace(/^Demasiado grande: se esperaba que .+ fuera <=\s?(\S+)$/, 'debe ser como máximo $1')
-    .replace(/^Demasiado pequeño: se esperaba que .+ fuera >=\s?(\S+)$/, 'debe ser al menos $1');
-
-/** «Revisa: Ventana de pagos: debe ser como máximo 60.» */
-function mensajeDeValidacion(error: ErrorApi): string {
-  const campos = error.details?.campos;
-  if (!Array.isArray(campos) || campos.length === 0) return error.message;
-  const detalle = campos
-    .map((c: { campo?: string; mensaje?: string }) => {
-      const etiqueta = ETIQUETAS[c.campo ?? ''] ?? c.campo ?? 'Dato';
-      return `${etiqueta}: ${humanizar(c.mensaje ?? 'no es válido').replace(/\.$/, '')}`;
-    })
-    .join('. ');
-  return `Revisa los datos. ${detalle}.`;
-}
-
 /**
  * Mensaje para la persona: qué pasó y qué hacer (docs/09_DESIGN_SYSTEM.md §16).
  * La API ya responde en español; aquí se ajustan los casos que necesitan contexto.
@@ -59,7 +40,7 @@ export function mensajeDeError(error: unknown): string {
     case 'ENLACE_INVALIDO':
       return 'Este enlace venció o ya se usó. Pide uno nuevo.';
     case 'VALIDATION_ERROR':
-      return mensajeDeValidacion(error);
+      return mensajeDeValidacion(error, ETIQUETAS);
     default:
       return error.message;
   }

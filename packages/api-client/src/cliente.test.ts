@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import { ClienteApi, ErrorApi } from './cliente.js';
+import { ClienteApi } from './cliente.js';
+import { ErrorApi } from './respuestas.js';
 
 const sesion = (token: string) => ({
   access_token: token,
