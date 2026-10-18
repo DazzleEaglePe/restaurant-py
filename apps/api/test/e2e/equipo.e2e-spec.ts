@@ -64,7 +64,7 @@ beforeAll(async () => {
     .useValue({ canActivate: () => true })
     .compile();
   app = modulo.createNestApplication();
-  configureApplication(app, 'http://localhost:4000');
+  configureApplication(app, { webUrl: 'http://localhost:4000' });
   await app.init();
   prisma = app.get(PrismaService);
   const passwordHash = await hashearContrasena(CONTRASENA);
