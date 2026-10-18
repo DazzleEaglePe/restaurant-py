@@ -223,6 +223,7 @@ de Yallegó.
 | D25 | **La cajera no decide descuentos ni cortesías.** Todo lo configura el administrador: descuentos automáticos, descuentos «a elección» y cortesías definidas (por ejemplo, «canchita de cortesía para comer aquí»). No hay descuentos libres |
 | D26 | Línea gráfica **Marino** (2026-10-12): Marino clásico (claro) en caja, salón y administración; Marino noche (oscuro) en cocina y pantalla pública. Mascota: campana con «ding». Cada restaurante pone su nombre y un color de acento, con el sello «con resto» (`09_DESIGN_SYSTEM.md`) |
 | D27 | **La pantalla muestra el código; la administración lo aprueba** (2026-10-12). La TV, el monitor o el celular de cocina muestran un código y un QR; el administrador lo escanea con la cámara de su celular, elige local y tipo, y la pantalla entra sola. Nadie escribe con el control remoto (`07_SEGURIDAD_AUTH.md` §3.1) |
+| D28 | **Flujos de diseño aprobados** (2026-10-18). La mesera no toma pedidos: todos se toman en caja. En la pantalla pública, los pedidos para comer aquí salen de «En preparación» con «A tu mesa». El arqueo marca ámbar una diferencia de hasta S/ 5.00 y rojo una mayor, con motivo obligatorio. El tiempo estimado se ajusta en el cobro y en la confirmación. Prototipos en el lienzo de diseño |
 
 ### 7.2. Restricciones heredadas de Yallegó
 

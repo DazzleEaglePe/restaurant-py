@@ -69,6 +69,7 @@ La mesera entra desde su celular a **Pedidos**: los pedidos para comer en el loc
 con dos segmentos, **Listos** (primero) y **En cocina**. Cada pedido muestra número,
 nombre, zona y el detalle completo, incluidas las bebidas, sin montos. Acciones:
 **Entregado** y **Agregar observación**. El menú ☰ solo tiene Mi cuenta y Salir.
+La mesera no toma pedidos: todos se toman y se cobran en caja.
 
 ---
 
@@ -152,7 +153,8 @@ avance hasta completarlos.
 Al tocar **Cobrar**, el pedido se crea (`POR_PAGAR`, número asignado) y pasa a la
 pantalla de cobro. Si un precio cambió mientras tanto, se muestra el total nuevo
 antes de continuar. La pantalla de cobro muestra el tiempo de espera sugerido
-(«~30 min»), que la cajera puede cambiar.
+(«~30 min»). La cajera puede ajustarlo ahí y otra vez en la confirmación
+(−/+ 5 min), según cómo va la cocina, antes de decírselo al cliente.
 
 ---
 
@@ -223,7 +225,7 @@ antes de continuar. La pantalla de cobro muestra el tiempo de espera sugerido
 
 | Resultado                    | Pantalla                                                                                   |
 | ---------------------------- | ------------------------------------------------------------------------------------------ |
-| Confirmado                   | Confirmación con el número **#0042** grande, el detalle, el total y «Listo en ~30 min» para decírselo al cliente; botón **Nuevo pedido** |
+| Confirmado                   | Confirmación con el número **#0042** grande, el detalle, el total y «Listo en ~30 min» (ajustable) para decírselo al cliente; botón **Nuevo pedido** |
 | Falta saldo                  | «Pago registrado. Falta S/ 5.00» y vuelve a «Últimos pagos»                                 |
 | Confirmando (Yallegó lento)  | «Confirmando el pago…»; la cajera puede volver a Inicio. El resultado llega como aviso       |
 | Ya usado                     | «Este pago ya se usó en el pedido #0039.» El pago desaparece de la lista                    |
@@ -395,7 +397,8 @@ columna **Para mesa** agrupada por zona:
 - Al pasar a Listo, el pedido entra a la columna derecha con un resaltado de 8 s
   y un sonido. Opcional: voz «Pedido 39, listo».
 - Los pedidos para comer en el local aparecen en «En preparación», pero no en
-  «Listos»: los lleva la mesera (D20).
+  «Listos»: los lleva la mesera (D20). Al quedar listos salen de la pantalla con
+  la etiqueta «A tu mesa», para que el cliente sepa que se los llevan.
 - Los pedidos entregados salen. Los listos salen solos tras los minutos
   configurados.
 - Sin pedidos: logo del negocio y «Tus pedidos aparecerán aquí».
@@ -470,7 +473,9 @@ Todo lo anterior aparece en la validación del cierre del día (§14.1).
 2. **Cerrar turno**. Si hay pedidos por pagar o pagos confirmándose, se listan y hay
    que resolverlos primero.
 3. La cajera cuenta e ingresa el efectivo.
-4. El sistema muestra esperado, contado y diferencia, con un color según el monto.
+4. El sistema muestra esperado, contado y diferencia, con color y texto: «Cuadra»
+   (verde), una diferencia de hasta S/ 5.00 (ámbar) o mayor (rojo, con «Volver a
+   contar»). Con diferencia, la cajera elige un motivo y puede agregar un detalle.
 5. Confirma. El turno queda «Cerrado, por validar».
 
 ### 14.1. Validación del cierre (administrador)
