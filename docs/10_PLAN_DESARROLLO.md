@@ -93,6 +93,9 @@ Tareas sin código, en paralelo al Sprint 1:
 - [ ] Ninguna ruta devuelve datos de otro negocio (suite de aislamiento en verde).
 - [ ] La CI pasa completa en cada PR.
 
+Los tres primeros se comprueban de punta a punta en
+`apps/api/test/e2e/aceptacion-sprint1.e2e-spec.ts`, dentro de `pnpm test:db`.
+
 ---
 
 ## 4. Sprint 2 — Carta, mesas y administración base
