@@ -13,6 +13,8 @@ export const envSchema = z
     PORT: z.coerce.number().int().min(1).max(65_535).default(4001),
     // Origen de la web: CORS y enlaces de los correos.
     WEB_URL: z.url().default('http://localhost:4000'),
+    // Origen de la consola de plataforma: CORS de /platform/v1.
+    PLATAFORMA_URL: z.url().default('http://localhost:4002'),
     // Rol resto_app, sujeto a RLS. Las migraciones usan DIRECT_DATABASE_URL
     // (prisma.config.ts).
     DATABASE_URL: z.string().default('postgresql://resto_app:resto_app_dev@localhost:5433/resto'),

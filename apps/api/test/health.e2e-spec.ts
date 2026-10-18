@@ -28,7 +28,10 @@ describe('Health API', () => {
       .useValue(prismaFalso)
       .compile();
     app = moduleRef.createNestApplication();
-    configureApplication(app, 'http://localhost:4000');
+    configureApplication(app, {
+      webUrl: 'http://localhost:4000',
+      plataformaUrl: 'http://localhost:4002',
+    });
     await app.init();
   });
 
@@ -66,6 +69,30 @@ describe('Health API', () => {
 
     expect(respuesta.headers['access-control-allow-origin']).toBe('http://localhost:4000');
     expect(respuesta.headers['access-control-allow-credentials']).toBe('true');
+  });
+
+  it('la consola no puede leer la API de los negocios', async () => {
+    const respuesta = await request(app.getHttpServer())
+      .get('/v1/health')
+      .set('Origin', 'http://localhost:4002');
+
+    expect(respuesta.headers['access-control-allow-origin']).toBeUndefined();
+  });
+
+  it('la API de plataforma admite CORS solo desde la consola y sin credenciales', async () => {
+    const preflight = (origen: string) =>
+      request(app.getHttpServer())
+        .options('/platform/v1/negocios')
+        .set('Origin', origen)
+        .set('Access-Control-Request-Method', 'POST')
+        .set('Access-Control-Request-Headers', 'authorization,content-type');
+
+    const consola = await preflight('http://localhost:4002');
+    expect(consola.headers['access-control-allow-origin']).toBe('http://localhost:4002');
+    expect(consola.headers['access-control-allow-credentials']).toBeUndefined();
+
+    const web = await preflight('http://localhost:4000');
+    expect(web.headers['access-control-allow-origin']).toBeUndefined();
   });
 
   it('las rutas fuera de /v1 no existen', async () => {

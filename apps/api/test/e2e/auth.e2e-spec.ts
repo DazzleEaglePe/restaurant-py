@@ -44,7 +44,7 @@ async function crearApp(sinLimitePorIp: boolean): Promise<INestApplication> {
   if (sinLimitePorIp)
     builder = builder.overrideGuard(ThrottlerGuard).useValue({ canActivate: () => true });
   const app = (await builder.compile()).createNestApplication();
-  configureApplication(app, 'http://localhost:4000');
+  configureApplication(app, { webUrl: 'http://localhost:4000' });
   await app.init();
   return app;
 }

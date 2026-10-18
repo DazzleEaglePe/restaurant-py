@@ -9,7 +9,7 @@
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev",
-    "dev:stack": "turbo run dev --filter=@resto/api --filter=@resto/web",
+    "dev:stack": "turbo run dev --filter=@resto/api --filter=@resto/web --filter=@resto/plataforma",
     "lint": "turbo run lint",
     "typecheck": "turbo run typecheck",
     "test": "turbo run test",

@@ -1,0 +1,13 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  background: var(--color-bg);
+  color: var(--color-ink);
+}
+
+/* docs/09_DESIGN_SYSTEM.md §4.3: las cifras no bailan al cambiar. */
+.cifras {
+  font-variant-numeric: tabular-nums;
+}

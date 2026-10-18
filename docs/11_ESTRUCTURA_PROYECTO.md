@@ -203,6 +203,19 @@ falla en lint (`eslint-plugin-boundaries`).
 Next.js aparte, desplegada en otro dominio con lista de IPs. Alta de negocios,
 estado de Yallegó y cobros por negocio, suspensión y suscripciones.
 
+```
+apps/plataforma/src/
+├── app/
+│   ├── ingresar/                 # Correo, contraseña y código TOTP
+│   └── negocios/                 # Lista, alta con invitación al OWNER, suspender y reactivar
+└── lib/                          # Sesión en memoria (30 min, sin renovación) y mensajes
+```
+
+Usa `ClientePlataforma` de `packages/api-client`: el token vive solo en memoria y
+no viaja ninguna cookie. Al recargar la página o a los 30 minutos se vuelve a
+ingresar. La API admite su origen (`PLATAFORMA_URL`) solo en `/platform/v1` y sin
+credenciales; la web, solo en `/v1`.
+
 ---
 
 ## 6. Paquetes compartidos
@@ -398,6 +411,9 @@ Luego:
 - Salón: `http://localhost:4000/salon` con `mesera1@demo.test`.
 - Cocina y pantalla pública: abrir `http://localhost:4000/vincular` en otra ventana y
   aprobar su código en `http://localhost:4000/admin/pantallas/vincular`.
+- Consola de plataforma: `http://localhost:4002`, con un administrador creado con
+  `PLATAFORMA_PASSWORD='…' corepack pnpm --filter @resto/api plataforma:crear-admin --email … --nombre …`
+  y su secreto TOTP en una app de autenticación.
 - Simular un Yape: `http://localhost:4010`.
 
 ### 9.4. Probar con Yallegó real
@@ -468,6 +484,8 @@ Conventional Commits con ámbito: `feat(pagos): confirmar cobro con reserva loca
 | `S3_ENDPOINT` / `S3_BUCKET` / `S3_ACCESS_KEY` / `S3_SECRET_KEY` | MinIO en local | Fotos de la carta                   |
 | `SMTP_URL`               | `smtp://localhost:1026`                    |                                                 |
 | `WEB_URL`                | `http://localhost:4000`                    | Enlaces en correos y QR de vinculación          |
+| `PLATAFORMA_URL`         | `http://localhost:4002`                    | Origen de la consola: CORS de `/platform/v1`    |
+| `PLATAFORMA_IPS`         | `10.8.0.0/24`                              | IPs o subredes que abren la consola (docs/07 §11) |
 | `SEED_PASSWORD`          | (solo desarrollo)                          | Contraseña de los usuarios de demostración      |
 
 ### 12.2. Web y plataforma

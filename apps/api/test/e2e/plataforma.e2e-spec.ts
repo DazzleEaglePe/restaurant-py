@@ -52,7 +52,7 @@ beforeAll(async () => {
     })
     .compile();
   app = modulo.createNestApplication();
-  configureApplication(app, 'http://localhost:4000');
+  configureApplication(app, { webUrl: 'http://localhost:4000' });
   await app.init();
   plataforma = app.get(PrismaPlataformaService);
 
