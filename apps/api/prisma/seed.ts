@@ -147,6 +147,20 @@ async function main(): Promise<void> {
         locales.set(nombre, local.id);
       }
 
+      // Zonas de cada local, sin números de mesa (D12).
+      for (const localId of locales.values()) {
+        for (const [orden, [nombre, piso]] of [
+          ['Patio de comida', '1er piso'],
+          ['Terraza', '2do piso'],
+        ].entries()) {
+          await tx.zona.upsert({
+            where: { localId_nombre: { localId, nombre: nombre! } },
+            update: { piso, orden, activa: true },
+            create: { tenantId: negocio.id, localId, nombre: nombre!, piso, orden },
+          });
+        }
+      }
+
       const categorias = new Map<string, string>();
       for (const [orden, nombre] of CATEGORIAS.entries()) {
         const categoria = await tx.categoria.upsert({

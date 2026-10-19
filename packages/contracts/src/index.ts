@@ -9,3 +9,4 @@ export * from './negocios/negocios.js';
 export * from './plataforma/plataforma.js';
 export * from './usuarios/invitaciones.js';
 export * from './usuarios/usuarios.js';
+export * from './zonas/zonas.js';

@@ -53,6 +53,7 @@
 | 409  | `CATEGORIA_DUPLICADA`        | Ya hay una categoría con ese nombre en el negocio                          |
 | 409  | `PRODUCTO_DUPLICADO`         | Ya hay un producto con ese nombre en el negocio                            |
 | 422  | `COMPONENTE_INVALIDO`        | Un combo con otro combo, consigo mismo o con un plato que no existe        |
+| 409  | `ZONA_DUPLICADA`             | El local ya tiene una zona con ese nombre                                  |
 | 409  | `INVITACION_YA_ACEPTADA`     | Se reenvió la invitación de alguien que ya activó su cuenta                |
 | 400  | `ENLACE_INVALIDO`            | Enlace de invitación o recuperación vencido, ya usado o inexistente        |
 | 400  | `CONTRASENA_DEBIL`           | Menos de 10 caracteres, entre las 10 000 más comunes o igual al correo     |
@@ -387,16 +388,21 @@ La caja guarda la carta en caché y la invalida con el evento `carta.actualizada
 
 ---
 
-## 7. Zonas y mesas
+## 7. Zonas
 
-| Método  | Ruta                    | Rol mínimo | Descripción                       |
-| ------- | ----------------------- | ---------- | --------------------------------- |
-| `GET`   | `/v1/mesas?local_id=`   | CAJERO     | Zonas con sus mesas               |
-| `POST`  | `/v1/zonas`             | ADMIN      | Crea zona                         |
-| `PATCH` | `/v1/zonas/{id}`        | ADMIN      | Edita o desactiva                 |
-| `POST`  | `/v1/mesas`             | ADMIN      | Crea mesa                         |
-| `PATCH` | `/v1/mesas/{id}`        | ADMIN      | Edita o desactiva                 |
+Sin mesas numeradas: cuando el cliente pide en caja todavía no sabe dónde se
+sentará (D12). Las mesas (RF-MES-002, COULD) quedan para más adelante.
 
+| Método  | Ruta                                | Rol mínimo | Descripción                                        |
+| ------- | ----------------------------------- | ---------- | -------------------------------------------------- |
+| `GET`   | `/v1/zonas`                         | MESERO     | Zonas activas del local de `X-Local-Id`            |
+| `GET`   | `/v1/locales/{id}/zonas`            | ADMIN      | Todas las zonas del local, también las desactivadas |
+| `POST`  | `/v1/locales/{id}/zonas`            | ADMIN      | Crea: `{ nombre, piso }`                           |
+| `PUT`   | `/v1/locales/{id}/zonas/orden`      | ADMIN      | Orden por arrastre: `{ ids }`                      |
+| `PATCH` | `/v1/zonas/{id}`                    | ADMIN      | Renombra, cambia el piso o desactiva               |
+
+El nombre es único dentro del local (`409 ZONA_DUPLICADA`); dos locales pueden
+tener su «Terraza».
 ---
 
 ## 8. Turnos de caja
