@@ -50,6 +50,9 @@
 | 409  | `ESTADO_CAMBIADO`            | El pedido cambió de estado mientras tanto                                  |
 | 409  | `LOCAL_DUPLICADO`            | Ya hay un local con ese nombre en el negocio                               |
 | 409  | `YA_ES_MIEMBRO`              | Se invitó a alguien que ya es parte del equipo                             |
+| 409  | `CATEGORIA_DUPLICADA`        | Ya hay una categoría con ese nombre en el negocio                          |
+| 409  | `PRODUCTO_DUPLICADO`         | Ya hay un producto con ese nombre en el negocio                            |
+| 422  | `COMPONENTE_INVALIDO`        | Un combo con otro combo, consigo mismo o con un plato que no existe        |
 | 409  | `INVITACION_YA_ACEPTADA`     | Se reenvió la invitación de alguien que ya activó su cuenta                |
 | 400  | `ENLACE_INVALIDO`            | Enlace de invitación o recuperación vencido, ya usado o inexistente        |
 | 400  | `CONTRASENA_DEBIL`           | Menos de 10 caracteres, entre las 10 000 más comunes o igual al correo     |
@@ -313,13 +316,15 @@ usuario cada 10 minutos.
 
 | Método   | Ruta                                       | Rol mínimo | Descripción                                    |
 | -------- | ------------------------------------------ | ---------- | ---------------------------------------------- |
-| `GET`    | `/v1/carta?local_id=`                      | CAJERO     | Carta del local: categorías, productos, combos y disponibilidad |
+| `GET`    | `/v1/carta`                                | CAJERO     | Carta del local de `X-Local-Id`: categorías, productos, combos y disponibilidad |
 | `GET`    | `/v1/categorias`                           | ADMIN      | Lista categorías                               |
 | `POST`   | `/v1/categorias`                           | ADMIN      | Crea                                           |
-| `PATCH`  | `/v1/categorias/{id}`                      | ADMIN      | Edita, ordena o desactiva                      |
+| `PATCH`  | `/v1/categorias/{id}`                      | ADMIN      | Renombra o desactiva                           |
+| `PUT`    | `/v1/categorias/orden`                     | ADMIN      | Orden por arrastre: `{ ids }` en el orden nuevo |
 | `GET`    | `/v1/productos`                            | ADMIN      | Lista productos                                |
 | `POST`   | `/v1/productos`                            | ADMIN      | Crea producto o combo con sus platos           |
-| `PATCH`  | `/v1/productos/{id}`                       | ADMIN      | Edita                                          |
+| `PATCH`  | `/v1/productos/{id}`                       | ADMIN      | Edita; `componentes` reemplaza los platos      |
+| `PUT`    | `/v1/productos/orden`                      | ADMIN      | Orden por arrastre dentro de una categoría     |
 | `PUT`    | `/v1/productos/{id}/locales/{local_id}`    | ADMIN      | Habilita y fija precio en un local             |
 | `POST`   | `/v1/productos/{id}/agotado`               | CAJERO     | Marca agotado en el local de `X-Local-Id`      |
 | `DELETE` | `/v1/productos/{id}/agotado`               | CAJERO     | Lo vuelve a habilitar                          |
@@ -328,11 +333,11 @@ usuario cada 10 minutos.
 | `POST`   | `/v1/descuentos`                           | ADMIN      | Crea                                           |
 | `PATCH`  | `/v1/descuentos/{id}`                      | ADMIN      | Edita o desactiva                              |
 
-### `GET /v1/carta?local_id=…`
+### `GET /v1/carta` (con `X-Local-Id`)
 
 ```json
 {
-  "version": "2026-10-11T15:02:11Z",
+  "version": "9f2c41d07ab35e18",
   "categorias": [
     {
       "id": "…",
@@ -341,7 +346,9 @@ usuario cada 10 minutos.
         {
           "id": "…",
           "nombre": "Mixto",
+          "descripcion": null,
           "precio": "32.00",
+          "costo_taper": "1.00",
           "foto_url": "…",
           "agotado": false,
           "es_combo": true,
@@ -357,7 +364,26 @@ usuario cada 10 minutos.
 }
 ```
 
-La caja guarda la carta en caché y la invalida con el evento `carta.actualizada`.
+- Solo categorías activas con productos activos y habilitados en el local. El
+  precio es el del local si tiene uno (RF-CAR-009); si no, el general.
+- `version` resume el contenido y viaja también en `ETag`. Con `If-None-Match`
+  igual a esa versión, la respuesta es `304` sin cuerpo.
+- La mesera no la usa: los pedidos se toman en caja (D28).
+
+La caja guarda la carta en caché y la invalida con el evento `carta.actualizada`
+(Sprint 3) o cuando la versión cambia.
+
+### Productos y combos
+
+- Un producto con `componentes` es un combo de precio propio (RF-CAR-003). Sus
+  platos son productos simples del mismo negocio: no otro combo ni el mismo
+  producto, y un plato que ya está en un combo no puede volverse combo
+  (`422 COMPONENTE_INVALIDO`).
+- `costo_taper` es el táper para llevar (D18); sin valor, `"0.00"`.
+- Los productos no se borran: se desactivan con `activo: false` (RF-CAR-008).
+- Cambiar el precio deja `carta.precio_cambiado` en la auditoría, con el antes y
+  el después.
+- Con `X-Local-Id`, la cajera marca agotado solo en su local (RF-CAR-007).
 
 ---
 
