@@ -4,11 +4,13 @@ import type {
   CrearCategoria,
   CrearLocal,
   CrearProducto,
+  CrearZona,
   EditarCategoria,
   EditarLocal,
   EditarMiembro,
   EditarNegocio,
   EditarProducto,
+  EditarZona,
   InvitarMiembro,
   Local,
   MeResponse,
@@ -17,6 +19,7 @@ import type {
   Producto,
   ProductoEnLocal,
   SesionResponse,
+  Zona,
 } from '@resto/contracts';
 
 import { errorDeRespuesta, interpretarRespuesta } from './respuestas.js';
@@ -167,6 +170,20 @@ export class ClienteApi {
       this.solicitud<void>(agotado ? 'POST' : 'DELETE', `/v1/productos/${id}/agotado`, {
         localId,
       }),
+  };
+
+  // --- Zonas (docs/06 §7) ---------------------------------------------------
+
+  readonly zonas = {
+    /** Las activas del local donde se opera, para tomar un pedido para comer aquí. */
+    activas: (localId: string) => this.solicitud<Zona[]>('GET', '/v1/zonas', { localId }),
+    delLocal: (localId: string) => this.solicitud<Zona[]>('GET', `/v1/locales/${localId}/zonas`),
+    crear: (localId: string, datos: CrearZona) =>
+      this.solicitud<Zona>('POST', `/v1/locales/${localId}/zonas`, { cuerpo: datos }),
+    editar: (id: string, cambios: EditarZona) =>
+      this.solicitud<Zona>('PATCH', `/v1/zonas/${id}`, { cuerpo: cambios }),
+    ordenar: (localId: string, ids: string[]) =>
+      this.solicitud<Zona[]>('PUT', `/v1/locales/${localId}/zonas/orden`, { cuerpo: { ids } }),
   };
 
   // --- Equipo (docs/06 §4) -------------------------------------------------
