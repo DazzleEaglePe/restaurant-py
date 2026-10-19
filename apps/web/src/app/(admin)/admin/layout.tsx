@@ -11,6 +11,7 @@ import { SesionAdmin } from '@/lib/sesion-admin';
 
 const SECCIONES = [
   { href: '/admin', texto: 'Inicio' },
+  { href: '/admin/carta', texto: 'Carta' },
   { href: '/admin/locales', texto: 'Locales' },
   { href: '/admin/equipo', texto: 'Equipo' },
   { href: '/admin/negocio', texto: 'Negocio' },

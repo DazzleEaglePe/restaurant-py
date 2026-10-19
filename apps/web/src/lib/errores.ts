@@ -19,6 +19,14 @@ const ETIQUETAS: Record<string, string> = {
   ocultar_listos_min: 'Ocultar listos',
   tiempo_base_min: 'Espera sugerida',
   costo_taper_defecto: 'Costo del táper',
+  categoria_id: 'Categoría',
+  descripcion: 'Descripción',
+  precio: 'Precio',
+  costo_taper: 'Táper',
+  foto_url: 'Foto',
+  requiere_cocina: 'Pasa por cocina',
+  componentes: 'Platos del combo',
+  precio_local: 'Precio en el local',
 };
 
 /**

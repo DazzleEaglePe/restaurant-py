@@ -14,8 +14,12 @@ type Paso = { titulo: string; detalle: string; hecho: boolean; enlace?: string; 
 export default function InicioAdmin() {
   const sesion = useSesionAdmin();
   const { datos } = useCarga(async () => {
-    const [locales, equipo] = await Promise.all([api.locales.listar(), api.usuarios.listar()]);
-    return { locales, equipo };
+    const [locales, equipo, productos] = await Promise.all([
+      api.locales.listar(),
+      api.usuarios.listar(),
+      api.productos.listar(),
+    ]);
+    return { locales, equipo, productos };
   });
 
   const pasos: Paso[] = [
@@ -42,9 +46,11 @@ export default function InicioAdmin() {
     },
     {
       titulo: 'Carga tu carta',
-      detalle: 'Categorías, productos y combos.',
-      hecho: false,
-      cuando: 'Sprint 2',
+      detalle: datos?.productos.length
+        ? `${datos.productos.length} ${datos.productos.length === 1 ? 'producto' : 'productos'} en la carta.`
+        : 'Categorías, productos y combos.',
+      hecho: Boolean(datos?.productos.length),
+      enlace: '/admin/carta',
     },
     {
       titulo: 'Conecta Yallegó',
