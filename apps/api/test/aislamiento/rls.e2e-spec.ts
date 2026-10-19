@@ -235,6 +235,14 @@ describe('integridad entre negocios', () => {
     ).rejects.toThrow(/Foreign key constraint/);
   });
 
+  it('una zona de A no puede crearse en un local de B, ni sin contexto', async () => {
+    await expect(
+      prisma.withoutTenantScope((tx) =>
+        tx.zona.create({ data: { tenantId: ids.negocioA, localId: ids.localB, nombre: 'Patio' } }),
+      ),
+    ).rejects.toThrow(/Foreign key constraint/);
+  });
+
   it('con el contexto de A no se ve la carta de B', async () => {
     const productos = await prisma.withTenant(ids.negocioA, (tx) => tx.producto.findMany());
     expect(productos.map((p) => p.id)).toEqual([ids.productoA]);

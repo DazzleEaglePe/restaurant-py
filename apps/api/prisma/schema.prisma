@@ -62,6 +62,7 @@ model Negocio {
   productos        Producto[]
   comboComponentes ComboComponente[]
   productoLocales  ProductoLocal[]
+  zonas            Zona[]
 
   @@map("negocios")
 }
@@ -90,6 +91,7 @@ model Local {
   negocio          Negocio          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   membresiaLocales MembresiaLocal[]
   productoLocales  ProductoLocal[]
+  zonas            Zona[]
 
   @@unique([tenantId, nombre])
   // Destino de las claves compuestas de membresia_locales y producto_locales.
@@ -302,4 +304,30 @@ model ProductoLocal {
 
   @@id([productoId, localId])
   @@map("producto_locales")
+}
+
+// ---------------------------------------------------------------------------
+// §3.5. Zonas (Sprint 2). Sin mesas numeradas: el cliente aún no sabe dónde se
+// sentará cuando pide en caja (D12). La tabla `mesas` (RF-MES-002, COULD) no se crea.
+// ---------------------------------------------------------------------------
+
+model Zona {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId  String   @map("tenant_id") @db.Uuid
+  localId   String   @map("local_id") @db.Uuid
+  nombre    String   @db.VarChar(40)
+  /// «1er piso», «2do piso».
+  piso      String?  @db.VarChar(20)
+  orden     Int      @default(0) @db.SmallInt
+  activa    Boolean  @default(true)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  negocio Negocio @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  local   Local   @relation(fields: [localId, tenantId], references: [id, tenantId], onDelete: Cascade)
+
+  @@unique([localId, nombre])
+  // Destino de las claves compuestas de los pedidos (Sprint 3).
+  @@unique([id, tenantId])
+  @@map("zonas")
 }
