@@ -216,6 +216,17 @@ Un job borra cada hora las solicitudes vencidas o canjeadas hace más de un día
 
 ### 3.4. Carta
 
+Implementada en el Sprint 2 con estos ajustes al DDL de referencia:
+
+- `categorias` y `producto_locales` llevan `updated_at`; `categorias` también `created_at`.
+- `productos` tiene nombre único por negocio, igual que `categorias`.
+- Las claves foráneas son compuestas `(id, tenant_id)`, como en `membresia_locales`,
+  para que ninguna fila mezcle dos negocios aunque se conozcan los ids.
+- `productos.categoria_id` y `combo_componentes.producto_id` usan `ON DELETE NO ACTION`:
+  se verifica al final de la sentencia, así que borrar un negocio en cascada no
+  falla por el orden.
+- `grupos_opciones` y `opciones` no se crean todavía (RF-CAR-004, COULD).
+
 ```sql
 CREATE TABLE categorias (
   id         uuid PRIMARY KEY DEFAULT gen_random_uuid(),

@@ -25,6 +25,10 @@ const ids = {
   localB: randomUUID(),
   membresiaA: randomUUID(),
   usuario: randomUUID(),
+  categoriaA: randomUUID(),
+  categoriaB: randomUUID(),
+  productoA: randomUUID(),
+  productoB: randomUUID(),
 };
 
 beforeAll(async () => {
@@ -54,6 +58,30 @@ beforeAll(async () => {
         actorTipo: 'SISTEMA',
         recursoTipo: 'negocio',
       },
+    });
+    await tx.categoria.createMany({
+      data: [
+        { id: ids.categoriaA, tenantId: ids.negocioA, nombre: 'Ceviches' },
+        { id: ids.categoriaB, tenantId: ids.negocioB, nombre: 'Ceviches' },
+      ],
+    });
+    await tx.producto.createMany({
+      data: [
+        {
+          id: ids.productoA,
+          tenantId: ids.negocioA,
+          categoriaId: ids.categoriaA,
+          nombre: 'Ceviche',
+          precio: '25.00',
+        },
+        {
+          id: ids.productoB,
+          tenantId: ids.negocioB,
+          categoriaId: ids.categoriaB,
+          nombre: 'Ceviche',
+          precio: '25.00',
+        },
+      ],
     });
   });
 });
@@ -170,6 +198,46 @@ describe('integridad entre negocios', () => {
         }),
       ),
     ).rejects.toThrow(/Foreign key constraint/);
+  });
+
+  it('un producto de A no puede usar una categoría de B, ni sin contexto', async () => {
+    await expect(
+      prisma.withoutTenantScope((tx) =>
+        tx.producto.create({
+          data: {
+            tenantId: ids.negocioA,
+            categoriaId: ids.categoriaB,
+            nombre: 'Cruzado',
+            precio: '10.00',
+          },
+        }),
+      ),
+    ).rejects.toThrow(/Foreign key constraint/);
+  });
+
+  it('un combo de A no puede llevar un plato de B, ni sin contexto', async () => {
+    await expect(
+      prisma.withoutTenantScope((tx) =>
+        tx.comboComponente.create({
+          data: { comboId: ids.productoA, productoId: ids.productoB, tenantId: ids.negocioA },
+        }),
+      ),
+    ).rejects.toThrow(/Foreign key constraint/);
+  });
+
+  it('un producto de A no puede configurarse en un local de B, ni sin contexto', async () => {
+    await expect(
+      prisma.withoutTenantScope((tx) =>
+        tx.productoLocal.create({
+          data: { productoId: ids.productoA, localId: ids.localB, tenantId: ids.negocioA },
+        }),
+      ),
+    ).rejects.toThrow(/Foreign key constraint/);
+  });
+
+  it('con el contexto de A no se ve la carta de B', async () => {
+    const productos = await prisma.withTenant(ids.negocioA, (tx) => tx.producto.findMany());
+    expect(productos.map((p) => p.id)).toEqual([ids.productoA]);
   });
 });
 
