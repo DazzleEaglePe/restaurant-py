@@ -6,6 +6,7 @@ import { CorreoModule } from './infrastructure/correo/correo.module';
 import { DatabaseModule } from './infrastructure/database/database.module';
 import { AuditoriaModule } from './modules/auditoria/auditoria.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { CartaModule } from './modules/carta/carta.module';
 import { HealthModule } from './modules/health/health.module';
 import { NegociosModule } from './modules/negocios/negocios.module';
 import { PlataformaModule } from './modules/plataforma/plataforma.module';
@@ -23,6 +24,7 @@ import { UsuariosModule } from './modules/usuarios/usuarios.module';
     CorreoModule,
     AuditoriaModule,
     AuthModule,
+    CartaModule,
     HealthModule,
     NegociosModule,
     PlataformaModule,

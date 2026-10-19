@@ -1,13 +1,21 @@
 import type {
+  Carta,
+  Categoria,
+  CrearCategoria,
   CrearLocal,
+  CrearProducto,
+  EditarCategoria,
   EditarLocal,
   EditarMiembro,
   EditarNegocio,
+  EditarProducto,
   InvitarMiembro,
   Local,
   MeResponse,
   Miembro,
   Negocio,
+  Producto,
+  ProductoEnLocal,
   SesionResponse,
 } from '@resto/contracts';
 
@@ -125,6 +133,40 @@ export class ClienteApi {
     crear: (datos: CrearLocal) => this.solicitud<Local>('POST', '/v1/locales', { cuerpo: datos }),
     editar: (id: string, cambios: EditarLocal) =>
       this.solicitud<Local>('PATCH', `/v1/locales/${id}`, { cuerpo: cambios }),
+  };
+
+  // --- Carta (docs/06 §6) ---------------------------------------------------
+
+  readonly carta = {
+    /** Lo que la caja ofrece en el local, con su precio y si está agotado. */
+    obtener: (localId: string) => this.solicitud<Carta>('GET', '/v1/carta', { localId }),
+  };
+
+  readonly categorias = {
+    listar: () => this.solicitud<Categoria[]>('GET', '/v1/categorias'),
+    crear: (datos: CrearCategoria) =>
+      this.solicitud<Categoria>('POST', '/v1/categorias', { cuerpo: datos }),
+    editar: (id: string, cambios: EditarCategoria) =>
+      this.solicitud<Categoria>('PATCH', `/v1/categorias/${id}`, { cuerpo: cambios }),
+    ordenar: (ids: string[]) =>
+      this.solicitud<Categoria[]>('PUT', '/v1/categorias/orden', { cuerpo: { ids } }),
+  };
+
+  readonly productos = {
+    listar: () => this.solicitud<Producto[]>('GET', '/v1/productos'),
+    crear: (datos: CrearProducto) =>
+      this.solicitud<Producto>('POST', '/v1/productos', { cuerpo: datos }),
+    editar: (id: string, cambios: EditarProducto) =>
+      this.solicitud<Producto>('PATCH', `/v1/productos/${id}`, { cuerpo: cambios }),
+    ordenar: (ids: string[]) =>
+      this.solicitud<Producto[]>('PUT', '/v1/productos/orden', { cuerpo: { ids } }),
+    enLocal: (id: string, localId: string, datos: ProductoEnLocal) =>
+      this.solicitud<Producto>('PUT', `/v1/productos/${id}/locales/${localId}`, { cuerpo: datos }),
+    /** La cajera marca o desmarca agotado en su local. */
+    agotado: (id: string, localId: string, agotado: boolean) =>
+      this.solicitud<void>(agotado ? 'POST' : 'DELETE', `/v1/productos/${id}/agotado`, {
+        localId,
+      }),
   };
 
   // --- Equipo (docs/06 §4) -------------------------------------------------
