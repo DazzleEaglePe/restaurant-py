@@ -9,6 +9,8 @@ import { type FormEvent, useEffect, useState } from 'react';
 import { api } from '@/lib/api';
 import { mensajeDeError } from '@/lib/errores';
 
+import { ZonasDelLocal } from './zonas-local';
+
 type Formulario = {
   nombre: string;
   direccion: string;
@@ -191,6 +193,7 @@ export default function EditarLocalPagina() {
           </Boton>
         </form>
       )}
+      {formulario && <ZonasDelLocal localId={id} />}
     </>
   );
 }

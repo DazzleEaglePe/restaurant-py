@@ -27,6 +27,7 @@ const ETIQUETAS: Record<string, string> = {
   requiere_cocina: 'Pasa por cocina',
   componentes: 'Platos del combo',
   precio_local: 'Precio en el local',
+  piso: 'Piso',
 };
 
 /**
