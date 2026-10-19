@@ -3,6 +3,8 @@ import { describe, expect, it } from 'vitest';
 
 import { destinoInicial, localOperativo } from './destinos';
 import { mensajeDeError } from './errores';
+import { aMonto } from './montos';
+import { mover } from './ordenable';
 
 const centro = { id: 'centro', nombre: 'Centro' };
 const norte = { id: 'norte', nombre: 'Norte' };
@@ -72,5 +74,28 @@ describe('mensajeDeError', () => {
 
   it('sin respuesta de la API, pide revisar el internet', () => {
     expect(mensajeDeError(new TypeError('Failed to fetch'))).toMatch(/internet/);
+  });
+});
+
+describe('aMonto', () => {
+  it.each([
+    ['12', '12.00'],
+    ['12.5', '12.50'],
+    ['12,50', '12.50'],
+    [' 3 ', '3.00'],
+  ])('«%s» → «%s»', (escrito, monto) => {
+    expect(aMonto(escrito)).toBe(monto);
+  });
+
+  it('vacío es null; lo inválido, undefined', () => {
+    expect(aMonto('')).toBeNull();
+    for (const malo of ['-1', 'doce', '1.234', 'S/ 5']) expect(aMonto(malo)).toBeUndefined();
+  });
+});
+
+describe('mover', () => {
+  it('lleva un elemento a otra posición sin tocar el resto', () => {
+    expect(mover(['a', 'b', 'c', 'd'], 0, 2)).toEqual(['b', 'c', 'a', 'd']);
+    expect(mover(['a', 'b', 'c', 'd'], 3, 0)).toEqual(['d', 'a', 'b', 'c']);
   });
 });

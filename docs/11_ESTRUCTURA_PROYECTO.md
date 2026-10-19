@@ -167,7 +167,8 @@ apps/web/
     │   ├── sesion-vencida/       # «Tu sesión terminó» (09 §15)
     │   ├── vincular/             # La pantalla muestra su código y QR y espera la aprobación
     │   └── (admin)/admin/        # Escritorio: inicio con la lista de arranque,
-    │                             #   locales/[id], equipo y negocio
+    │                             #   carta y su vista previa, locales/[id],
+    │                             #   equipo y negocio
     ├── features/
     │   ├── carta/
     │   ├── pedido-en-armado/
