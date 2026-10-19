@@ -300,6 +300,10 @@ CREATE TABLE producto_locales (
 
 ### 3.5. Zonas y mesas
 
+Implementado en el Sprint 2: solo `zonas`, con `created_at`, `updated_at`, la clave
+compuesta `(local_id, tenant_id)` hacia `locales` y `UNIQUE (id, tenant_id)` para los
+pedidos. La tabla `mesas` no se crea (D12).
+
 ```sql
 CREATE TABLE zonas (
   id         uuid PRIMARY KEY DEFAULT gen_random_uuid(),
