@@ -58,6 +58,10 @@ model Negocio {
   membresiaLocales MembresiaLocal[]
   auditoria        Auditoria[]
   refreshTokens    RefreshToken[]
+  categorias       Categoria[]
+  productos        Producto[]
+  comboComponentes ComboComponente[]
+  productoLocales  ProductoLocal[]
 
   @@map("negocios")
 }
@@ -85,9 +89,10 @@ model Local {
 
   negocio          Negocio          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   membresiaLocales MembresiaLocal[]
+  productoLocales  ProductoLocal[]
 
   @@unique([tenantId, nombre])
-  // Destino de las claves compuestas de membresia_locales.
+  // Destino de las claves compuestas de membresia_locales y producto_locales.
   @@unique([id, tenantId])
   @@map("locales")
 }
@@ -212,4 +217,89 @@ model AdministradorPlataforma {
   createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
 
   @@map("administradores_plataforma")
+}
+
+// ---------------------------------------------------------------------------
+// §3.4. Carta (Sprint 2). Los grupos de opciones (RF-CAR-004, COULD) no se crean
+// en el MVP: los combos del piloto son fijos (D9).
+// ---------------------------------------------------------------------------
+
+model Categoria {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId  String   @map("tenant_id") @db.Uuid
+  nombre    String   @db.VarChar(60)
+  orden     Int      @default(0) @db.SmallInt
+  activa    Boolean  @default(true)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  negocio   Negocio    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  productos Producto[]
+
+  @@unique([tenantId, nombre])
+  @@unique([id, tenantId])
+  @@map("categorias")
+}
+
+model Producto {
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId       String   @map("tenant_id") @db.Uuid
+  categoriaId    String   @map("categoria_id") @db.Uuid
+  nombre         String   @db.VarChar(80)
+  descripcion    String?  @db.VarChar(300)
+  precio         Decimal  @db.Decimal(10, 2)
+  /// Costo del táper para llevar (D18).
+  costoTaper     Decimal  @default(0) @map("costo_taper") @db.Decimal(10, 2)
+  fotoUrl        String?  @map("foto_url")
+  esCombo        Boolean  @default(false) @map("es_combo")
+  requiereCocina Boolean  @default(true) @map("requiere_cocina")
+  orden          Int      @default(0) @db.SmallInt
+  activo         Boolean  @default(true)
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  negocio     Negocio           @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  categoria   Categoria         @relation(fields: [categoriaId, tenantId], references: [id, tenantId], onDelete: NoAction)
+  componentes ComboComponente[] @relation("combo")
+  enCombos    ComboComponente[] @relation("componente")
+  locales     ProductoLocal[]
+
+  @@unique([tenantId, nombre])
+  @@unique([id, tenantId])
+  @@index([tenantId, categoriaId, orden])
+  @@map("productos")
+}
+
+/// Platos fijos de un combo (RF-CAR-003).
+model ComboComponente {
+  comboId    String @map("combo_id") @db.Uuid
+  productoId String @map("producto_id") @db.Uuid
+  tenantId   String @map("tenant_id") @db.Uuid
+  cantidad   Int    @default(1) @db.SmallInt
+
+  negocio  Negocio  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  combo    Producto @relation("combo", fields: [comboId, tenantId], references: [id, tenantId], onDelete: Cascade)
+  producto Producto @relation("componente", fields: [productoId, tenantId], references: [id, tenantId], onDelete: NoAction)
+
+  @@id([comboId, productoId])
+  @@map("combo_componentes")
+}
+
+/// Disponibilidad, agotado y precio por local (RF-CAR-006, 007 y 009). Sin fila,
+/// el producto está habilitado, no agotado y con su precio general.
+model ProductoLocal {
+  productoId  String   @map("producto_id") @db.Uuid
+  localId     String   @map("local_id") @db.Uuid
+  tenantId    String   @map("tenant_id") @db.Uuid
+  habilitado  Boolean  @default(true)
+  agotado     Boolean  @default(false)
+  precioLocal Decimal? @map("precio_local") @db.Decimal(10, 2)
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  negocio  Negocio  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  producto Producto @relation(fields: [productoId, tenantId], references: [id, tenantId], onDelete: Cascade)
+  local    Local    @relation(fields: [localId, tenantId], references: [id, tenantId], onDelete: Cascade)
+
+  @@id([productoId, localId])
+  @@map("producto_locales")
 }
