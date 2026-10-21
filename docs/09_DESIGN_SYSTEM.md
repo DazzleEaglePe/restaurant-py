@@ -332,8 +332,9 @@ Lucide (igual que Yallegó), trazo de 2 px. Correspondencias:
 
 ## 9. Movimiento
 
-El sistema es una PWA: vive en la web y en la nube, pero debe sentirse como una app
-nativa. El movimiento es la principal herramienta para lograrlo.
+En el celular, resto es una app nativa (D29); en la computadora y en la TV, una web.
+En las dos debe sentirse fluida y viva, y el movimiento es la principal herramienta
+para lograrlo.
 
 ### 9.1. Principios
 
@@ -371,8 +372,10 @@ nativa. El movimiento es la principal herramienta para lograrlo.
 | Hoja inferior                 | Sube desde abajo con fondo oscurecido; se cierra arrastrando hacia abajo |
 | Diálogo de confirmación       | Aparece con fundido y escala de 96 % a 100 %                     |
 
-En el código se usa la API de View Transitions del navegador, con transiciones CSS
-como respaldo donde no existe.
+En la app se usan las animaciones de Jetpack Compose (`AnimatedContent`,
+`animate*AsState`) y de SwiftUI (`withAnimation`, `matchedGeometryEffect`) con estas
+mismas duraciones y curvas. En la web, la API de View Transitions del navegador, con
+transiciones CSS como respaldo donde no existe.
 
 ### 9.4. Microinteracciones
 
@@ -429,9 +432,11 @@ de 3 segundos.
 | Cobros caídos             | Caja             | Alerta doble, distinta al resto           |
 | Pago recibido             | Caja             | Opcional, suave                           |
 
-Los navegadores bloquean el audio hasta que la persona toca la pantalla una vez.
-Por eso cocina, TV y pantalla pública arrancan con «Tocar para activar el sonido»
-(§15), que además mantiene la pantalla encendida (Wake Lock).
+En la app, el sonido y la vibración funcionan sin toque previo y la cocina mantiene
+la pantalla encendida. Los navegadores, en cambio, bloquean el audio hasta que la
+persona toca la pantalla una vez: por eso el monitor de cocina y la pantalla pública
+(web en la TV) arrancan con «Tocar para activar el sonido» (§15), que además mantiene
+la pantalla encendida (Wake Lock).
 
 ---
 
@@ -485,7 +490,7 @@ pantalla pública.
 | Página no encontrada (404) | Reposo, campana vacía | «Esta página no existe»     | «Puede que el enlace esté incompleto.»                         | Ir al inicio                  |
 | Sesión vencida             | Reposo   | «Tu sesión terminó»                      | «Ingresa de nuevo. Guardamos tu pedido en armado.»             | Ingresar                      |
 | Nueva versión              | —        | Aviso inferior: «Hay una versión nueva»  | —                                                              | Actualizar (sin perder el pedido) |
-| Instalar                   | Listo    | «Instala la caja en tu celular»          | «Ábrela como una app, a pantalla completa.»                    | Instalar · Ahora no           |
+| Permiso de avisos (app)    | Listo    | «Te avisamos al toque»                   | «Cuando un pedido esté listo o llegue un Yape, aunque tengas el celular en el bolsillo.» | Activar avisos · Ahora no |
 | Sonido bloqueado (pantallas fijas) | Listo | «Toca para activar el sonido»  | «Así escucharás cada pedido nuevo.»                            | Toque en cualquier parte o botón OK del control |
 | Pantalla sin vincular      | Reposo   | «Vincula esta pantalla»                  | Código de 8 caracteres y QR                                    | —                             |
 | Vacío                      | Reposo   | Según el lugar (08 §15.1)                | —                                                              | La acción principal del lugar |

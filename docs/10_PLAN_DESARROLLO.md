@@ -4,7 +4,12 @@
 > **Sprints hasta MVP:** 8 (16 semanas)
 > **Metodología:** iterativa, con entregable funcional al cierre de cada sprint
 > **Hito comercial:** demo completa con el simulador de Yallegó al cierre del
-> Sprint 5, lista para presentar al restaurante (P8).
+> Sprint 5, lista para presentar al restaurante (P8), con la app **resto** instalada
+> como APK en Android.
+> **Celular:** app nativa desde D29 (2026-10-21): Android con Kotlin y Jetpack Compose
+> en el MVP; iOS con Swift y SwiftUI después del piloto. Lo que el plan llamaba «Web —
+> Caja (PWA)» ahora es la app Android; la web queda para la administración en la
+> computadora, la consola de plataforma y las pantallas fijas.
 
 ---
 
@@ -120,10 +125,16 @@ Tareas sin código, en paralelo al Sprint 1:
 - [ ] Táper automático en pedidos para llevar.
 - [ ] Listado de pedidos del día por estado.
 - [ ] Outbox y relay de eventos; gateway Socket.io con salas de caja.
+- [ ] Sesión de la app: refresh token en el cuerpo con `X-Cliente: android` (`07_SEGURIDAD_AUTH.md` §2.2).
+- [ ] `packages/contracts` publica el OpenAPI generado desde `zod`.
+- [ ] `GET /v1/app/version` con versión mínima y última por plataforma.
 
-### Web — Caja (PWA)
+### App Android — Caja
 
-- [ ] Manifest e instalación; ícono y pantalla de carga.
+- [ ] `apps/android`: proyecto en Android Studio con Kotlin, Jetpack Compose y Material 3 con el tema de la marca; navegación, inyección de dependencias y cliente de la API generado desde el OpenAPI.
+- [ ] Sesión: ingreso, renovación y cierre, con el refresh token en el Android Keystore.
+- [ ] CI: compilación, lint y pruebas con Gradle; APK firmado de prueba como artefacto del PR. La clave de firma vive en los secretos de la CI, nunca en el repositorio.
+- [ ] Ícono adaptativo y pantalla de carga.
 - [ ] Ingreso, elección de local, apertura de turno.
 - [ ] Inicio con la carta, categorías, hoja del ítem (cantidad y nota), barra de pedido.
 - [ ] Resumen: para comer aquí o para llevar; nombre y zona para comer aquí; ítems editables.
@@ -139,7 +150,7 @@ Tareas sin código, en paralelo al Sprint 1:
 - [ ] Dos cajas crean 50 pedidos simultáneos en el mismo local sin números repetidos (prueba de carga).
 - [ ] Reenviar la misma solicitud de creación devuelve el mismo pedido.
 - [ ] Un pedido cobrado en efectivo queda `PENDIENTE` y se ve en la pestaña Pedidos de otra caja sin recargar.
-- [ ] La caja funciona en un Android de gama media a 360 px de ancho.
+- [ ] La app funciona en un Android 10 de gama media a 360 dp de ancho y abre en menos de 2 s.
 
 ---
 
@@ -164,6 +175,9 @@ Tareas sin código, en paralelo al Sprint 1:
 ### Web
 
 - [ ] Administración → Configuración → Yallegó: conectar, celulares, probar, con guía paso a paso.
+
+### App Android
+
 - [ ] Caja: pestaña Yape con «Últimos pagos», detalle del pago y resultados.
 
 ### Criterios de aceptación
@@ -187,18 +201,24 @@ Tareas sin código, en paralelo al Sprint 1:
 - [ ] Rol MESERO, proyección y sala de salón; entrega desde el celular de la mesera.
 - [ ] Búsqueda de pedidos por número.
 - [ ] Pedidos sin ítems de cocina directo a `LISTO`.
+- [ ] Módulo `notificaciones`: registro del token FCM por sesión y aviso de pedido listo a la mesera con la app en segundo plano.
 
 ### Web
 
 - [ ] `/vincular`: la pantalla muestra código y QR, los renueva al vencer y entra sola al aprobarse.
-- [ ] `/admin/pantallas/vincular?codigo=`: aprobación desde el celular del administrador.
-- [ ] Cocina en celular: lista vertical, colores por tipo y demora, sonido, deshacer, cancelados.
-- [ ] Cocina en pantalla táctil (propuesta): columnas y «Para mesa» para la mesera.
 - [ ] Monitor de cocina en solo lectura: columnas que se leen de lejos.
 - [ ] Pantalla pública: columnas, animación y sonido de listo, marca del negocio, Wake Lock, reconexión.
-- [ ] «Toca para activar el sonido» en cocina, TV y pantalla pública.
+- [ ] «Toca para activar el sonido» en el monitor de cocina y la pantalla pública.
+
+### App Android
+
+- [ ] Aprobación de pantallas desde la app del administrador: escanear el QR con la cámara (D27).
+- [ ] Cocina en el celular: vinculación como dispositivo, lista vertical, colores por tipo y demora, sonido, deshacer, cancelados y pantalla siempre encendida.
+- [ ] Cocina en pantalla táctil (propuesta): la app en una tablet en horizontal, con columnas.
 - [ ] Caja: pestaña Listos con «Entregar» y búsqueda por número.
-- [ ] Salón (celular de la mesera): pedidos con nombre, zona y detalle, aviso de listos y «Entregado».
+- [ ] Salón (celular de la mesera): pedidos con nombre, zona y detalle, aviso de listos con notificación y «Entregado».
+- [ ] Permiso de notificaciones con explicación previa (RF-SIS-007).
+- [ ] APK firmado de la demo y guía de instalación de un paso.
 
 ### Criterios de aceptación
 
@@ -221,9 +241,13 @@ Tareas sin código, en paralelo al Sprint 1:
 - [ ] Pago con constancia habilitado solo según el estado de cobros; observación opcional y estado del celular guardado.
 - [ ] Conciliación al llegar cobros; revisión manual; `SIN_RESPALDO` a las 12 h con aviso.
 
-### Web
+### App Android
 
 - [ ] Caja: chip, avisos fijos con causas, sonido y vibración, pestaña Constancia.
+- [ ] Notificación de cobros caídos a la caja y al dueño con la app en segundo plano.
+
+### Web
+
 - [ ] Administración: estado de cobros por local, incidencias, constancias por conciliar.
 
 ### Criterios de aceptación
@@ -248,12 +272,15 @@ Tareas sin código, en paralelo al Sprint 1:
 - [ ] Consulta de auditoría.
 - [ ] Reemplazo de clave y desconexión de Yallegó.
 
+### App Android
+
+- [ ] Caja: turno de caja y cierre; observaciones por resolver; aplicar descuentos y cortesías.
+- [ ] Salón: agregar observación y ver su resolución.
+- [ ] Dueño: hoy, pedidos, cierre del día completo (validar u observar turnos) y aviso de cierre pendiente.
+
 ### Web
 
-- [ ] Caja: turno de caja y cierre; observaciones por resolver.
-- [ ] Salón: agregar observación y ver su resolución.
-- [ ] Administración: descuentos y promociones. Caja: aplicar descuentos y cortesías.
-- [ ] Administración: cierre del día (completo desde el celular), reportes, auditoría.
+- [ ] Administración: descuentos y promociones, cierre del día, reportes y auditoría.
 
 ### Criterios de aceptación
 
@@ -276,7 +303,8 @@ Tareas sin código, en paralelo al Sprint 1:
 - [ ] Consola de plataforma: estado de Yallegó y cobros por negocio, suspensión, suscripciones.
 - [ ] Puesta en marcha en el restaurante piloto (`08_UX_FLUJOS.md` §3) y capacitación.
 - [ ] Una semana de acompañamiento en hora punta.
-- [ ] PWA: instalación en la pantalla de inicio y aviso de nueva versión.
+- [ ] App Android en Google Play (prueba interna) para el piloto; aviso de versión nueva y versión mínima.
+- [ ] Plan de la app de iOS (Swift y SwiftUI) con los mismos flujos, para después del piloto.
 
 ### Criterios de aceptación
 
@@ -326,6 +354,7 @@ demás bloquea el MVP: todas tienen una mitigación propia.
 | Registro autoservicio y cobro automático de la suscripción | v0.2 |
 | Bloqueo de caja con PIN                           | v0.2    |
 | Anuncio por voz en la pantalla pública            | v0.2    |
+| App de iOS (Swift y SwiftUI)                      | Después del piloto |
 | Carta con QR para que el cliente pida             | v1.0    |
 | Cobros esperados en Yallegó                       | v1.0    |
 | Integraciones con delivery                        | v1.0    |

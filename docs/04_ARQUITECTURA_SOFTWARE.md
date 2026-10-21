@@ -505,28 +505,63 @@ las rutas `/platform/v1`, y cada acción queda en auditoría.
 
 ## 7. Arquitectura del frontend
 
-### 7.1. Una sola app Next.js para todas las superficies
+### 7.1. App nativa en el celular, web en la computadora y en la TV
 
-| Ruta           | Superficie        | Forma                                                           |
-| -------------- | ----------------- | --------------------------------------------------------------- |
-| `/caja`        | Caja              | App web instalable (PWA), vertical, móvil                       |
-| `/salon`       | Salón             | Misma app instalable, vertical, para la mesera                  |
-| `/cocina`      | Cocina            | Celular en vertical que marca estados (MVP); TV o monitor en columnas, solo lectura (recomendado); pantalla táctil (propuesta) |
-| `/pantalla`    | Pantalla pública  | Pantalla completa, sin interacción, sesión de pantalla vinculada |
-| `/admin`       | Administración    | Escritorio, responsiva                                          |
+Desde D29 (2026-10-21) el celular usa una app nativa; la web queda para lo que se
+usa en una computadora o en una TV (ADR-14).
 
-Comparten componentes, tokens de diseño, contratos y cliente de API. Cada
-superficie es un grupo de rutas con su propio layout y su propio paquete de
-JavaScript, para que la pantalla pública no cargue código de administración.
+| Superficie        | Dónde corre                         | Tecnología                                            | Forma                                                           |
+| ----------------- | ----------------------------------- | ----------------------------------------------------- | --------------------------------------------------------------- |
+| Caja              | App **resto** (`apps/android`, `apps/ios`) | Kotlin + Jetpack Compose; Swift + SwiftUI       | Vertical, una mano; rol CAJERO                                  |
+| Salón             | App **resto**                       | Igual                                                 | Vertical, para la mesera; rol MESERO                            |
+| Cocina en el celular | App **resto**, vinculada como dispositivo (D27) | Igual                                   | Vertical, marca estados; sin usuario                            |
+| Dueño en el celular | App **resto**                     | Igual                                                 | Hoy, pedidos, cierre del día y negocio; roles OWNER y ADMIN     |
+| Monitor de cocina | Web `/cocina` en la TV              | Next.js                                               | Columnas, solo lectura, pantalla vinculada                      |
+| Pantalla pública  | Web `/pantalla` en la TV            | Next.js                                               | Pantalla completa, sin interacción, pantalla vinculada          |
+| Administración    | Web `/admin` en la computadora      | Next.js                                               | Escritorio, responsiva                                          |
+
+**Una sola app para todos los roles del celular.** Tras ingresar, la app muestra el
+inicio de cada rol; la cocina entra como dispositivo vinculado, sin usuario. Android
+va primero: la demo se instala como APK firmado y el piloto usa Google Play en prueba
+interna. La app de iOS repite los mismos flujos con SwiftUI.
+
+**Contrato compartido.** Las apps nativas no pueden usar los tipos de TypeScript, así
+que `packages/contracts` publica también un documento OpenAPI generado desde los
+esquemas `zod`; de ahí se generan los modelos en Kotlin y Swift. Un cambio de
+contrato que rompe la app se ve en la CI del mismo PR.
+
+**Lo que cambia en el backend.** Nada del dominio; se agregan tres piezas:
+
+- **Sesión de la app:** el refresh token viaja en el cuerpo de la respuesta (no en
+  cookie) cuando la petición llega con `X-Cliente: android` o `X-Cliente: ios`, y la
+  app lo guarda en el Android Keystore o el Llavero (RNF-APP-004). La rotación y la
+  detección de reutilización son las mismas de `07_SEGURIDAD_AUTH.md`.
+- **Notificaciones push:** módulo `notificaciones` que registra el token FCM o APNs de
+  cada sesión y envía pedido listo, cobros caídos y cierre pendiente cuando la app no
+  está en primer plano (RNF-APP-006). Los datos sensibles no viajan en la
+  notificación: solo el número de pedido o el aviso.
+- **Versión mínima:** `GET /v1/app/version?plataforma=android` responde la versión
+  mínima y la última; la app decide si avisa o bloquea (RNF-APP-005).
+
+En el tiempo real, la app usa el cliente oficial de Socket.io para Kotlin y Swift con
+las mismas salas y proyecciones (§5.7).
+
+En la web, las superficies que quedan comparten componentes, tokens de diseño,
+contratos y cliente de API. Cada superficie es un grupo de rutas con su propio
+layout y su propio paquete de JavaScript, para que la pantalla pública no cargue
+código de administración.
 
 La consola de plataforma es una app aparte (`apps/plataforma`), como en Yallegó:
 otro dominio, lista de IPs permitidas y su propia autenticación con TOTP.
 
 ### 7.2. Estado y datos
 
-- **TanStack Query** para datos del servidor, con invalidación por eventos del socket.
-- **Estado local** del pedido en armado (carrito) en memoria y respaldado en
-  `sessionStorage`, para no perderlo si el celular recarga la página.
+- **App:** un `ViewModel` por pantalla con `StateFlow` (Android) u `@Observable`
+  (iOS); los datos del servidor se vuelven a pedir con cada evento del socket. El
+  pedido en armado vive en memoria y sobrevive al paso a segundo plano; nunca se
+  guardan pedidos, pagos ni turnos en el celular (RNF-APP-003).
+- **Web:** **TanStack Query** para datos del servidor, con invalidación por eventos
+  del socket.
 - **Sin modo sin conexión** en el MVP: la caja detecta la pérdida de internet,
   bloquea las acciones que necesitan servidor y lo indica (RF-COB-008).
 
@@ -595,10 +630,11 @@ respaldos de PostgreSQL y observabilidad con Prometheus, Loki y Grafana.
 | ADR-04 | Webhook más consulta de respaldo, sin el WebSocket de Yallegó                    | El WebSocket exige plan Comercio; el webhook más la consulta cubren pérdidas                 |
 | ADR-05 | Restricción única local antes de llamar a `confirm`                              | No depender de la atomicidad de Yallegó (brecha Y1)                                          |
 | ADR-06 | La cajera siempre confirma el emparejamiento                                     | Montos repetidos son normales en un restaurante                                              |
-| ADR-07 | Una sola app web instalable para caja, salón, cocina, pantalla pública y administración | Un desarrollo para celular, tablet, TV y escritorio, sin tiendas de apps                     |
+| ADR-07 | ~~Una sola app web instalable para caja, salón, cocina, pantalla pública y administración~~ Reemplazada por ADR-14 (2026-10-21) | Un desarrollo para celular, tablet, TV y escritorio, sin tiendas de apps                     |
 | ADR-08 | Cocina y pantalla pública como pantallas vinculadas, no usuarios                 | Equipos compartidos, sin contraseñas que se olviden ni se compartan                          |
 | ADR-09 | Negocio → local desde el primer sprint, con RLS                                  | Multi-tenant y multi-local son la visión; agregarlos después obliga a migrar todo            |
 | ADR-10 | Validación con constancia solo con el celular caído, siempre conciliada          | Mantiene la operación sin abrir una vía cómoda para el fraude                                |
 | ADR-11 | Numeración diaria con contador atómico                                           | Varias cajas crean pedidos a la vez                                                          |
 | ADR-12 | Eventos de tiempo real desde una tabla outbox                                    | Un evento no se pierde si el proceso cae tras el `COMMIT`                                    |
 | ADR-13 | Proyecciones por superficie en el socket                                         | La pantalla pública nunca recibe datos que no debe mostrar                                   |
+| ADR-14 | App nativa para el celular (Kotlin y Jetpack Compose en Android, Swift y SwiftUI en iOS); web solo para la computadora y la TV. Reemplaza a ADR-07 | Notificaciones del sistema con la app cerrada, sonido sin toque previo, pantalla encendida, mejor rendimiento en gamas medias y una app más limpia; se pagan dos apps, que se mitigan con Android primero y contratos generados (D29) |

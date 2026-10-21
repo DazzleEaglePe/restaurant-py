@@ -570,7 +570,7 @@ El detalle de cada estado (mascota, título, mensaje y acción) está en
 
 ## 19. Flujo: arranque de la caja
 
-1. Se abre la app instalada (o el enlace). Pantalla de carga con la mascota
+1. Se abre la app **resto** en el celular. Pantalla de carga con la mascota
    «cargando» y el nombre del restaurante; nunca más de 2 s si la red es buena.
 2. Si no hay sesión: **Ingresar** con correo y contraseña. El botón muestra su
    indicador de carga dentro.
@@ -578,10 +578,13 @@ El detalle de cada estado (mascota, título, mensaje y acción) está en
 4. Si no tiene turno abierto: **Abrir turno** con el fondo inicial y atajos de monto.
 5. Llega a la carta con una transición de entrada.
 
-La primera vez, después de abrir el turno, aparece la hoja **Instalar la caja en tu
-celular**. Si la cajera la descarta, no vuelve a salir en 7 días.
+La primera vez, después de abrir el turno, la app explica con la mascota para qué
+sirven los avisos («Te avisamos cuando un pedido esté listo o llegue un Yape, aunque
+tengas el celular en el bolsillo») y luego aparece el permiso de notificaciones del
+sistema. Si la cajera lo niega, un aviso amable le dice que puede activarlo en
+Ajustes, y no vuelve a salir en 7 días (RF-SIS-007).
 
-## 20. Flujo: pantallas fijas (cocina, TV y pantalla pública)
+## 20. Flujo: pantallas fijas (monitor de cocina y pantalla pública, web en la TV)
 
 1. La primera vez la pantalla muestra **Vincula esta pantalla** con un código y un
    QR que se renuevan cada 10 minutos. La administración escanea el QR con la cámara

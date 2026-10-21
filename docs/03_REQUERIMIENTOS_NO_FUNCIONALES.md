@@ -121,22 +121,28 @@ Detalle en `07_SEGURIDAD_AUTH.md`.
 
 | Superficie        | Requisito                                                                                                    |
 | ----------------- | ------------------------------------------------------------------------------------------------------------ |
-| Caja              | Android 10+ con Chrome 110+; iPhone con iOS 16.4+ y Safari, instalada como app web. Ancho mínimo 360 px.     |
-| Cocina            | Celular en vertical (MVP): Android 10+ con Chrome 110+ o iPhone con iOS 16.4+. Propuesta: tablet de 10" o monitor táctil en horizontal. |
+| Caja              | App resto nativa: Android 10+ (API 29) primero; iPhone con iOS 16+ cuando salga la app de iOS. Ancho mínimo 360 dp. |
+| Cocina            | Celular en vertical con la app resto (MVP): Android 10+; iPhone con iOS 16+ cuando salga. Monitor en solo lectura: TV con navegador basado en Chromium. Propuesta: tablet de 10" con la app, en horizontal. |
 | Pantalla pública  | TV o monitor de 1080p con navegador basado en Chromium (Android TV, Google TV o mini PC). Sin interacción, salvo un toque inicial para activar el sonido.   |
-| Administración    | Últimas dos versiones de Chrome, Edge, Firefox y Safari en escritorio. El cierre del día se revisa completo desde el celular del administrador. |
+| Administración    | Web: últimas dos versiones de Chrome, Edge, Firefox y Safari en escritorio. En el celular, el dueño revisa el cierre del día completo desde la app resto. |
 
 ---
 
-## 10. Aplicación web instalable (PWA)
+## 10. App nativa en el celular y pantallas web
+
+Desde D29 (2026-10-21) el celular usa la app **resto** nativa; antes este apartado
+describía una app web instalable (RNF-PWA-001 a 005).
 
 | ID          | Requerimiento                                                                                                   |
 | ----------- | --------------------------------------------------------------------------------------------------------------- |
-| RNF-PWA-001 | La caja y el salón se instalan en la pantalla de inicio y abren a pantalla completa, con ícono y pantalla de carga propios. |
-| RNF-PWA-002 | La estructura de la app (código, fuentes, íconos) queda en caché para abrir rápido aunque la red esté lenta.     |
-| RNF-PWA-003 | Los datos de pedidos, pagos y turnos **nunca** se guardan en caché: siempre se leen de la nube.                  |
-| RNF-PWA-004 | Una versión nueva se anuncia con un aviso y se aplica cuando la persona lo acepta, sin perder un pedido en armado. |
-| RNF-PWA-005 | Las pantallas fijas piden un toque para activar el sonido (política de los navegadores) y mantienen la pantalla encendida con Wake Lock. |
+| RNF-APP-001 | Una sola app **resto** para cajera, mesera, cocina en el celular y dueño: tras ingresar, cada rol ve su inicio. En Android se distribuye como APK firmado para la demo y por Google Play para el piloto; en iOS, por TestFlight y la App Store. |
+| RNF-APP-002 | La app abre en menos de 2 s en un Android de gama media con buena red, con su pantalla de carga.                |
+| RNF-APP-003 | Los datos de pedidos, pagos y turnos **nunca** se guardan en el celular: siempre se leen de la nube. Solo el pedido en armado se conserva en memoria si la app pasa a segundo plano. |
+| RNF-APP-004 | El refresh token se guarda cifrado en el Android Keystore o en el Llavero de iOS; nunca en texto plano.          |
+| RNF-APP-005 | Una versión nueva se anuncia dentro de la app. Si la API exige una versión mínima, la app lo avisa y no deja operar hasta actualizar, sin perder un pedido en armado. |
+| RNF-APP-006 | Avisos con notificaciones del sistema (FCM en Android, APNs en iOS) cuando la app no está en primer plano: pedido listo, cobros caídos y cierre pendiente. La app pide el permiso de notificaciones la primera vez, con una explicación previa. |
+| RNF-APP-007 | El sonido y la vibración no piden un toque previo. La cocina mantiene la pantalla encendida mientras la app está abierta. |
+| RNF-WEB-001 | Las pantallas fijas (monitor de cocina y pantalla pública) son páginas web en la TV: piden un toque para activar el sonido (política de los navegadores) y mantienen la pantalla encendida con Wake Lock. |
 
 ---
 
@@ -145,8 +151,8 @@ Detalle en `07_SEGURIDAD_AUTH.md`.
 | ID          | Restricción                                                                                       |
 | ----------- | ------------------------------------------------------------------------------------------------- |
 | RNF-TEC-001 | Se consume Yallegó solo a través de su API pública (`/v1`). Nunca su base de datos ni rutas internas. |
-| RNF-TEC-002 | Stack alineado con Yallegó: NestJS, Prisma, PostgreSQL 16, Redis 7, BullMQ, Socket.io y Next.js.   |
-| RNF-TEC-003 | Una sola app web instalable para caja, cocina, pantalla pública y administración. Sin apps nativas en el MVP. |
+| RNF-TEC-002 | Stack alineado con Yallegó: NestJS, Prisma, PostgreSQL 16, Redis 7, BullMQ, Socket.io y Next.js. En el celular: Kotlin con Jetpack Compose (Android) y Swift con SwiftUI (iOS). |
+| RNF-TEC-003 | App nativa para el celular (Android primero, iOS después) y web (Next.js) para la administración en la computadora, la consola de plataforma y las pantallas fijas (D29). |
 
 ---
 

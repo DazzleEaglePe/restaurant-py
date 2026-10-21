@@ -224,6 +224,7 @@ de Yallegó.
 | D26 | Línea gráfica **Marino** (2026-10-12): Marino clásico (claro) en caja, salón y administración; Marino noche (oscuro) en cocina y pantalla pública. Mascota: campana con «ding». Cada restaurante pone su nombre y un color de acento, con el sello «con resto» (`09_DESIGN_SYSTEM.md`) |
 | D27 | **La pantalla muestra el código; la administración lo aprueba** (2026-10-12). La TV, el monitor o el celular de cocina muestran un código y un QR; el administrador lo escanea con la cámara de su celular, elige local y tipo, y la pantalla entra sola. Nadie escribe con el control remoto (`07_SEGURIDAD_AUTH.md` §3.1) |
 | D28 | **Flujos de diseño aprobados** (2026-10-18). La mesera no toma pedidos: todos se toman en caja. En la pantalla pública, los pedidos para comer aquí salen de «En preparación» con «A tu mesa». El arqueo marca ámbar una diferencia de hasta S/ 5.00 y rojo una mayor, con motivo obligatorio. El tiempo estimado se ajusta en el cobro y en la confirmación. Prototipos en el lienzo de diseño |
+| D29 | **Apps nativas en el celular** (2026-10-21). Caja, salón, cocina en el celular y el dueño usan la app **resto** nativa: Android con Kotlin y Jetpack Compose (Android Studio) e iOS con Swift y SwiftUI (Xcode). La primera demo se instala como **APK en Android**; la app de iOS sigue después. Se queda en la web (Next.js) lo que no va en el celular: la administración en la computadora, la consola de plataforma y las pantallas fijas (monitor de cocina y pantalla pública en la TV). Reemplaza la app web instalable de ADR-07 (`04_ARQUITECTURA_SOFTWARE.md` ADR-14) |
 
 ### 7.2. Restricciones heredadas de Yallegó
 
@@ -239,11 +240,11 @@ de Yallegó.
 
 | Componente          | Dispositivo                           | Usuario                       |
 | ------------------- | ------------------------------------- | ----------------------------- |
-| Caja                | Celular (app web instalable)          | Cajera                        |
-| Salón               | Celular de la mesera (app web)        | Mesera                        |
-| Cocina              | Celular que marca y TV o monitor que muestra (propuesta: pantalla táctil) | Dispositivos vinculados, sin usuario |
-| Pantalla pública    | TV o monitor                          | Pantalla vinculada, sin usuario |
-| Panel de administración | Celular o computadora del administrador | Dueño y administrador, sobre todo al cierre del día |
+| Caja                | Celular (app resto nativa)            | Cajera                        |
+| Salón               | Celular de la mesera (app resto)      | Mesera                        |
+| Cocina              | Celular con la app resto que marca y TV o monitor (web) que muestra (propuesta: pantalla táctil) | Dispositivos vinculados, sin usuario |
+| Pantalla pública    | TV o monitor (página web)             | Pantalla vinculada, sin usuario |
+| Panel de administración | App resto en el celular o web en la computadora | Dueño y administrador, sobre todo al cierre del día |
 | Backend             | Servidor                              | —                             |
 | Celular de cobros   | Android con la app de Yallegó         | Ninguno (es de Yallegó)       |
 
@@ -257,12 +258,12 @@ comparten equipo, una falla de internet tumba ambos a la vez.
 | Equipo                         | Dónde                          | Para qué                                                   | Requisitos                                                              |
 | ------------------------------ | ------------------------------ | ---------------------------------------------------------- | ----------------------------------------------------------------------- |
 | Celular de cobros              | Caja, fijo                     | Recibe los Yape; tiene instalada la app de Yallegó         | Android dedicado, siempre enchufado, con datos móviles además de Wi-Fi |
-| Celular de la cajera           | Caja                           | Tomar pedidos, cobrar y entregar los pedidos para llevar   | Android 10+ o iPhone con iOS 16.4+                                      |
-| Celular de la mesera           | Salón (patio y terraza)        | Ver los pedidos de mesa y marcarlos entregados             | Android 10+ o iPhone con iOS 16.4+; puede ser su propio celular        |
-| Celular de cocina              | Cocina                         | Ver la cola y marcar en preparación y listo                | Android o iPhone; vinculado como dispositivo de cocina, sin usuario     |
+| Celular de la cajera           | Caja                           | Tomar pedidos, cobrar y entregar los pedidos para llevar   | Android 10+ con la app resto; iPhone con iOS 16+ cuando salga la app de iOS |
+| Celular de la mesera           | Salón (patio y terraza)        | Ver los pedidos de mesa y marcarlos entregados             | Android 10+ con la app resto (iPhone cuando salga); puede ser su propio celular |
+| Celular de cocina              | Cocina                         | Ver la cola y marcar en preparación y listo                | Android con la app resto (iPhone cuando salga); vinculado como dispositivo de cocina, sin usuario |
 | TV o monitor de cocina         | Cocina, a la vista             | Ver la cola de lejos, en solo lectura (recomendado)        | TV o monitor con navegador, o con un TV box                             |
 | Pantalla pública               | Afuera, visible a los clientes | Pedidos en preparación y listos                            | TV con Android TV o Google TV, o un dispositivo que la convierta        |
-| Celular o computadora del administrador | Donde esté            | Validar el cierre del día                                  | Cualquiera con navegador; no es un equipo dedicado                     |
+| Celular o computadora del administrador | Donde esté            | Validar el cierre del día                                  | Celular con la app resto o cualquier computadora con navegador; no es un equipo dedicado |
 
 **Recomendados:**
 
@@ -292,6 +293,8 @@ comparten equipo, una falla de internet tumba ambos a la vez.
 | Yallegó no está disponible                                    | Baja         | Alto    | Cobro en efectivo y validación manual siguen funcionando                          |
 | Internet inestable en el local                                | Media        | Alto    | Reintentos idempotentes; aviso de «sin conexión» en caja                          |
 | Navegadores de TV lentos o desactualizados                    | Media        | Medio   | Pantalla pública liviana; se recomienda un dispositivo Android TV o mini PC       |
+| El APK de la demo instalado fuera de la tienda: Android pide permitir «orígenes desconocidos» y Play Protect puede advertir | Alta | Bajo | APK firmado con la clave de la app, guía de instalación de un paso; para el piloto, Google Play en prueba interna |
+| Dos apps nativas que mantener (Android e iOS)                 | Media        | Medio   | Android primero; contratos de la API generados desde `packages/contracts`; el mismo diseño y los mismos flujos en ambas |
 | Un mismo cobro confirmado dos veces en Yallegó (brecha Y1)    | Baja         | Alto    | Restricción única local                                                           |
 
 ### 8.2. Fraude

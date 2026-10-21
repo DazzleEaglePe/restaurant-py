@@ -6,7 +6,7 @@
 
 | Audiencia                | Riesgo principal                                         | Mecanismo                                                         |
 | ------------------------ | -------------------------------------------------------- | ----------------------------------------------------------------- |
-| Cajeras (celular)        | Celular compartido o perdido; sesión larga               | JWT de 15 min + refresh rotativo en cookie `HttpOnly`             |
+| Cajeras (celular)        | Celular compartido o perdido; sesión larga               | JWT de 15 min + refresh rotativo; en la app nativa el refresh va en el Android Keystore o el Llavero de iOS (D29) |
 | Meseras (celular)        | Igual que cajeras, con menos permisos                    | Igual que cajeras                                                 |
 | Administración (escritorio) | XSS, CSRF, robo de sesión                             | Igual que cajeras                                                 |
 | Dispositivo de cocina (celular o pantalla) y pantalla pública | Equipo compartido y sin vigilancia en el local | Token opaco de dispositivo, vinculado a un local y revocable |
@@ -45,7 +45,7 @@ usuario para que el siguiente token refleje el cambio.
 | Vigencia del access token        | 15 minutos                                      |
 | Vigencia del refresh token       | 30 días, renovable; mínimo 12 h de sesión en caja (RF-AUTH-007) |
 | Rotación del refresh token       | En cada uso, con detección de reutilización     |
-| Almacenamiento del refresh token | Cookie `HttpOnly; Secure; SameSite=Strict`      |
+| Almacenamiento del refresh token | Web: cookie `HttpOnly; Secure; SameSite=Strict`. App nativa (`X-Cliente: android` o `ios`): en el cuerpo de la respuesta, guardado cifrado en el Android Keystore o el Llavero |
 | Almacenamiento del access token  | Memoria de la app; nunca `localStorage`         |
 
 ### 2.3. Contraseñas

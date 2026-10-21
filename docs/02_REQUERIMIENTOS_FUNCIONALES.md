@@ -26,7 +26,7 @@
 | `SAL`  | Salón (meseras)                         |
 | `OBS`  | Observaciones y correcciones de pedido  |
 | `DSC`  | Descuentos, promociones y cortesías     |
-| `SIS`  | Estados del sistema y PWA               |
+| `SIS`  | Estados del sistema y de la app         |
 | `CAJ`  | Turnos y cierre de caja                 |
 | `REP`  | Reportes                                |
 | `AUD`  | Auditoría                               |
@@ -315,7 +315,7 @@ actual (D8) → MESERO. Las pantallas son dispositivos vinculados, no usuarios (
 
 ---
 
-## 16. SIS — Estados del sistema y PWA
+## 16. SIS — Estados del sistema y de la app
 
 | ID         | Requerimiento                                                                                                              | Prioridad |
 | ---------- | -------------------------------------------------------------------------------------------------------------------------- | --------- |
@@ -323,11 +323,11 @@ actual (D8) → MESERO. Las pantallas son dispositivos vinculados, no usuarios (
 | RF-SIS-002 | Toda carga de más de 300 ms muestra esqueletos con la forma del contenido.                                                 | MUST      |
 | RF-SIS-003 | Sin conexión, la app lo avisa, reintenta sola cada 5 s y ofrece «Reintentar ahora», sin perder el pedido en armado.        | MUST      |
 | RF-SIS-004 | Un error inesperado muestra «Algo salió mal», un código para soporte (`request_id`), «Reintentar» e «Ir al inicio».        | MUST      |
-| RF-SIS-005 | Una ruta inexistente muestra una página 404 con «Ir al inicio».                                                            | MUST      |
+| RF-SIS-005 | En la web, una ruta inexistente muestra una página 404 con «Ir al inicio»; en la app, un enlace que no existe lleva al inicio con un aviso. | MUST      |
 | RF-SIS-006 | Con la sesión vencida, la persona vuelve a ingresar y recupera su pedido en armado.                                        | MUST      |
-| RF-SIS-007 | La caja y el salón invitan a instalar la app en la pantalla de inicio; si se descarta, no insisten por 7 días.             | SHOULD    |
-| RF-SIS-008 | Una versión nueva se anuncia con «Actualizar» y no recarga sola si hay un pedido en armado.                                | MUST      |
-| RF-SIS-009 | Cocina, TV y pantalla pública piden un toque para activar el sonido y mantienen la pantalla encendida.                     | MUST      |
+| RF-SIS-007 | La primera vez, la app explica para qué sirven las notificaciones y luego pide el permiso del sistema; si se niega, lo recuerda con un aviso que lleva a Ajustes, sin insistir por 7 días. | MUST      |
+| RF-SIS-008 | Una versión nueva se anuncia con «Actualizar» y no interrumpe un pedido en armado; si la API exige una versión mínima, la app pide actualizar antes de seguir. | MUST      |
+| RF-SIS-009 | El monitor de cocina y la pantalla pública (web en la TV) piden un toque para activar el sonido y mantienen la pantalla encendida; la cocina en la app suena sin pedir un toque y no deja que la pantalla se apague. | MUST      |
 | RF-SIS-010 | Las acciones destructivas (cancelar pedido, cerrar turno) piden confirmación; los resultados se avisan con mensajes breves. | MUST      |
 | RF-SIS-011 | Transiciones y microinteracciones según `09_DESIGN_SYSTEM.md` §9, con modo sin movimiento.                                 | SHOULD    |
 
