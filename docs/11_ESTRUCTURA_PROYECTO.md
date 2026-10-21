@@ -24,10 +24,12 @@ Yallegó queda en **su propio repositorio**. Este proyecto lo consume solo por H
 restaurant-proy/
 ├── apps/
 │   ├── api/                      # NestJS: API, webhooks, Socket.io y worker
-│   ├── web/                      # Next.js: caja, cocina, pantalla pública y administración
-│   └── plataforma/               # Next.js: consola interna
+│   ├── web/                      # Next.js: administración, monitor de cocina y pantalla pública
+│   ├── plataforma/               # Next.js: consola interna
+│   ├── android/                  # App resto nativa: Kotlin + Jetpack Compose (Android Studio, Gradle)
+│   └── ios/                      # App resto nativa: Swift + SwiftUI (Xcode), después del piloto
 ├── packages/
-│   ├── contracts/                # Esquemas zod y tipos de la API propia
+│   ├── contracts/                # Esquemas zod, tipos de la API propia y OpenAPI para las apps nativas
 │   ├── dominio/                  # Reglas puras: estados, totales, emparejamiento, conciliación
 │   ├── yallego-client/           # Cliente tipado de la API pública de Yallegó + firma
 │   ├── api-client/               # Cliente HTTP y de socket para las apps web
@@ -143,12 +145,11 @@ modules/yallego/
 
 ---
 
-## 4. `apps/web` — Caja, cocina, pantalla pública y administración
+## 4. `apps/web` — Administración, monitor de cocina y pantalla pública
 
 ```
 apps/web/
 ├── public/
-│   ├── manifest.webmanifest      # PWA de la caja (start_url: /caja)
 │   ├── sonidos/
 │   └── iconos/
 └── src/
@@ -175,9 +176,33 @@ apps/web/
     │   ├── pantalla-publica/
     │   ├── turno/
     │   └── admin/…
-    ├── lib/                      # Sesión, socket, formato de montos, sonidos
-    └── sw.ts                     # Service worker (Serwist)
+    └── lib/                      # Sesión, socket, formato de montos, sonidos
 ```
+
+Las rutas `(caja)` y `(salon)` y la cocina en el celular pasan a la app nativa (D29);
+la web conserva lo que ya está construido de administración y suma el monitor de
+cocina, la pantalla pública y `/vincular`.
+
+### 4.2. `apps/android` — App resto
+
+```
+apps/android/
+├── app/
+│   └── src/main/java/pe/resto/app/
+│       ├── ui/tema/              # Tema de la marca: colores, tipografía, formas
+│       ├── ui/componentes/       # Botones, chips, hojas inferiores, mascota
+│       ├── caja/ · salon/ · cocina/ · dueno/   # Una carpeta por rol, con sus pantallas y ViewModels
+│       ├── datos/api/            # Cliente generado desde el OpenAPI de packages/contracts
+│       ├── datos/socket/         # Socket.io con las mismas salas que la web
+│       ├── sesion/               # Ingreso, renovación y Android Keystore
+│       └── avisos/               # FCM y canales de notificación con sonido propio
+├── build.gradle.kts
+└── settings.gradle.kts
+```
+
+La compila Gradle, fuera de Turborepo; la CI tiene su propio job y el APK firmado
+de prueba queda como artefacto del PR. La app de iOS (`apps/ios`) repite esta
+estructura con SwiftUI cuando empiece.
 
 ### 4.1. Estructura de una feature
 

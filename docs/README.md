@@ -65,7 +65,7 @@ Una pantalla frente a los clientes muestra qué está en preparación y qué est
 | La cajera siempre confirma qué pago corresponde a qué pedido  | Yape no trae número de pedido y los montos se repiten                       |
 | Un cobro en un solo pago, garantizado en nuestra base         | No depender de la atomicidad de Yallegó (brecha Y1)                         |
 | Constancia solo con el celular de cobros caído, y conciliada  | Mantener la operación sin abrir una vía cómoda para el fraude               |
-| Una sola app web instalable para todas las superficies       | Celular, tablet, TV y escritorio con un desarrollo, sin tiendas de apps     |
+| App nativa en el celular; web en la computadora y en la TV   | Avisos con la app cerrada, sonido sin toque y una app más limpia; Android primero (D29) |
 | Negocio → local con RLS desde el primer sprint                | Multi-tenant y multi-local son la visión del producto                       |
 
 ---
